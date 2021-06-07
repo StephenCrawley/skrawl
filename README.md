@@ -8,7 +8,7 @@ my own implementation of the k programming language[1]. will likely be a mish-ma
 
 > why?
 
-for fun. and to learn some new things. first impl will be in Java. i don't know Java.
+for fun. and to learn some new things. first impl will be in C. i don't know C.
 
 > how?
 
