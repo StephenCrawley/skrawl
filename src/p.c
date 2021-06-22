@@ -8,7 +8,7 @@ Z J ja(S a){J n=sl(a),r=0;DO2(n,r+=(a[i]-'0')*xp(10,j));R r;} //<! J from string
 //<! ca:char is alpha?                            cn:char is number?
 Z I ca(C c){R('a'<=c&&'z'>=c)||('A'<=c&&'Z'>=c);} Z I cn(C c){R'0'<=c&&'9'>=c;}
 //<! init new string to tokenize  next char            skip whitespace
-V Ti(S a){ts.s=a;ts.c=a;}         Z C nc(){R *ts.c++;} Z V ws(){W(*ts.c==' '||*ts.c=='\n',++ts.c);}
+V Ti(S a){ts.s=a;ts.c=a;}         Z C nc(){R *ts.c++;} Z V ws(){W(' '==*ts.c||'\n'==*ts.c,++ts.c);}
 //<! make token
 Z T mt(TT t){T z;z.s=ts.s;z.l=(I)(ts.c-ts.s);z.t=t;R z;}
 //<! num token                                         id token
