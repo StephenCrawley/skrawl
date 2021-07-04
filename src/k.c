@@ -10,4 +10,4 @@
 S a="123  +4.*xyz- 5.67;\"abc\",\"def\";  ";
 
 // tests
-I main(){O("source: %s\ntokens:\n",a);Ti(a);T t;W(END-(t=nt(a)).t,pt(t));pt(t);R 0;}
+I main(){O("source: %s\ntokens:\n",a);Ti(a);T t;W(END-(t=nt()).t,pt(t));pt(t);R 0;}
