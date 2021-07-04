@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-typedef char C,*S; typedef int I; typedef long long J; typedef double F; typedef void V;
+typedef char C,*S; typedef unsigned char G; typedef int I; typedef long long J; typedef double F; typedef void V;
 typedef struct k{C t;I r;J n,v[];}*K;                     //<! type,refcount,length,data
 #define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}}      //<! for
 #define CS(i,a...) case i:{a;}                            //<! case
