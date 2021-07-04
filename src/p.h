@@ -12,7 +12,6 @@ typedef struct {S s,c;}TS;
 TS ts;
 
 // forward declarations
-Z T mt(TT t);
 // new,  print,     init       
 T  nt(V); V pt(T t); V Ti(S a);
 

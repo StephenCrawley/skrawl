@@ -2,14 +2,14 @@
 #include "p.h"
 
 // tokenizer utilities
-Z I ca(C c){R('a'<=c&&'z'>=c)||('A'<=c&&'Z'>=c);}             //<! char is alpha?
-Z I cn(C c){R'0'<=c&&'9'>=c;}                                 //<! char is num?
+Z T mt(TT t){T z;z.s=ts.s;z.l=(I)(ts.c-ts.s);z.t=t;R z;}      //<! make token
 Z C nc(){R *ts.c++;}                                          //<! consume next char
 Z V ws(){W(' '==*ts.c||'\n'==*ts.c,++ts.c);}                  //<! skip whitespace
+Z I ca(C c){R('a'<=c&&'z'>=c)||('A'<=c&&'Z'>=c);}             //<! char is alpha?
+Z I cn(C c){R'0'<=c&&'9'>=c;}                                 //<! char is num?
 Z T id(){W(ca(*ts.c),++ts.c);R mt(ID);}                       //<! id token
 Z T str(){W('"'-*ts.c,++ts.c);++ts.c;R mt(STR);}              //<! str token
 Z T num(){W(cn(*ts.c)||'.'==*ts.c,++ts.c);R mt(NUM);}         //<! num token
-Z T mt(TT t){T z;z.s=ts.s;z.l=(I)(ts.c-ts.s);z.t=t;R z;}      //<! make token
 V Ti(S a){ts.s=a;ts.c=a;}                                     //<! init new string to tokenize (may replace with non-global solution)
 
 // return next token
