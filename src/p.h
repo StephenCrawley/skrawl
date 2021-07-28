@@ -1,18 +1,20 @@
 #ifndef PARSE
 #define PARSE
-
 #include "a.h"
+#define DBGT 1 //<! debug token
+#define DBGP 1 //<! debug parse
 
-//            (  )  {  }  [  ]  ;  :  <  >  |  ?  +  -  *  %  !  "  @  ~  #  ,  .  '  /     1   "a"    \0  not recognised
-typedef enum {LP,RP,LB,RB,LS,RS,SC,CL,LA,RA,PI,QM,PL,HI,ST,DV,BA,QT,AT,TL,HS,CM,DT,AP,FS,BS,NUM,STR,ID,END,NR}TT; 
-// start,length,token type
-typedef struct {S s;I l;TT t;}T;
-// scanner. start,current
-typedef struct {S s,c;}TS;
+I vt[26]; //<! value table (TODO: move to vm module)
+
+/*            (  )  {  }  [  ]  ;  :  <  >  |  ?  +  -  *  %  !  "  @  ~  #  ,  .  '  /  \  1   "a" foo \0  not recognised */
+typedef enum {LP,RP,LB,RB,LS,RS,SC,CL,LA,RA,PI,QM,PL,HI,ST,DV,BA,QT,AT,TL,HS,CM,DT,AP,FS,BS,NUM,STR,ID, END,NR}TT; 
+typedef struct {S s;I l;TT t;}T; //<! token. start,length,token type
+typedef struct {S s,c;T b[128];}TS;       //<! token scanner. start,current,buffer
 TS ts;
 
+typedef enum{OK,ERR}PR; //<! parse result
+
 // forward declarations
-// new,  print,     init       
-T  nt(V); V pt(T t); V Ti(S a);
+T  nt();V Ti(S a);V pt(T t);V pT();V rt();I pr(T *tk);
 
 #endif

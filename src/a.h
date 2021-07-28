@@ -4,10 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 typedef char C,*S; typedef unsigned char G; typedef int I; typedef long long J; typedef double F; typedef void V;
-typedef struct k{C t;I r;J n,v[];}*K;                     //<! type,refcount,length,data
-#define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}}      //<! for
-#define CS(i,a...) case i:{a;}                            //<! case
-#define W(p,x)     while(p){x;}                           //<! while
+typedef struct k{C t;I r;J n;G d[];}*K;                //<! type,refcount,length,data
+#define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}}   //<! for
+#define CS(i,a...) case i:{a;}                         //<! case
+#define W(p,x)     while(p){x;}                        //<! while
+#define OZ(s,m)    ((J)&(((s*)0)->m))                  //<! offsetof
 #define Z          static
 #define O          printf
 #define R          return
@@ -15,6 +16,9 @@ typedef struct k{C t;I r;J n,v[];}*K;                     //<! type,refcount,len
 #endif
 
 /*
+ktypes 1 i(int),2 f(float),3 c(char),4 n(name),5 d(date) 
+
+
 inspiration for above
 
 kx k.h(partial) - typedefs and K object
