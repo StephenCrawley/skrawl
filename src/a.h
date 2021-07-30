@@ -9,9 +9,12 @@ typedef char C,*S; typedef unsigned char G; typedef int I; typedef long long J; 
 #define CS(i,a...) case i:{a;}                         //<! case
 #define W(p,x)     while(p){x;}                        //<! while
 #define OZ(s,m)    ((J)&(((s*)0)->m))                  //<! offsetof
-#define Z          static
 #define O          printf
 #define R          return
+
+#define ZI static int
+#define ZC static char
+#define ZV static void
 
 #endif
 
