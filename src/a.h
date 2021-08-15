@@ -3,18 +3,45 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 typedef char C,*S;typedef unsigned char G;typedef int I;typedef long long J;typedef double F;typedef void V;
-//typedef struct k{C t;I r;J n;G d[];}*K;                //<! type,refcount,length,data
-#define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}}   //<! for
-#define CS(i,a...) case i:{a;}                         //<! case
-#define W(p,x)     while(p){x;}                        //<! while
-#define OZ(s,m)    ((J)&(((s*)0)->m))                  //<! offsetof
+typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,data
+#define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}} //<! for
+#define W(p,x)     while(p){x;}                      //<! while
+#define CS(i,a...) case i:{a;}                       //<! case
+#define P(x,y)     {if(x)R(y);}                      //<! panic!
+#define OZ(s,m)    ((J)&(((s*)0)->m))                //<! offsetof
+#define SZ         sizeof
 #define O          printf
 #define R          return
+#define MAX(X,Y)   ((X) > (Y) ? (X) : (Y))
+#define ABS(X)     MAX((X),-(X))
+#define SWP(X,Y)   if(xt>0&&yt<0){K Z=Y;Y=X;X=Z;}
 
-#define ZI static int
-#define ZC static char
-#define ZV static void
+#define ZI static I
+#define ZC static C
+#define ZV static V
+#define ZK static K
+
+#define xT(x) ((x)->t)          //<! type  accessor
+#define xN(x) ((x)->n)          //<! count accessor
+#define xR(x) ((x)->r)          //<! refc  accessor
+#define xD(x) ((x)->d)          //<! data  accessor
+#define xJ(x) ((J*)xD(x))       //<! long  accessor
+#define xF(x) ((F*)xD(x))       //<! float accessor
+#define xC(x) ((C*)xD(x))       //<! char  accessor
+#define xt    xT(x)
+#define yt    xT(y)
+#define xn    xN(x)
+#define yn    xN(y)
+
+#define KJ 1  //<! long  type code
+#define KF 2  //<! float type code
+
+#define err(k) -128==xT(k)
+#define E_NYI kerr("'nyi")
+#define E_LEN kerr("'len")
+#define E_TYP kerr("'typ")
 
 #endif
 
