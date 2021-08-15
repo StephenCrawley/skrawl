@@ -32,7 +32,8 @@ V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     //<! pr
 // parser utilities
 ZK fact(T *tk){TT t=tk->t;R INT==t?kjc(tk->s):FLT==t?kfc(tk->s):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} //<! parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;//<! parse
- if(END==t)R (K)0;if(io(t)){if(AT==t||HY==t||TL==t){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):not(x);}else{R E_NYI;}}if(END==tk[1].t||RP==tk[1].t)R fact(tk);I i=0; //<! unary,if next token is END or )->eval+return current token
+ if(END==t)R (K)0;if(END==tk[1].t||RP==tk[1].t)R fact(tk);I i=0; //<! if next token is END or )->eval+return current token
+ if(io(t)){if(AT==t||HY==t||TL==t||BA){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):not(x);}else{R E_NYI;}} //monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} //<! assign x:y
  if(LP==t){I n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);}else{y=pr(tk+2);};if(err(y))R x; //<! handle ( )
  x=fact(tk);if(err(x))R x;if(DBGP)O("x=%lld, y=%lld\n",*xJ(x),*xJ(y)); //<! get x (left operand). debug prints

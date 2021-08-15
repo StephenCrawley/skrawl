@@ -6,7 +6,8 @@
 // monad
 K neg(K x){MONAD_INIT(KF,xt);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=-(xJ(x)[i]);}else{xF(z)[i]=-(xF(x)[i]);});R z;}
 K not(K x){K z=k(KJ,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});R z;;}
-K typ(K x){K z=k(KJ,1);xJ(z)[0]=xT(x);R z;}
+K typ(K x){K z=k(KJ,1);xJ(z)[0]=xt;R z;}
+K til(K x){P(0<xt||KF==ABS(xt),E_TYP);K z=k(KJ,xJ(x)[0]);DO(z->n,xJ(z)[i]=i);R z;}
 // dyad
 K sum(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(+);R z;}
 K sub(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(-);R z;}
