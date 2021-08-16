@@ -4,7 +4,7 @@ a toy implementation of k.
 
 > what?
 
-my own implementation of the k programming language[1]. will likely be a mish-mash of different k flavours, borrowering ideas from k4 thru k9[2].
+my own implementation of the k programming language[1]. will likely be a mish-mash of k5 & k6[2].
 
 > why?
 
@@ -12,7 +12,7 @@ for fun. and to learn some new things. first impl will be in C. i don't know C.
 
 > how?
 
-to be determined!!
+lots of trial and error on my part.
 
 > skrawl?
 
