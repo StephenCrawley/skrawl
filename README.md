@@ -12,7 +12,7 @@ for fun. and to learn some new things. first impl will be in C. i don't know C.
 
 > how?
 
-lots of trial and error on my part.
+lots of trial and error.
 
 > skrawl?
 
