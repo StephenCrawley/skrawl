@@ -13,6 +13,7 @@ K sum(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(+);R z;}
 K sub(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(-);R z;}
 K prd(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(*);R z;}
 K eq(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(==);R z;}
+K lt(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(<); R z;}
 K gt(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(>); R z;}
 K cat(K x,K y){P(ABS(xt)-ABS(yt),E_TYP);K z=k(KJ,xn+yn);J j=0;
  if(KJ==ABS(xt)){DO(xn,xJ(z)[j]=xJ(x)[i];++j);DO(yn,xJ(z)[j]=xJ(y)[i];++j)}else{DO(xn,xF(z)[j]=xF(x)[i];++j);DO(yn,xF(z)[j]=xF(y)[i];++j)};
