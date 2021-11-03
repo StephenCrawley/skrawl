@@ -1,14 +1,14 @@
 ## skrawl
 
-a toy implementation of k. 
+a toy implementation of k...
 
 > what?
 
-my own implementation of the k programming language[1]. will likely be a mish-mash of k5 & k6[2].
+my own implementation of the k programming language[1]. will likely be a mish-mash of k5 & k6[2]. probably only a subset implemented.
 
 > why?
 
-for fun. and to learn some new things. first impl will be in C. i don't know C.
+for fun. and to learn some new things. first impl will be in C. i don't know C very well.
 
 > how?
 
