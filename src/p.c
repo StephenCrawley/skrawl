@@ -30,7 +30,7 @@ V rt(){T t;W(END-(t=nt()).t,*ts.bp++=t);*ts.bp=t;};                      //<! re
 V pt(T t){O("typ:%2d len:%d lexeme:'%.*s'\n",t.t,t.l,t.l,t.s);}          //<! debug,print token
 V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     //<! print all tokens using pt
 // parser utilities
-ZK prsn(T *tk){I n=1,f=0,g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f=MAX(f,g));R 1==n?(f?kfc(tk->s):kjc(tk->s)):(f?kfcn(tk->s,n):kjcn(tk->s,n));} //<! parse num
+ZK prsn(T *tk){I n=1,f=(FLT==tk->t),g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f=MAX(f,g));R 1==n?(f?kfc(tk->s):kjc(tk->s)):(f?kfcn(tk->s,n):kjcn(tk->s,n));} //<! parse num
 ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} //<! parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;//<! parse+exec
  if(END==t)R kerr("'end");if(END==tk[1].t||RP==tk[1].t)R fact(tk); //<! if next token is END or )->eval+return current token
