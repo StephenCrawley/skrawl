@@ -11,9 +11,8 @@ typedef struct {S s;I l;TT t;}T; //<! token. start,length,token type
 typedef struct {S s,c;T b[128];T *bp;}TS; //<! token scanner. start,current,buffer,buffer pointer
 TS ts;
 
-K vt[26]; //<! value table
 //TODO : full variable name support
-//typedef struct var{K x;struct var *n[26]}VAR; //<! defined?,char,next node
+K vt[26]; //<! value table
 
 #define ZT static T
 

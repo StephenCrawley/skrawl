@@ -1,4 +1,5 @@
 #include "a.h"
+//TODO : refactor this file
 // create K object
 ZK ma(J s,J n){K k=malloc(OZ(struct k,d)+s*n);k->n=n;k->r=1;R k;}                              //<! allocate object of atom size s
 K kjn(J n){K k=ma(SZ(J),n);xT(k)=KJ;xR(k)=0;R k;} K kj(){K k=kjn(1);xT(k)=-KJ;R k;}            //<! return J object of length n. return J atom

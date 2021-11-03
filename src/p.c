@@ -37,7 +37,6 @@ K pr(T *tk){K x,y;TT t=tk->t;//<! parse+exec
  if(io(t)){if(AT==t||HY==t||TL==t||BA){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):not(x);}else{R E_NYI;}} //<! monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} //<! assign x:y
  I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} //<! handle ( )
- //TODO : handle float vectors
  else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} //<! parse num literal
  else{y=pr(tk+2);}if(err(y))R y;
  x=fact(tk);if(err(x))R x;if(DBGP){O("x: ");pk(x);O("xt: %d\n",xt);O("y: ");pk(y);O("yt: %d\n",yt);O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; //<! get x (left operand). debug prints

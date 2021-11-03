@@ -3,7 +3,7 @@
 
 #include <stdio.h>  //<! printf
 #include <stdlib.h> //<! malloc
-#include <string.h> //<! strtoll
+#include <string.h> //<! strtoll+strtod
 typedef char C,*S;typedef unsigned char G;typedef int I;typedef long long J;typedef double F;typedef void V;
 typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,data
 #define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}} //<! for
@@ -16,7 +16,6 @@ typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,d
 #define R          return
 #define MAX(X,Y)   ((X) > (Y) ? (X) : (Y))
 #define ABS(X)     MAX((X),-(X))
-#define SWP(X,Y)   if(xt>0&&yt<0){K Z=Y;Y=X;X=Z;}
 
 #define ZI static I
 #define ZC static C
