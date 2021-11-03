@@ -18,7 +18,7 @@ K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K gt(K
  K z=k(zt,zn);
 
 #define DYAD_EXEC(op)  \
- /* TODO : tidy below */\
+ /* TODO : refactor below */\
  /*a op a*/ \
  if     (-KJ==xt && -KJ==yt){xJ(z)[0]=xJ(x)[0] op xJ(y)[0];} \
  else if(-KJ==xt && -KF==yt){xF(z)[0]=xJ(x)[0] op xF(y)[0];} \

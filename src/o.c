@@ -1,11 +1,11 @@
 #include "a.h"
 //TODO : refactor this file
 // create K object
-ZK ma(J s,J n){K k=malloc(OZ(struct k,d)+s*n);k->n=n;k->r=1;R k;}                              //<! allocate object of atom size s
-K kjn(J n){K k=ma(SZ(J),n);xT(k)=KJ;xR(k)=0;R k;} K kj(){K k=kjn(1);xT(k)=-KJ;R k;}            //<! return J object of length n. return J atom
-K kfn(J n){K k=ma(SZ(F),n);xT(k)=KF;xR(k)=0;R k;} K kf(){K k=kfn(1);xT(k)=-KF;R k;}            //<! return F object of length n. return F atom
+ZK ma(J s,J n){K k=malloc(OZ(struct k,d)+s*n);k->n=n;k->r=0;R k;}                              //<! allocate object of atom size s
+K kjn(J n){K k=ma(SZ(J),n);xT(k)=KJ;R k;} K kj(){K k=kjn(1);xT(k)=-KJ;R k;}                    //<! return J object of length n. return J atom
+K kfn(J n){K k=ma(SZ(F),n);xT(k)=KF;R k;} K kf(){K k=kfn(1);xT(k)=-KF;R k;}                    //<! return F object of length n. return F atom
 K kerr(S e){J n=strlen(e);K x=ma(SZ(C),n+1);DO(n,xC(x)[i]=e[i]);xC(x)[n+1]='\0';xt=-128;R x;}  //<! error object with error msg e
-K k(I t,J n){R KJ==t?kjn(n):KF==t?kfn(n):E_NYI;} 
+K k(I t,J n){R KJ==t?kjn(n):-KJ==t?kj():KF==t?kfn(n):-KF==t?kf():E_NYI;}
 // str to K
 K kjc(S s){K k=kj();*xJ(k)=strtoll(s,NULL,10);R k;} 
 K kjcn(S s,I n){K k=kjn(n);S e;DO(n,xJ(k)[i]=strtoll(s,&e,10);s=e);R k;}
