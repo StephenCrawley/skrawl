@@ -1,7 +1,7 @@
 #ifndef PARSE
 #define PARSE
 #include "a.h"
-#define NOPS 16 //<! number of ops
+//TODO : replace this debugging with ifdef
 #define DBGT 0  //<! debug token
 #define DBGP 0  //<! debug parse
 

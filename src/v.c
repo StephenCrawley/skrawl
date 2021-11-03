@@ -17,9 +17,8 @@ K gt(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(>); R z;}
 K cat(K x,K y){P(ABS(xt)-ABS(yt),E_TYP);K z=k(KJ,xn+yn);J j=0;
  if(KJ==ABS(xt)){DO(xn,xJ(z)[j]=xJ(x)[i];++j);DO(yn,xJ(z)[j]=xJ(y)[i];++j)}else{DO(xn,xF(z)[j]=xF(x)[i];++j);DO(yn,xF(z)[j]=xF(y)[i];++j)};
  R z;}
-
-// % is special. always returns float. if both operands are J then need to cast to F
-K dvd(K x,K y){DYAD_INIT(KF);DYAD_EXEC(/ (F));R z;} //TODO : fix J%J bug
+// % is special. always returns float so one arg must be float
+K dvd(K x,K y){DYAD_INIT(KF);if(KJ==yt){y=kfj(y);};DYAD_EXEC(/);R z;} //TODO : fix J%J bug
 
 K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C var[10];var[0]='\'';snprintf(var+1,9,"%.*s",t->l,t->s);P(NULL==x,kerr(var));R x;}
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);vt[c-'a']=x;r1(x);R x;}

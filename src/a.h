@@ -1,9 +1,9 @@
 #ifndef COMMON
 #define COMMON
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>  //<! printf
+#include <stdlib.h> //<! malloc
+#include <string.h> //<! strtoll
 typedef char C,*S;typedef unsigned char G;typedef int I;typedef long long J;typedef double F;typedef void V;
 typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,data
 #define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}} //<! for
@@ -34,6 +34,8 @@ typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,d
 #define yt    xT(y)
 #define xn    xN(x)
 #define yn    xN(y)
+#define xr    xR(x)
+#define yr    xR(y)
 
 #define KJ 1  //<! long  type code
 #define KF 2  //<! float type code

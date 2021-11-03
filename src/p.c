@@ -4,8 +4,8 @@
 #include "o.h"
 #include "v.h"
 K vt[26]={NULL};
-TT ot[NOPS]={CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT};           //<! operator table
-ZI io(TT t){DO(NOPS,if(ot[i]==t)R i+1);R 0;}                             //<! is operator / index(+1) of operator
+TT ot[]={CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT};               //<! operator table
+ZI io(TT t){DO(SZ(ot)/SZ(ot[0]),if(ot[i]==t)R i+1);R 0;}                 //<! is operator / index(+1) of operator
 // tokenizer utilities
 ZT mt(TT t){T z;z.s=ts.s;z.l=(I)(ts.c-ts.s);z.t=t;R z;}                  //<! make token
 ZC nc(){R *ts.c++;}                                                      //<! consume next char
@@ -30,12 +30,16 @@ V rt(){T t;W(END-(t=nt()).t,*ts.bp++=t);*ts.bp=t;};                      //<! re
 V pt(T t){O("typ:%2d len:%d lexeme:'%.*s'\n",t.t,t.l,t.l,t.s);}          //<! debug,print token
 V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     //<! print all tokens using pt
 // parser utilities
-ZK fact(T *tk){TT t=tk->t;R INT==t?kjc(tk->s):FLT==t?kfc(tk->s):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} //<! parse factor (NUM/FLT/parens/var)
-K pr(T *tk){K x,y;TT t=tk->t;//<! parse
- if(END==t)R (K)0;if(END==tk[1].t||RP==tk[1].t)R fact(tk);I i=0; //<! if next token is END or )->eval+return current token
- if(io(t)){if(AT==t||HY==t||TL==t||BA){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):not(x);}else{R E_NYI;}} //monad operators
+ZK prsn(T *tk){I n=1,f=0,g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f=MAX(f,g));R 1==n?(f?kfc(tk->s):kjc(tk->s)):(f?kfcn(tk->s,n):kjcn(tk->s,n));} //<! parse num
+ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} //<! parse factor (NUM/FLT/parens/var)
+K pr(T *tk){K x,y;TT t=tk->t;//<! parse+exec
+ if(END==t)R kerr("'end");if(END==tk[1].t||RP==tk[1].t)R fact(tk); //<! if next token is END or )->eval+return current token
+ if(io(t)){if(AT==t||HY==t||TL==t||BA){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):not(x);}else{R E_NYI;}} //<! monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} //<! assign x:y
- if(LP==t){I n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);}else{y=pr(tk+2);};if(err(y))R x; //<! handle ( )
- x=fact(tk);if(err(x))R x;if(DBGP)O("x=%lld, y=%lld\n",*xJ(x),*xJ(y)); //<! get x (left operand). debug prints
+ I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} //<! handle ( )
+ //TODO : handle float vectors
+ else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} //<! parse num literal
+ else{y=pr(tk+2);}if(err(y))R y;
+ x=fact(tk);if(err(x))R x;if(DBGP){O("x: ");pk(x);O("xt: %d\n",xt);O("y: ");pk(y);O("yt: %d\n",yt);O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; //<! get x (left operand). debug prints
  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(RA,R gt(x,y))CS(CM,R cat(x,y))}//<! case +*-:~,
  R E_NYI;}
