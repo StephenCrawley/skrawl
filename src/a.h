@@ -1,16 +1,16 @@
 #ifndef COMMON
 #define COMMON
 
-#include <stdio.h>  //<! printf
-#include <stdlib.h> //<! malloc
-#include <string.h> //<! strtoll+strtod
+#include <stdio.h>  // printf
+#include <stdlib.h> // malloc
+#include <string.h> // strtoll+strtod
 typedef char C,*S;typedef unsigned char G;typedef int I;typedef long long J;typedef double F;typedef void V;
-typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,data
-#define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}} //<! for
-#define W(p,x)     while(p){x;}                      //<! while
-#define CS(i,a...) case i:{a;}                       //<! case
-#define P(x,y)     {if(x)R(y);}                      //<! panic!
-#define OZ(s,m)    ((J)&(((s*)0)->m))                //<! offsetof
+typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,data
+#define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}} // for
+#define W(p,x)     while(p){x;}                      // while
+#define CS(i,a...) case i:{a;}                       // case
+#define P(x,y)     {if(x)R(y);}                      // panic!
+#define OZ(s,m)    ((J)&(((s*)0)->m))                // offsetof
 #define SZ         sizeof
 #define O          printf
 #define R          return
@@ -22,13 +22,13 @@ typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,d
 #define ZV static V
 #define ZK static K
 
-#define xT(x) ((x)->t)          //<! type  accessor
-#define xN(x) ((x)->n)          //<! count accessor
-#define xR(x) ((x)->r)          //<! refc  accessor
-#define xD(x) ((x)->d)          //<! data  accessor
-#define xJ(x) ((J*)xD(x))       //<! long  accessor
-#define xF(x) ((F*)xD(x))       //<! float accessor
-#define xC(x) ((C*)xD(x))       //<! char  accessor
+#define xT(x) ((x)->t)          // type  accessor
+#define xN(x) ((x)->n)          // count accessor
+#define xR(x) ((x)->r)          // refc  accessor
+#define xD(x) ((x)->d)          // data  accessor
+#define xJ(x) ((J*)xD(x))       // long  accessor
+#define xF(x) ((F*)xD(x))       // float accessor
+#define xC(x) ((C*)xD(x))       // char  accessor
 #define xt    xT(x)
 #define yt    xT(y)
 #define xn    xN(x)
@@ -36,8 +36,8 @@ typedef struct k{C t;I r;J n;G d[];}*K;              //<! type,refcount,length,d
 #define xr    xR(x)
 #define yr    xR(y)
 
-#define KJ 1  //<! long  type code
-#define KF 2  //<! float type code
+#define KJ 1  // long  type code
+#define KF 2  // float type code
 
 #define err(k) -128==xT(k)
 #define E_NYI kerr("'nyi")

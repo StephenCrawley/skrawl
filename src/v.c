@@ -25,5 +25,5 @@ K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);vt[c-'a']=x;r1(x);R x;}
 
 //TODO :
-//K frs(K x){K z=MONAD_INIT(KF,-ABS(xt));xA(z,xd[i])} //<! first. assumes x is atom or simple vector(there are many assumptions like this throughout the codebase)
-//K ind(K x,K y){DYAD_INIT(KJ);P(KJ-ABS(yt),E_TYP);if(0<yt){}else{K z=(KJ==ABS(xt)?);};R z;} //<! rewrite o.c to improve K creation
+//K frs(K x){K z=MONAD_INIT(KF,-ABS(xt));xA(z,xd[i])} // first. assumes x is atom or simple vector(there are many assumptions like this throughout the codebase)
+//K ind(K x,K y){DYAD_INIT(KJ);P(KJ-ABS(yt),E_TYP);if(0<yt){}else{K z=(KJ==ABS(xt)?);};R z;} // rewrite o.c to improve K creation
