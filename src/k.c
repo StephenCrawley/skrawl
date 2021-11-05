@@ -10,4 +10,4 @@
 C A[128];
 
 // repl
-I main(){S c=A;O(" ");W(fgets(c,128,stdin),Ti(c);rt();if(DBGT)pT();T *p=ts.b;K x=pr(p);pk(x);r0(x);O(" "););DO(26,if(!(NULL==vt[i]))free(vt[i]));O("\n");}
+I main(){S c=A;O(" ");W(fgets(c,128,stdin),Ti(c);rt();if(DBGT)pT();T *p=ts.b;K x=pr(p);pk(x);O(" "););DO(26,if(!(NULL==vt[i]))free(vt[i]));O("\n");}

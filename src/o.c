@@ -1,4 +1,5 @@
 #include "a.h"
+#include "o.h"
 //TODO : refactor this file
 // create K object
 ZK ma(J s,J n){K k=malloc(OZ(struct k,d)+s*n);k->n=n;k->r=1;R k;}                              // allocate object of atom size s
@@ -18,4 +19,4 @@ V r1(K x){xr++;}
 K kfj(K x){K z=kfn(xn);DO(xn,xF(z)[i]=(F)xJ(x)[i]);r0(x);R z;} // cast. float from long
 
 // print
-V pk(K x){if(KJ==ABS(xt))DO(xn,O("%lld ",xJ(x)[i]))else if(KF==ABS(xt))DO(x->n,O("%f ",xF(x)[i]))else if(err(x))O("%s",xC(x));O("\n");}
+V pk(K x){if(KJ==ABS(xt))DO(xn,O("%lld ",xJ(x)[i]))else if(KF==ABS(xt))DO(x->n,O("%f ",xF(x)[i]))else if(err(x))O("%s",xC(x));O("\n");r0(x);}
