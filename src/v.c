@@ -4,10 +4,10 @@
 #include "p.h"
 
 // monad
-K neg(K x){MONAD_INIT(KF,xt);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=-(xJ(x)[i]);}else{xF(z)[i]=-(xF(x)[i]);});R z;}
-K not(K x){K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});R z;;}
-K typ(K x){K z=k(0<xt?-xt:xt,1);xJ(z)[0]=xt;R z;}
-K til(K x){P(0<xt||KF==ABS(xt),E_TYP);K z=k(KJ,xJ(x)[0]);DO(z->n,xJ(z)[i]=i);R z;}
+K neg(K x){MONAD_INIT(KF,xt);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=-(xJ(x)[i]);}else{xF(z)[i]=-(xF(x)[i]);});r0(x);R z;}
+K not(K x){K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});r0(x);R z;;}
+K typ(K x){K z=k(0<xt?-xt:xt,1);xJ(z)[0]=xt;r0(x);R z;}
+K til(K x){P(0<xt||KF==ABS(xt),E_TYP);K z=k(KJ,xJ(x)[0]);DO(z->n,xJ(z)[i]=i);r0(x);R z;}
 // dyad
 K sum(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(+);R z;}
 K sub(K x,K y){DYAD_INIT(KJ);DYAD_EXEC(-);R z;}
@@ -21,7 +21,7 @@ K cat(K x,K y){P(ABS(xt)-ABS(yt),E_TYP);K z=k(KJ,xn+yn);J j=0;
 // % is special. always returns float so one arg must be float
 K dvd(K x,K y){DYAD_INIT(KF);if(KJ==yt){y=kfj(y);};DYAD_EXEC(/);R z;}
 // load+store
-K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C var[10];var[0]='\'';snprintf(var+1,9,"%.*s",t->l,t->s);P(NULL==x,kerr(var));R x;}
+K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C var[10];var[0]='\'';snprintf(var+1,9,"%.*s",t->l,t->s);P(NULL==x,kerr(var));r1(x);R x;}
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);vt[c-'a']=x;r1(x);R x;}
 
 //TODO :
