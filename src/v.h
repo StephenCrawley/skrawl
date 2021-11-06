@@ -15,7 +15,7 @@ K bng(K x,K y);
  P((xt>=0&&yt>=0)&&(xn!=yn),E_LEN) \
  J zn=MAX(xn,yn);                  \
  C zt=MAX(ABS(xt),ABS(yt));        \
- zt=MAX(maxt,zt);                  \
+ zt=MIN(maxt,zt);                  \
  K z=k(zt,zn);
 
 //#define DYAD_EXEC(op)  \

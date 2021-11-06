@@ -15,6 +15,7 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define O          printf
 #define R          return
 #define MAX(X,Y)   ((X) > (Y) ? (X) : (Y))
+#define MIN(X,Y)   ((X) < (Y) ? (X) : (Y))
 #define ABS(X)     MAX((X),-(X))
 
 #define ZI static I
