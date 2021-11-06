@@ -23,21 +23,23 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define ZV static V
 #define ZK static K
 
-#define xT(x) ((x)->t)          // type  accessor
-#define xN(x) ((x)->n)          // count accessor
-#define xR(x) ((x)->r)          // refc  accessor
-#define xD(x) ((x)->d)          // data  accessor
-#define xJ(x) ((J*)xD(x))       // long  accessor
-#define xF(x) ((F*)xD(x))       // float accessor
-#define xC(x) ((C*)xD(x))       // char  accessor
+#define xT(x) ((x)->t)     // type  accessor
+#define xN(x) ((x)->n)     // count accessor
+#define xR(x) ((x)->r)     // refc  accessor
+#define xD(x) ((x)->d)     // data  accessor
+#define xJ(x) ((J*)xD(x))  // long  accessor
+#define xF(x) ((F*)xD(x))  // float accessor
+#define xC(x) ((C*)xD(x))  // char  accessor
+#define xG(x) ((K*)xD(x))  // char  accessor
 #define xt    xT(x)
 #define xn    xN(x)
 #define xr    xR(x)
 #define yt    xT(y)
 #define yn    xN(y)
 
-#define KJ 1  // long  type code
-#define KF 2  // float type code
+#define KG 0  // generic type code
+#define KJ 1  // long    type code
+#define KF 2  // float   type code
 
 #define err(k) -128==xT(k)
 #define E_NYI kerr("'nyi")
