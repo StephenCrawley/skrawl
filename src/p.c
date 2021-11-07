@@ -34,7 +34,7 @@ ZK prsn(T *tk){I n=1,f=(FLT==tk->t),g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f
 ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} // parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  if(END==t)R kerr("'end");if(END==tk[1].t||RP==tk[1].t)R fact(tk); // if next token is END or )->eval+return current token
- if(io(t)){if(AT==t||HY==t||TL==t||BA){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):not(x);}else{R E_NYI;}} // monad operators
+ if(io(t)){if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):len(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
  I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} // handle ( )
  else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} // parse num literal
