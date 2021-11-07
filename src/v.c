@@ -9,7 +9,7 @@ K not(K x){K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i
 K typ(K x){K z=k(-KJ,1);xJ(z)[0]=xt;r0(x);R z;}
 K til(K x){P(0<xt||KF==ABS(xt),E_TYP);K z=k(KJ,xJ(x)[0]);DO(z->n,xJ(z)[i]=i);r0(x);R z;}
 K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
-//K enl(K x){K z;if(0<=xt){z=k(KG,1);xG(z)[0]=x;}else if(-KJ==xt){z=k(KJ,1);xJ(z)[0]=xJ(x)[0];}else if(-KF==xt){z=k(KF,1);xF(z)[0]=xF(x)[0];}else{z=E_NYI;}r0(x);R z;}
+K enl(K x){K z;if(0<=xt){z=k(KG,1);xG(z)[0]=x;}else if(-KJ==xt){z=k(KJ,1);xJ(z)[0]=xJ(x)[0];}else if(-KF==xt){z=k(KF,1);xF(z)[0]=xF(x)[0];}else{z=E_NYI;}r0(x);R z;}
 // dyad
 K sum(K x,K y){DYAD_INIT(KF);DYAD_EXEC(+);R z;}
 K sub(K x,K y){DYAD_INIT(KF);DYAD_EXEC(-);R z;}
