@@ -22,7 +22,7 @@ K cat(K x,K y){K z=ABS(xt)==ABS(yt)?k(ABS(xt),xn+yn):k(KG,xn+yn);J j=0;
                          DO(yn,xG(z)[j]=KG==ABS(yt)?xG(y)[i]:KJ==ABS(yt)?kjx(xJ(y)[i]):kfx(xF(y)[i]);++j)} //inefficient
  r0(x);r0(y);R z;}
 // % is special. always returns float so one arg must be float
-K dvd(K x,K y){if(KJ==xt&&KJ==yt){y=kfj(y);};DYAD_INIT(KF);DYAD_EXEC_ZA(/,xF);R z;}
+K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(KF);DYAD_EXEC_ZA(/,xF);R z;}
 // load+store
 K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C var[10];var[0]='\'';snprintf(var+1,9,"%.*s",t->l,t->s);P(NULL==x,kerr(var));r1(x);R x;}
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);if(NULL!=vt[c-'a'])r0(vt[c-'a']);vt[c-'a']=x;r1(x);R x;}
