@@ -37,7 +37,7 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define yt    xT(y)
 #define yn    xN(y)
 
-#define KG 0  // generic type code
+#define KK 0  // generic type code
 #define KJ 1  // long    type code
 #define KF 2  // float   type code
 #define KN 7  // null    type code
