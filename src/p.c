@@ -39,6 +39,6 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} // handle ( )
  else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} // parse num literal
  else{y=pr(tk+2);}if(err(y))R y;
- x=fact(tk);if(err(x))R x;if(DBGP){O("x: ");pk(x);O("xt: %d\n",xt);O("y: ");pk(y);O("yt: %d\n",yt);O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
+ x=fact(tk);if(err(x))R x;if(DBGP){O("x: \n");r1(x);pk(x);O("y: \n");r1(y);pk(y);O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y))CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R bng(x,y))}// case +*-:~,
  R E_NYI;}
