@@ -33,7 +33,7 @@ V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     // prin
 ZK prsn(T *tk){I n=1,f=(FLT==tk->t),g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f=MAX(f,g));R 1==n?(f?kfc(tk->s):kjc(tk->s)):(f?kfcn(tk->s,n):kjcn(tk->s,n));} // parse num
 ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} // parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
- if(END==t)R kerr("'end");if(END==tk[1].t||RP==tk[1].t)R fact(tk); // if next token is END or )->eval+return current token
+ if(END==t){if(t==ts.b[0].t){R k(KN,0);}else{R kerr("'end");}};if((BS==t&&BS==tk[1].t)&&t==ts.b[0].t){R k(KQ,0);};if(END==tk[1].t||RP==tk[1].t)R fact(tk); // if next token is END or )->eval+return current token
  if(io(t)){if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):len(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
  I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} // handle ( )

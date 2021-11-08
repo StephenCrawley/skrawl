@@ -40,6 +40,8 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define KG 0  // generic type code
 #define KJ 1  // long    type code
 #define KF 2  // float   type code
+#define KN 7  // null    type code
+#define KQ 8  // end     type code
 
 #define err(k) -128==xT(k)
 #define E_NYI kerr("'nyi")
