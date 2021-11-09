@@ -30,7 +30,7 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define xJ(x) ((J*)xD(x))  // long  accessor
 #define xF(x) ((F*)xD(x))  // float accessor
 #define xC(x) ((C*)xD(x))  // char  accessor
-#define xG(x) ((K*)xD(x))  // char  accessor
+#define xK(x) ((K*)xD(x))  // char  accessor
 #define xt    xT(x)
 #define xn    xN(x)
 #define xr    xR(x)
