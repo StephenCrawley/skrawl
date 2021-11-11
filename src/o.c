@@ -21,6 +21,7 @@ K kfcn(S s,I n){K k=kfn(n);S e;DO(n,xF(k)[i]=strtod(s,&e);s=e);R k;}
 // refcount
 V r0(K x){if(KK==xt){DO(xn,r0(xK(x)[i]))}xr--;if(1>xr)free(x);}
 V r1(K x){if(KK==xt){DO(xn,r1(xK(x)[i]))}xr++;}
+K R1(K x){r1(x);R x;}
 
 K kfj(K x){K z=kfn(xn);DO(xn,xF(z)[i]=(F)xJ(x)[i]);r0(x);R z;} // cast. float from long
 
