@@ -47,6 +47,7 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define E_NYI kerr("'nyi")
 #define E_LEN kerr("'len")
 #define E_TYP kerr("'typ")
+#define E_RNK kerr("'rnk")
 
 #endif
 
