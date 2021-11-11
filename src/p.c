@@ -16,7 +16,7 @@ ZT id(){W(ca(*ts.c)||cn(*ts.c),++ts.c);R mt(ID);}                        // id t
 ZT str(){W('"'-*ts.c,++ts.c);++ts.c;R mt(STR);}                          // str token
 ZT num(){G f=0,g;W(cn(*ts.c)||(g='.'==*ts.c),++ts.c;f=f||g);R f?mt(FLT):mt(INT);} // num token
 ZT hy(){TT t=ts.bp[-1].t;R((INT==t||FLT==t||RP==t)&&(' '-ts.s[-1]||' '==*ts.c))?mt(HY):cn(*ts.c)?num():mt(HY);} // handle minus/unary neg/negative num
-ZT dt(){R cn(ts.c[1])?num():mt(DT);}                                     // num starting with . or just . ? TODO: fix this
+ZT dt(){R cn(ts.c[0])?num():mt(DT);}                                     // num starting with . or just . ? TODO: fix this
 ZT com(){W('\n'-*ts.c++,);R nt();}                                       // skip comment and return next token
 V Ti(S a){ts.s=a;ts.c=a;ts.bp=ts.b;}                                     // init new string to tokenize (may replace with non-global solution)
 T nt(){ws();ts.s=ts.c;C c=nc();                                          // return next token
