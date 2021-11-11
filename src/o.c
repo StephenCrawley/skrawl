@@ -29,8 +29,8 @@ K R1(K x){r1(x);R x;}
 K kfj(K x){K z=kfn(xn);DO(xn,xF(z)[i]=(F)xJ(x)[i]);r0(x);R z;} // cast. float from long
 
 // print
-ZV pj(K x){DO(xn,O("%lld ",xJ(x)[i]));}
-ZV pf(K x){C s[9];DO(xn,I r=snprintf(s,9,"%f.6",xF(x)[i]);if(0>r){pk(kerr("'print"));R;};G i=8;W('0'==s[i-1],--i);O("%.*s",i,s);O(" "))} //print F without trailing 0s
+ZV pj(K x){DO(xn,O("%lld",xJ(x)[i]);if(i!=xn-1)O(" "));}
+ZV pf(K x){C s[9];DO(xn,I r=snprintf(s,9,"%f.6",xF(x)[i]);if(0>r){pk(kerr("'print"));R;};G p=8;W('0'==s[p-1],--p);O("%.*s",p,s);if(i!=xn-1)O(" "))} //print F without trailing 0s
 ZV pk_(K x){if(0<xt&&1==xn)O(",");if(KK==xt){O("(");DO(xn,pk_(xK(x)[i]);if(i!=xn-1)O(";"));O(")");}else if(KJ==ABS(xt)){pj(x);}else if(KF==ABS(xt)){pf(x);}
  else if(err(x)){O("%s",xC(x));}else{pk(E_TYP);};}
 V pk(K x){if(KN==xt){r0(x);R;};if(0<xt&&1==xn)O(",");
