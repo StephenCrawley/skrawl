@@ -24,6 +24,7 @@ K cat(K x,K y){K z=ABS(xt)==ABS(yt)?k(ABS(xt),xn+yn):k(KK,xn+yn);J j=0;
  else                   {DO(xn,xK(z)[j]=KK==ABS(xt)?(r1(xK(x)[i]),xK(x)[i]):KJ==ABS(xt)?kjx(xJ(x)[i]):kfx(xF(x)[i]);++j);
                          DO(yn,xK(z)[j]=KK==ABS(yt)?(r1(xK(y)[i]),xK(y)[i]):KJ==ABS(yt)?kjx(xJ(y)[i]):kfx(xF(y)[i]);++j)} //inefficient
  r0(x);r0(y);R z;}
+K at_(K x,K y){P(KJ!=ABS(yt),(r0(x),r0(y),E_TYP));K z=k(KK,yn);DO(yn,xK(z)[i]=KK==xt?R1(xK(x)[xJ(y)[i]]):ABS(KJ)==xt?kjx(xJ(x)[xJ(y)[i]]):kfx(xF(x)[xJ(y)[i]]));r0(x);r0(y);R sqz(z);} //inefficient
 // % is special. always returns float so one arg must be float
 K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(/,xF);R z;}
 // load+store
