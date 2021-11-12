@@ -13,8 +13,8 @@ K kjx(J x){K k=kj();xJ(k)[0]=x;R k;} K kfx(F x){K k=kf();xF(k)[0]=x;R k;}       
 K kerr(S e){J n=strlen(e);K x=ma(SZ(C),n+1);DO(n,xC(x)[i]=e[i]);xC(x)[n]='\0';xt=-128;R x;}   // error object with error msg e
 K k(I t,J n){R KK==t?kn(n):KJ==t?kjn(n):-KJ==t?kj():KF==t?kfn(n):-KF==t?kf():KN==t?knl():KQ==t?kqt():E_NYI;}
 K kxp(K x){K z=k(KK,xn);DO(xn,xK(z)[i]=KJ==ABS(xt)?kjx(xJ(x)[i]):kfx(xF(x)[i]));r0(x);R z;}   // expand.  eg 1 2 3->(1;2;3) N.B. assumes types KJ/KF
-K sqz(K x){P(KK!=xt,x);C t=xT(xK(x)[xn-1]);K z;G b=1;DO(xn-1,b=(b&&t==xT(xK(x)[i])));         // squeeze. eg (1;2;3)->1 2 3 N.B. assumes child items are atoms
- if(!b)R x;if(-KJ==t){z=k(KJ,xn);DO(xn,xJ(z)[i]=*xJ(xK(x)[i]));}else{z=k(KF,xn);DO(xn,xF(z)[i]=*xF(xK(x)[i]));};
+K sqz(K x,C s){P(KK!=xt,x);C t=xT(xK(x)[xn-1]);K z;P(0<=t&&1==xn,(z=xK(x)[0],r1(z),r0(x),z));P(0<=t,x);G b=1;DO(xn-1,b=(b&&t==xT(xK(x)[i])));         // squeeze. eg (1;2;3)->1 2 3 N.B. assumes child items are atoms
+ P(!b,x);C i=0>s?-1:1;if(-KJ==t){z=k(i*KJ,xn);DO(xn,xJ(z)[i]=*xJ(xK(x)[i]));}else{z=k(i*KF,xn);DO(xn,xF(z)[i]=*xF(xK(x)[i]));};
  r0(x);R z;}
 // str to K
 K kjc(S s){K k=kj();*xJ(k)=strtoll(s,NULL,10);R k;} 

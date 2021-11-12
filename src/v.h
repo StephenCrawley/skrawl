@@ -3,9 +3,14 @@
 
 #include "a.h"
 #include "p.h"
+
+// adverb
+K fld2(K (*f)(K,K),K x,K y);
+// monad
 K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);
-K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K lt(K x,K y);K gt(K x,K y);K set(T *t,K x);K get(T *t);K cat(K x,K y);K at_(K x,K y);
-K bng(K x,K y);
+//dyad
+K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K lt(K x,K y);K gt(K x,K y);K set(T *t,K x);K get(T *t);K cat(K x,K y);
+K at(K x,K y);K bng(K x,K y);
 
 #define MONAD_INIT(maxt,rt) \
  P(xt>maxt,E_TYP)           \
