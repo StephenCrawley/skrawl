@@ -34,5 +34,5 @@ ZV pf(K x){C s[9];DO(xn,I r=snprintf(s,9,"%f.6",xF(x)[i]);if(0>r){pk(kerr("'prin
 ZV pk_(K x){if(0<xt&&1==xn)O(",");if(KK==xt){O("(");DO(xn,pk_(xK(x)[i]);if(i!=xn-1)O(";"));O(")");}else if(KJ==ABS(xt)){pj(x);}else if(KF==ABS(xt)){pf(x);}
  else if(err(x)){O("%s",xC(x));}else{pk(E_TYP);};}
 V pk(K x){if(KN==xt){r0(x);R;};if(0<xt&&1==xn)O(",");
- if(DBGP){O("typ:%d  cnt:%lld  ref:%d\ndat:  ",xt,xn,xr);}; // print object meta+data
+ if(DBGP){O("typ:%d  cnt:%lld  ref:%d  dat:\n",xt,xn,xr);}; // print object meta+data
  if(KK==xt){DO(xn,pk_(xK(x)[i]);if(i!=xn-1)O("\n"))}else if(KJ==ABS(xt)){pj(x);}else if(KF==ABS(xt)){pf(x);}else if(err(x)){O("%s",xC(x));}else{pk(E_TYP);};O("\n");r0(x);}
