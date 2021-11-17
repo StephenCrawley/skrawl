@@ -7,7 +7,7 @@
 K neg(K x){MONAD_INIT(KF,xt);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=-(xJ(x)[i]);}else{xF(z)[i]=-(xF(x)[i]);});r0(x);R z;}
 K not(K x){K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});r0(x);R z;;}
 K typ(K x){K z=k(-KJ,1);xJ(z)[0]=xt;r0(x);R z;}
-K til(K x){P(0<xt||KF==ABS(xt),E_TYP);K z=k(KJ,xJ(x)[0]);DO(z->n,xJ(z)[i]=i);r0(x);R z;}
+K til(K x){P(0<xt||KF==ABS(xt),E_TYP);K z=k(KJ,*xJ(x));DO(z->n,xJ(z)[i]=i);r0(x);R z;}
 K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
 K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=x;r1(x);}else if(-KJ==xt){z=k(KJ,1);xJ(z)[0]=xJ(x)[0];}else if(-KF==xt){z=k(KF,1);xF(z)[0]=xF(x)[0];}else{z=E_NYI;}r0(x);R z;}
 K frs(K x){K z=KK==xt?r1(xK(x)[0]),xK(x)[0]:KJ==xt?kjx(xJ(x)[0]):KF==xt?kfx(xF(x)[0]):(-KJ==xt||-KF==xt)?r1(x),x:E_TYP;r0(x);R z;}
