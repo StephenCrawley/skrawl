@@ -10,7 +10,7 @@ K fld2(K (*f)(K,K),K x,K y);
 K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);
 //dyad
 K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K lt(K x,K y);K gt(K x,K y);K set(T *t,K x);K get(T *t);K cat(K x,K y);
-K at(K x,K y);K bng(K x,K y);
+K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);
 
 #define MONAD_INIT(maxt,rt) \
  P(xt>maxt,E_TYP)           \
@@ -35,9 +35,9 @@ K at(K x,K y);K bng(K x,K y);
  K z=k(zt,zn);
 
 #define DYAD_EXEC_OP(op, xa, ya, za) /* op, x/y/z accessor */ \
- if     (xn==yn){DO(zn,za(z)[i]=xa(x)[i] op ya(y)[i])} \
- else if (xn>yn){DO(zn,za(z)[i]=xa(x)[i] op ya(y)[0])} \
- else           {DO(zn,za(z)[i]=xa(x)[0] op ya(y)[i])} \
+ if     (xn==yn){DO(zn,za(z)[i]= op( xa(x)[i] , ya(y)[i] ))} \
+ else if (xn>yn){DO(zn,za(z)[i]= op( xa(x)[i] , ya(y)[0] ))} \
+ else           {DO(zn,za(z)[i]= op( xa(x)[0] , ya(y)[i] ))} \
  r0(x);r0(y);
 
 #define DYAD_EXEC_ZA(op, za)/*specify z accessor*/\
@@ -47,6 +47,6 @@ K at(K x,K y);K bng(K x,K y);
  else if(KF==ABS(xt) && KF==ABS(yt)){DYAD_EXEC_OP(op,xF,xF,za)} \
  else   {r0(x);r0(y);R E_NYI;}
 
-#define DYAD_EXEC(op) if(KJ==ABS(zt)){DYAD_EXEC_ZA(op,xJ)}else{DYAD_EXEC_ZA(op,xF)}
+#define DYAD_EXEC(f,maxt,op) DYAD_INIT(f,maxt);if(KJ==ABS(zt)){DYAD_EXEC_ZA(op,xJ)}else{DYAD_EXEC_ZA(op,xF)}
 
 #endif

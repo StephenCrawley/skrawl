@@ -12,12 +12,21 @@ K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
 K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=x;r1(x);}else if(-KJ==xt){z=k(KJ,1);xJ(z)[0]=xJ(x)[0];}else if(-KF==xt){z=k(KF,1);xF(z)[0]=xF(x)[0];}else{z=E_NYI;}r0(x);R z;}
 K frs(K x){K z=KK==xt?r1(xK(x)[0]),xK(x)[0]:KJ==xt?kjx(xJ(x)[0]):KF==xt?kfx(xF(x)[0]):(-KJ==xt||-KF==xt)?r1(x),x:E_TYP;r0(x);R z;}
 // dyad
-K sum(K x,K y){DYAD_INIT(sum,KF);DYAD_EXEC(+);R z;}
-K sub(K x,K y){DYAD_INIT(sub,KF);DYAD_EXEC(-);R z;}
-K prd(K x,K y){DYAD_INIT(prd,KF);DYAD_EXEC(*);R z;}
-K eq(K x,K y){DYAD_INIT(eq,KJ);DYAD_EXEC_ZA(==,xJ);R z;}
-K lt(K x,K y){DYAD_INIT(lt,KJ);DYAD_EXEC_ZA(<, xJ);R z;}
-K gt(K x,K y){DYAD_INIT(gt,KJ);DYAD_EXEC_ZA(>, xJ);R z;}
+#define SUM(x,y)  ((x) + (y))
+#define SUB(x,y)  ((x) - (y))
+#define PRD(x,y)  ((x) * (y))
+#define DIV(x,y)  ((x) / (y))
+#define  EQ(x,y)  ((x) ==(y))
+#define  LT(x,y)  ((x) < (y))
+#define  GT(x,y)  ((x) > (y))
+K sum(K x,K y){DYAD_EXEC(sum,KF,SUM);R z;}
+K sub(K x,K y){DYAD_EXEC(sub,KF,SUB);R z;}
+K prd(K x,K y){DYAD_EXEC(prd,KF,PRD);R z;}
+K  eq(K x,K y){DYAD_EXEC( eq,KJ, EQ);R z;}
+K  lt(K x,K y){DYAD_EXEC( lt,KJ, LT);R z;}
+K  gt(K x,K y){DYAD_EXEC( gt,KJ, GT);R z;}
+K  or(K x,K y){DYAD_EXEC( or,KF,MAX);R z;}
+K and(K x,K y){DYAD_EXEC(and,KF,MIN);R z;}
 K cat(K x,K y){K z=ABS(xt)==ABS(yt)?k(ABS(xt),xn+yn):k(KK,xn+yn);J j=0;
  if     (KJ==ABS(xT(z))){DO(xn,xJ(z)[j]=xJ(x)[i];++j);DO(yn,xJ(z)[j]=xJ(y)[i];++j)}
  else if(KF==ABS(xT(z))){DO(xn,xF(z)[j]=xF(x)[i];++j);DO(yn,xF(z)[j]=xF(y)[i];++j)}
@@ -27,7 +36,7 @@ K cat(K x,K y){K z=ABS(xt)==ABS(yt)?k(ABS(xt),xn+yn):k(KK,xn+yn);J j=0;
 ZK at_(K x,K y){P(KJ!=ABS(yt),(r0(x),r0(y),E_TYP));K z=k(KK,yn);DO(yn,xK(z)[i]=KK==xt?R1(xK(x)[xJ(y)[i]]):KJ==ABS(xt)?kjx(xJ(x)[xJ(y)[i]]):kfx(xF(x)[xJ(y)[i]]));r0(x);r0(y);R sqz(z,yt);} //inefficient
 K at(K x,K y){K z;if(KJ==ABS(yt)){z=at_(R1(x),R1(y));}else{z=k(KK,yn);DO(yn,xK(z)[i]=at(R1(x),R1(xK(y)[i])));}r0(x),r0(y);R z;}
 // % is special. always returns float so one arg must be float
-K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(/,xF);R z;}
+K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(DIV,xF);R z;}
 // load+store
 K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C var[10];var[0]='\'';snprintf(var+1,9,"%.*s",t->l,t->s);P(NULL==x,kerr(var));r1(x);R x;}
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);if(NULL!=vt[c-'a'])r0(vt[c-'a']);vt[c-'a']=x;r1(x);R x;}

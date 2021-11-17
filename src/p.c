@@ -4,7 +4,7 @@
 #include "o.h"
 #include "v.h"
 K vt[26]={NULL};
-TT ot[]={CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT};               // operator table
+TT ot[]={CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT,AM};            // operator table
 ZI io(TT t){DO(SZ(ot)/SZ(ot[0]),if(ot[i]==t)R i+1);R 0;}                 // is operator / index(+1) of operator
 // tokenizer utilities
 ZT mt(TT t){T z;z.s=ts.s;z.l=(I)(ts.c-ts.s);z.t=t;R z;}                  // make token
@@ -25,7 +25,7 @@ T nt(){ws();ts.s=ts.c;C c=nc();                                          // retu
  CS('*',R mt(ST)) CS('+',R mt(PL)) CS('%',R mt(DV)) CS('!',R mt(BA)) CS('-',R hy())   CS('.', R dt())   CS('\'',R mt(AP)) 
  CS('@',R mt(AT)) CS('~',R mt(TL)) CS('#',R mt(HS)) CS(',',R mt(CM)) CS('(',R mt(LP)) CS(')', R mt(RP)) CS('\\',R mt(BS)) 
  CS('{',R mt(LB)) CS('}',R mt(RB)) CS('[',R mt(LS)) CS(']',R mt(RS)) CS('<',R mt(LA)) CS('>', R mt(RA)) CS('\0',R mt(END)) 
- CS(';',R mt(SC)) CS(':',R mt(CL)) CS('?',R mt(QM)) CS('|',R mt(PI)) CS('=',R mt(EQ)) default:R mt(NR);}}
+ CS(';',R mt(SC)) CS(':',R mt(CL)) CS('?',R mt(QM)) CS('|',R mt(PI)) CS('=',R mt(EQ)) CS('&', R mt(AM)) default:R mt(NR);}}
 V rt(){T t;W(END-(t=nt()).t,*ts.bp++=t);*ts.bp=t;};                      // read all tokens from source into buffer ts.b
 V pt(T t){O("typ:%2d len:%d lexeme:'%.*s'\n",t.t,t.l,t.l,t.s);}          // debug,print token
 V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     // print all tokens using pt
@@ -41,5 +41,6 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  else{y=pr(tk+2);}if(err(y))R y;
  x=fact(tk);if(err(x))R x;if(DBGP){O("x: \n");r1(x);pk(x);O("y: \n");r1(y);pk(y);O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
- CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R bng(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y))} // >,!@
+ CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R bng(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
+ CS(PI,R or(x,y))CS(AM,R and(x,y))} 
  R E_NYI;}
