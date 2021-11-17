@@ -37,6 +37,7 @@ ZK at_(K x,K y){P(KJ!=ABS(yt),(r0(x),r0(y),E_TYP));K z=k(KK,yn);DO(yn,xK(z)[i]=K
 K at(K x,K y){K z;if(KJ==ABS(yt)){z=at_(R1(x),R1(y));}else{z=k(KK,yn);DO(yn,xK(z)[i]=at(R1(x),R1(xK(y)[i])));}r0(x),r0(y);R z;}
 // % is special. always returns float so one arg must be float
 K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(DIV,xF);R z;}
+K mod(K x,K y){P(KJ!=ABS(xt)||-KJ!=yt,(r0(x),r0(y),E_NYI));DYAD_INIT(mod,KJ);DO(xn,xJ(z)[i]=xJ(x)[i]%*xJ(y));R z;}
 // load+store
 K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C var[10];var[0]='\'';snprintf(var+1,9,"%.*s",t->l,t->s);P(NULL==x,kerr(var));r1(x);R x;}
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);if(NULL!=vt[c-'a'])r0(vt[c-'a']);vt[c-'a']=x;r1(x);R x;}
