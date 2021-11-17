@@ -34,7 +34,8 @@ ZK prsn(T *tk){I n=1,f=(FLT==tk->t),g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f
 ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} // parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  if(END==t){if(t==ts.b[0].t){R k(KN,0);}else{R kerr("'end");}};if((BS==t&&BS==tk[1].t)&&t==ts.b[0].t){R k(KQ,0);};if(END==tk[1].t||RP==tk[1].t)R fact(tk); // if next token is END or )->eval+return current token
- if(io(t)){if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t||ST==t){K x=pr(tk+1);R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):ST==t?frs(x):len(x);}else{R E_NYI;}} // monad operators
+ if(io(t)){if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t||ST==t||AM==t||PI==t){K x=pr(tk+1);
+  R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):ST==t?frs(x):HS==t?len(x):PI==t?rev(x):whr(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
  I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} // handle ( )
  else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} // parse num literal
@@ -42,5 +43,5 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  x=fact(tk);if(err(x))R x;if(DBGP){O("x: \n");r1(x);pk(x);O("y: \n");r1(y);pk(y);O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
  CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R (-KJ==xt&&0>*xJ(x))?bng(x,y):mod(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
- CS(PI,R or(x,y))CS(AM,R and(x,y))} 
+ CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))} 
  R E_NYI;}
