@@ -8,8 +8,7 @@ K k(I t,J n);K kj();K kf();K kjc(S s);K kjcn(S s,I n);K kfc(S s);K kfcn(S s,I n)
 K kxp(K x);K sqz(K x,C s);
 K kfj(K x);  // cast
 V r0(K x);   // decrement refcount. destroy object if 0==refcount
-V r1(K x);   // increment refcount
-K R1(K x);   // increment refcount and return x
+K r1(K x);   // increment refcount and return x
 K kerr(S e); // error object
 
 #endif

@@ -21,11 +21,11 @@ K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(
  J zn=MAX(xn,yn);                     \
  /* if generic type */                \
  if(KK==xt||KK==yt){K z=k(KK,zn);     \
-  if     (KK==xt&&KK==yt){DO(zn,r1(xK(x)[i]);r1(xK(y)[i]);xK(z)[i]= f(xK(x)[i],xK(y)[i]))} \
-  else if(KK==xt&&0 < yt){r1(y);K b=kxp(y);DO(zn,r1(xK(x)[i]);r1(xK(b)[i]);xK(z)[i]= f(xK(x)[i],xK(b)[i]));r0(b);} \
-  else if(0 < xt&&KK==yt){r1(x);K a=kxp(x);DO(zn,r1(xK(a)[i]);r1(xK(y)[i]);xK(z)[i]= f(xK(a)[i],xK(y)[i]));r0(a);} \
-  else if(KK==xt&&0 > yt){DO(zn,r1(xK(x)[i]);r1(y);xK(z)[i]= f(xK(x)[i],y));} \
-  else if(0 > xt&&KK==yt){DO(zn,r1(x);r1(xK(y)[i]);xK(z)[i]= f(x,xK(y)[i]));} \
+  if     (KK==xt&&KK==yt){DO(zn,xK(z)[i]= f(r1(xK(x)[i]),r1(xK(y)[i])))} \
+  else if(KK==xt&&0 < yt){K b=kxp(r1(y));DO(zn,xK(z)[i]= f(r1(xK(x)[i]),r1(xK(b)[i])));r0(b);} \
+  else if(0 < xt&&KK==yt){K a=kxp(r1(x));DO(zn,xK(z)[i]= f(r1(xK(a)[i]),r1(xK(y)[i])));r0(a);} \
+  else if(KK==xt&&0 > yt){DO(zn,xK(z)[i]= f(r1(xK(x)[i]),r1(y)));} \
+  else if(0 > xt&&KK==yt){DO(zn,xK(z)[i]= f(r1(x),r1(xK(y)[i])));} \
   else   {r0(x);r0(y);R E_TYP;} \
   r0(x);r0(y);R z;}                   \
  /* else if simple type */            \
