@@ -14,7 +14,7 @@ ZI ca(C c){R('a'<=c&&'z'>=c)||('A'<=c&&'Z'>=c);}                         // char
 ZI cn(C c){R'0'<=c&&'9'>=c;}                                             // char is num?
 ZT id(){W(ca(*ts.c)||cn(*ts.c),++ts.c);R mt(ID);}                        // id token
 ZT str(){W('"'-*ts.c,++ts.c);++ts.c;R mt(STR);}                          // str token
-ZT num(){G f=0,g;W(cn(*ts.c)||(g='.'==*ts.c),++ts.c;f=f||g);R f?mt(FLT):mt(INT);} // num token
+ZT num(){G f=0,g=0;W(cn(*ts.c)||(g='.'==*ts.c),++ts.c;f=f||g);R f?mt(FLT):mt(INT);} // num token
 ZT hy(){TT t=ts.bp[-1].t;R((INT==t||FLT==t||RP==t)&&(' '-ts.s[-1]||' '==*ts.c))?mt(HY):cn(*ts.c)?num():mt(HY);} // handle minus/unary neg/negative num
 ZT dt(){R cn(ts.c[0])?num():mt(DT);}                                     // num starting with . or just . ? TODO: fix this
 ZT com(){W('\n'-*ts.c++,);R nt();}                                       // skip comment and return next token
