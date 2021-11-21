@@ -46,7 +46,7 @@ K get(T *t){P(1<t->l,E_NYI);C c=*t->s;P(!('a'<=c&&'z'>=c),E_NYI);K x=vt[c-'a'];C
 K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);if(NULL!=vt[c-'a'])r0(vt[c-'a']);R vt[c-'a']=r1(x);}
 // internal functions (for debugging)
 ZK ref(K x){K z=k(-KJ,1);xJ(z)[0]=xr-1;r0(x);R z;} // return refcount (-1 to ignore the reference of the ref function itself)
-K bng(K x,K y){P(-KJ!=xt,E_TYP);r1(y);K z= -1==xJ(x)[0]?typ(y):-2==xJ(x)[0]?ref(y):E_NYI;r0(x);r0(y);R z;}
+K bng(K x,K y){P(-KJ!=xt,E_TYP);K z=-1==*xJ(x)?typ(r1(y)):-2==*xJ(x)?ref(r1(y)):E_NYI;r0(x),r0(y);R z;}
 // adverb
 K each(K (*f)(K,K),K x,K y){K z=k(KK,xn);DO(xn,xK(z)[i]=(*f)(KK==xt?r1(xK(x)[i]):kjx(xJ(x)[i]),KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
 K fld2(K (*f)(K,K),K x,K y){P(0>yt,E_RNK);K z=r1(x);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
