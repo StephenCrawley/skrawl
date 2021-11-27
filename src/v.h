@@ -12,9 +12,7 @@ K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);K w
 K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K lt(K x,K y);K gt(K x,K y);K set(T *t,K x);K get(T *t);K cat(K x,K y);
 K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(K x,K y);
 
-#define MONAD_INIT(maxt,rt) \
- P(xt>maxt,E_TYP)           \
- K z=k(rt,xn);
+#define MONAD_INIT(maxt,rt) P(xt>maxt,E_TYP); K z=k(rt,xn);
 
 #define DYAD_INIT(f, maxt)            \
  P((xt>=0&&yt>=0)&&(xn!=yn),E_LEN)    \

@@ -16,38 +16,42 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define R          return
 #define MAX(X,Y)   ((X) > (Y) ? (X) : (Y))
 #define MIN(X,Y)   ((X) < (Y) ? (X) : (Y))
-#define ABS(X)     MAX((X),-(X))
+#define ABS(X)     (0 == (X) ? 0 : MAX((X),-(X)))
+#define SGN(X)     ((X) > 0 ? 1 : (X) < 0 ? -1 : 0)
 
 #define ZI static I
 #define ZC static C
 #define ZV static V
 #define ZK static K
-
-#define xT(x) ((x)->t)     // type  accessor
-#define xN(x) ((x)->n)     // count accessor
-#define xR(x) ((x)->r)     // refc  accessor
-#define xD(x) ((x)->d)     // data  accessor
-#define xJ(x) ((J*)xD(x))  // long  accessor
-#define xF(x) ((F*)xD(x))  // float accessor
-#define xC(x) ((C*)xD(x))  // char  accessor
-#define xK(x) ((K*)xD(x))  // char  accessor
+// accessors
+#define xT(x) ((x)->t)     // type
+#define xN(x) ((x)->n)     // count
+#define xR(x) ((x)->r)     // refc
+#define xD(x) ((x)->d)     // data
+#define xJ(x) ((J*)xD(x))  // long
+#define xF(x) ((F*)xD(x))  // float
+#define xC(x) ((C*)xD(x))  // char
+#define xK(x) ((K*)xD(x))  // char
 #define xt    xT(x)
 #define xn    xN(x)
 #define xr    xR(x)
 #define yt    xT(y)
 #define yn    xN(y)
+// types
+#define KK 0  // generic
+#define KJ 1  // long   
+#define KF 2  // float  
+#define KN 7  // null   
+#define KQ 8  // end    
+// nulls
+#define NJ ((J)0x8000000000000000LL)
+#define NF (0/0.0)
 
-#define KK 0  // generic type code
-#define KJ 1  // long    type code
-#define KF 2  // float   type code
-#define KN 7  // null    type code
-#define KQ 8  // end     type code
-
-#define err(k) -128==xT(k)
-#define E_NYI kerr("'nyi")
-#define E_LEN kerr("'len")
-#define E_TYP kerr("'typ")
-#define E_RNK kerr("'rnk")
+#define err(k) (-128==xT(k))
+#define E_NYI   kerr("'nyi")
+#define E_LEN   kerr("'len")
+#define E_TYP   kerr("'typ")
+#define E_RNK   kerr("'rnk")
 
 #endif
 
