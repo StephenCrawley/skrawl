@@ -34,10 +34,14 @@ K cat(K x,K y){K z=ABS(xt)==ABS(yt)?k(ABS(xt),xn+yn):k(KK,xn+yn);J j=0;
  else                   {DO(xn,xK(z)[j]=KK==ABS(xt)?r1(xK(x)[i]):KJ==ABS(xt)?kjx(xJ(x)[i]):kfx(xF(x)[i]);++j);
                          DO(yn,xK(z)[j]=KK==ABS(yt)?r1(xK(y)[i]):KJ==ABS(yt)?kjx(xJ(y)[i]):kfx(xF(y)[i]);++j)} //inefficient
  r0(x);r0(y);R z;}
-ZK at_(K x,K y){P(KJ!=ABS(yt),(r0(x),r0(y),E_TYP));K z=k(KK,yn);DO(yn,xK(z)[i]=KK==xt?r1(xK(x)[xJ(y)[i]]):KJ==ABS(xt)?kjx(xJ(x)[xJ(y)[i]]):kfx(xF(x)[xJ(y)[i]]));r0(x);r0(y);R sqz(z,yt);} //inefficient
+ZK at_(K x,K y){P(KJ!=ABS(yt),(r0(x),r0(y),E_TYP));K z=k(ABS(xt)*SGN(yt),yn);
+ if          (KK==xt){DO(yn,xK(z)[i]=r1(xK(x)[xJ(y)[i]]))}
+ else if(KJ==ABS(xt)){DO(yn,xJ(z)[i]=xJ(x)[xJ(y)[i]])}
+ else                {DO(yn,xF(z)[i]=xF(x)[xJ(y)[i]])}
+ r0(x);r0(y);if(KK==xt&&1==yn&&0<yt)z=enl(z);R sqz(z);} 
 K at(K x,K y){K z;if(KJ==ABS(yt)){z=at_(r1(x),r1(y));}else{z=k(KK,yn);DO(yn,xK(z)[i]=at(r1(x),r1(xK(y)[i])));}r0(x),r0(y);R z;}
 K take(K x,K y){P(KJ!=ABS(xt),(r0(x),r0(y),E_TYP));P(KK==yt,(r0(x),r0(y),E_NYI));J n=xJ(x)[0];K z=k(ABS(yt),n);
- if(KJ==ABS(yt)){DO(n,xJ(z)[i]=xJ(y)[i%yn])}else if(KF==ABS(yt)){DO(n,xF(z)[i]=xF(y)[i%yn])}else{DO(n,xK(z)[i]=xK(y)[i%yn])};r0(x);r0(y);R sqz(z,1);}
+ if(KJ==ABS(yt)){DO(n,xJ(z)[i]=xJ(y)[i%yn])}else if(KF==ABS(yt)){DO(n,xF(z)[i]=xF(y)[i%yn])}else{DO(n,xK(z)[i]=xK(y)[i%yn])};r0(x);r0(y);R sqz(z);}
 // % is special. always returns float so one arg must be float
 K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(DIV,xF);R z;}
 K mod(K x,K y){P(KJ!=ABS(xt)||-KJ!=yt,(r0(x),r0(y),E_NYI));DYAD_INIT(mod,KJ);DO(xn,xJ(z)[i]=xJ(x)[i]%*xJ(y));R z;}
