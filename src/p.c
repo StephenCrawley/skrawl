@@ -3,7 +3,8 @@
 #include "p.h"
 #include "o.h"
 #include "v.h"
-K vt[26]={NULL};
+#define  PLIM 64 // parens literal limit(0;1;...;63)
+K vt[26]={NULL};                                                         // value table (global K vars)
 TT ot[]={CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT,AM};            // operator table
 ZI io(TT t){DO(SZ(ot)/SZ(ot[0]),if(ot[i]==t)R i+1);R 0;}                 // is operator / index(+1) of operator
 // tokenizer utilities
@@ -31,9 +32,10 @@ V pt(T t){O("typ:%2d len:%d lexeme:'%.*s'\n",t.t,t.l,t.l,t.s);}          // debu
 V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     // print all tokens using pt
 // parser utilities
 ZK prsn(T *tk){I n=1,f=(FLT==tk->t),g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f=MAX(f,g));R 1==n?(f?kfc(tk->s):kjc(tk->s)):(f?kfcn(tk->s,n):kjcn(tk->s,n));} // parse num
-ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?pr(tk+1):ID==t?get(tk):E_NYI;} // parse factor (NUM/FLT/parens/var)
+ZK prsp(T *tk){I i=0,j=1,o[PLIM];o[0]=0;G n=1;W(n,++i;TT t=tk[i].t;if(SC==t){o[j++]=i;};n+=LP==t?1:RP==t?-1:0)if(j-1){K z=k(KK,j);W(j>0,--j;xK(z)[j]=pr(tk+1+o[j]))R sqz(z);}else{R pr(tk+1);}}
+ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?prsp(tk):ID==t?get(tk):E_NYI;} // parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
- if(END==t){if(t==ts.b[0].t){R k(KN,0);}else{R kerr("'end");}};if((BS==t&&BS==tk[1].t)&&t==ts.b[0].t){R k(KQ,0);};if(END==tk[1].t||RP==tk[1].t)R fact(tk); // if next token is END or )->eval+return current token
+ if(END==t){if(t==ts.b[0].t){R k(KN,0);}else{R kerr("'end");}};if((BS==t&&BS==tk[1].t)&&t==ts.b[0].t){R k(KQ,0);};TT t1=tk[1].t;if(END==t1||RP==t1||SC==t1)R fact(tk); // if next token is END or )->eval+return current token
  if(io(t)){if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t||ST==t||AM==t||PI==t){K x=pr(tk+1);
   R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):ST==t?frs(x):HS==t?len(x):PI==t?rev(x):whr(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
