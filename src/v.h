@@ -43,8 +43,11 @@ K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(
  else if(KJ==ABS(xt) && KF==ABS(yt)){DYAD_EXEC_OP(op,xJ,xF,za)} \
  else if(KF==ABS(xt) && KJ==ABS(yt)){DYAD_EXEC_OP(op,xF,xJ,za)} \
  else if(KF==ABS(xt) && KF==ABS(yt)){DYAD_EXEC_OP(op,xF,xF,za)} \
+ else if(KJ==ABS(xt) && KC==ABS(yt)){DYAD_EXEC_OP(op,xJ,xC,za)} \
+ else if(KC==ABS(xt) && KJ==ABS(yt)){DYAD_EXEC_OP(op,xC,xJ,za)} \
+ else if(KC==ABS(xt) && KC==ABS(yt)){DYAD_EXEC_OP(op,xC,xC,za)} \
  else   {r0(x);r0(y);R E_NYI;}
 
-#define DYAD_EXEC(f,maxt,op) DYAD_INIT(f,maxt);if(KJ==ABS(zt)){DYAD_EXEC_ZA(op,xJ)}else{DYAD_EXEC_ZA(op,xF)}
+#define DYAD_EXEC(f,maxt,op) DYAD_INIT(f,maxt);if(KJ==ABS(zt)){DYAD_EXEC_ZA(op,xJ)}else if(KC==ABS(zt)){DYAD_EXEC_ZA(op,xC)}else{DYAD_EXEC_ZA(op,xF)}
 
 #endif

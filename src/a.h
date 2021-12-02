@@ -40,7 +40,8 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 // types
 #define KK 0  // generic
 #define KJ 1  // long   
-#define KF 2  // float  
+#define KF 2  // float
+#define KC 3  // char
 #define KN 7  // null   
 #define KQ 8  // end    
 // nulls
