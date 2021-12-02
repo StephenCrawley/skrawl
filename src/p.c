@@ -33,7 +33,7 @@ V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     // prin
 // parser utilities
 ZK prss(T *tk){R kcc(1+tk->s,tk->l-2);} // parse string literal "foobar"
 ZK prsn(T *tk){I n=1,f=(FLT==tk->t),g=0;W(INT==tk[n].t||(g=(FLT==tk[n].t)),++n;f=MAX(f,g));R 1==n?(f?kfc(tk->s):kjc(tk->s)):(f?kfcn(tk->s,n):kjcn(tk->s,n));} // parse num
-ZK prsp(T *tk){I i=0,j=1,o[PLIM];o[0]=0;G n=1;W(n,++i;TT t=tk[i].t;if(SC==t){o[j++]=i;};n+=LP==t?1:RP==t?-1:0)if(j-1){K z=k(KK,j);W(j>0,--j;xK(z)[j]=pr(tk+1+o[j]))R sqz(z);}else{R pr(tk+1);}}
+ZK prsp(T *tk){I i=0,j=1,o[PLIM];o[0]=0;G n=1;W(n,++i;TT t=tk[i].t;if(SC==t&&n==1){o[j++]=i;};n+=LP==t?1:RP==t?-1:0)if(j-1){K z=k(KK,j);W(j>0,--j;xK(z)[j]=pr(tk+1+o[j]))R sqz(z);}else{R pr(tk+1);}}
 ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?prsp(tk):STR==t?prss(tk):ID==t?get(tk):E_NYI;} // parse factor (NUM/FLT/parens/var)
 K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  if(END==t){if(t==ts.b[0].t){R k(KN,0);}else{R kerr("'end");}};if((BS==t&&BS==tk[1].t)&&t==ts.b[0].t){R k(KQ,0);};TT t1=tk[1].t;if(END==t1||RP==t1||SC==t1)R fact(tk); // if next token is END or )->eval+return current token
