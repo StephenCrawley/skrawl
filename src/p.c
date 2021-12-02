@@ -41,7 +41,7 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
   R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):ST==t?frs(x):HS==t?len(x):PI==t?rev(x):whr(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
  I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} // handle ( )
- else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} // parse num literal
+ else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t||SC==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} // parse num literal
  else{y=pr(tk+2);}if(err(y))R y;
  x=fact(tk);if(err(x))R x;if(DBGP){O("x: \n");pk(r1(x));O("y: \n");pk(r1(y));O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
