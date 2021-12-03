@@ -4,13 +4,13 @@
 #include "p.h"
 // monad
 K neg(K x){P(KF<ABS(xt),(r0(x),E_TYP));MONAD_INIT(KF,xt);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=-(xJ(x)[i]);}else{xF(z)[i]=-(xF(x)[i]);});r0(x);R z;}
-K not(K x){P(KJ!=ABS(xt),(r0(x),E_TYP));K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});r0(x);R z;;}
+K not(K x){P(KJ!=ABS(xt)||KF!=ABS(xt),(r0(x),E_TYP));K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});r0(x);R z;;}
 K typ(K x){K z=k(-KJ,1);xJ(z)[0]=xt;r0(x);R z;}
 K til(K x){P(0<xt||KJ!=ABS(xt),(r0(x),E_TYP));K z=k(KJ,*xJ(x));DO(z->n,xJ(z)[i]=i);r0(x);R z;}
 K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
 K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=r1(x);}else if(-KJ==xt){z=k(KJ,1);xJ(z)[0]=xJ(x)[0];}else if(-KC==xt){z=k(KC,1);xC(z)[0]=xC(x)[0];}else if(-KF==xt){z=k(KF,1);xF(z)[0]=xF(x)[0];}else{z=E_NYI;}r0(x);R z;}
 K frs(K x){K z=KK==xt?r1(xK(x)[0]):KJ==xt?kjx(xJ(x)[0]):KF==xt?kfx(xF(x)[0]):(-KJ==xt||-KF==xt)?r1(x):E_TYP;r0(x);R z;}
-K whr(K x){P(KJ!=xt,(r0(x),E_TYP));r1(x);R fld2(cat,take(kjx(0),kjx(0)),each(take,or(kjx(0),x),til(len(x))));} //{,/x#'!#x}
+K whr(K x){P(KJ!=xt,(r0(x),E_TYP));r1(x);R fld2(cat,take(kjx(0),kjx(0)),each2(take,or(kjx(0),x),til(len(x))));} //{,/x#'!#x}
 K rev(K x){R r1(r1(x)),at(x, sub(len(x),sum(kjx(1),til(len(x)))));} //{x@(#x)-1+!#x}
 // dyad
 #define SUM(x,y)  ((x) + (y))
@@ -54,5 +54,7 @@ K set(T *t,K x){P(1<t->l,E_NYI);C c=t->s[0];P(!('a'<=c&&'z'>=c),E_NYI);if(NULL!=
 ZK ref(K x){K z=k(-KJ,1);xJ(z)[0]=xr-1;r0(x);R z;} // return refcount (-1 to ignore the reference of the ref function itself)
 K bng(K x,K y){P(-KJ!=xt,E_TYP);K z=-1==*xJ(x)?typ(r1(y)):-2==*xJ(x)?ref(r1(y)):E_NYI;r0(x),r0(y);R z;}
 // adverb
-K each(K (*f)(K,K),K x,K y){K z=k(KK,xn);DO(xn,xK(z)[i]=(*f)(KK==xt?r1(xK(x)[i]):kjx(xJ(x)[i]),KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
-K fld2(K (*f)(K,K),K x,K y){P(0>yt,E_RNK);K z=r1(x);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
+K each (K (*f)(K  ),K x){P(KK!=xt,(r0(x),E_NYI))K z=k(KK,xn);K e;DO(xn,xK(z)[i]=(*f)(r1(xK(x)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(z),e)))R r0(x),sqz(z);}
+K each2(K (*f)(K,K),K x,K y){K z=k(KK,xn);DO(xn,xK(z)[i]=(*f)(KK==xt?r1(xK(x)[i]):kjx(xJ(x)[i]),KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
+K fld  (K (*f)(K,K),K x){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):E_NYI;P(err(i),(r0(x),i))R r1(x),fld2(f,i,x);}
+K fld2 (K (*f)(K,K),K x,K y){K z=r1(x);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i]));)R r0(x),r0(y),sqz(z);}

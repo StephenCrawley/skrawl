@@ -5,7 +5,7 @@
 #include "p.h"
 
 // adverb
-K fld2(K (*f)(K,K),K x,K y);K each(K (*f)(K,K),K x,K y);
+K fld(K(*f)(K,K),K x);K fld2(K (*f)(K,K),K x,K y);K each(K (*f)(K),K x);K each2(K (*f)(K,K),K x,K y);
 // monad
 K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);K whr(K x);K rev(K x);
 //dyad
@@ -15,6 +15,7 @@ K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(
 #define MONAD_INIT(maxt,rt) P(xt>maxt,E_TYP); K z=k(rt,xn);
 
 #define DYAD_INIT(f, maxt)            \
+ P((0>xt||0>yt)&&((KK==xt&&0==xn)||(KK==yt&&0==yn)),(r0(x),r0(y),k(KK,0))) \
  P((xt>=0&&yt>=0)&&(xn!=yn),E_LEN)    \
  J zn=MAX(xn,yn);                     \
  /* if generic type */                \
