@@ -8,7 +8,7 @@ K not(K x){P(KJ!=ABS(xt)||KF!=ABS(xt),(r0(x),E_TYP));K z=k(xt,xn);DO(xn,if(KJ==A
 K typ(K x){K z=k(-KJ,1);xJ(z)[0]=xt;r0(x);R z;}
 K til(K x){P(0<xt||KJ!=ABS(xt),(r0(x),E_TYP));K z=k(KJ,*xJ(x));DO(z->n,xJ(z)[i]=i);r0(x);R z;}
 K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
-K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=r1(x);}else if(-KJ==xt){z=k(KJ,1);xJ(z)[0]=xJ(x)[0];}else if(-KC==xt){z=k(KC,1);xC(z)[0]=xC(x)[0];}else if(-KF==xt){z=k(KF,1);xF(z)[0]=xF(x)[0];}else{z=E_NYI;}r0(x);R z;}
+K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=r1(x);}else{z=mc(x,k(ABS(xt),1));};R r0(x),z;}
 K frs(K x){K z=KK==xt?r1(xK(x)[0]):KJ==xt?kjx(xJ(x)[0]):KF==xt?kfx(xF(x)[0]):(-KJ==xt||-KF==xt)?r1(x):E_TYP;r0(x);R z;}
 K whr(K x){P(KJ!=xt,(r0(x),E_TYP));r1(x);R fld2(cat,take(kjx(0),kjx(0)),each2(take,or(kjx(0),x),til(len(x))));} //{,/x#'!#x}
 K rev(K x){R r1(r1(x)),at(x, sub(len(x),sum(kjx(1),til(len(x)))));} //{x@(#x)-1+!#x}

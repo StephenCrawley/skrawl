@@ -3,7 +3,9 @@
 #include "p.h"
 //TODO : refactor this file
 // create K object
+G KS[]={8,8,8,1}; // type size (K,J,F,C). used by mc
 ZK ma(J s,J n){K k=malloc(OZ(struct k,d)+s*n);k->n=n;k->r=1;R k;}                             // allocate object of atom size s
+K mc(K x,K y){DO(xn*KS[ABS(xt)],xD(y)[i]=xD(x)[i]);R y;}                                      // copy x data into y
 K kn(J n){K k=ma(SZ(K),n);xT(k)=KK;R k;}                                                      // return generic object of length n
 K knl(){K k=ma(1,0);xT(k)=KN;R k;}                                                            // return null object of length n 
 K kqt(){K k=ma(1,0);xT(k)=KQ;R k;}
