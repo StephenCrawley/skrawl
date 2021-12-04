@@ -30,7 +30,7 @@ K r1(K x){if(KK==xt){DO(xn,r1(xK(x)[i]))}xr++;R x;}
 
 
 // cast
-K kfj(K x){K z=kfn(xn);DO(xn,xF(z)[i]=(F)xJ(x)[i]);r0(x);R z;} // float from long
+K kfj(K x){K z=k(SGN(xt)*KF,xn);DO(xn,xF(z)[i]=(F)xJ(x)[i]);r0(x);R z;} // float from long
 
 // print
 ZV pc(K x){O("\"");DO(xn,putchar(xC(x)[i]));O("\"");}
