@@ -12,6 +12,9 @@ K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=r1(x);}else{z=mc(x,k(ABS(xt),1));};R
 K frs(K x){K z=KK==xt?r1(xK(x)[0]):KJ==xt?kjx(xJ(x)[0]):KF==xt?kfx(xF(x)[0]):(-KJ==xt||-KF==xt)?r1(x):E_TYP;r0(x);R z;}
 K whr(K x){P(KJ!=xt,(r0(x),E_TYP));r1(x);R fld2(cat,take(kjx(0),kjx(0)),each2(take,or(kjx(0),x),til(len(x))));} //{,/x#'!#x}
 K rev(K x){R r1(r1(x)),at(x, sub(len(x),sum(kjx(1),til(len(x)))));} //{x@(#x)-1+!#x}
+K str(K x){K z=k(KK,xn);if(KK==xt){DO(xn,xK(z)[i]=str(r1(xK(x)[i])))}
+ else if(KJ==ABS(xt)){C s[100];DO(xn,sprintf(s,"%lld",xJ(x)[i]);K zi=k(KC,strlen(s));J j=zi->n-1;W(j>=0,xC(zi)[j]=s[j];--j);xK(z)[i]=zi);}
+ else if(KC==ABS(xt)){DO(xn,xK(z)[i]=enl(kcx(xC(x)[i])));}else{R r0(x),r0(z),E_NYI;}if(0>xt){K z1=r1(*xK(z));r0(z);z=z1;}R r0(x),z;}
 // dyad
 #define SUM(x,y)  ((x) + (y))
 #define SUB(x,y)  ((x) - (y))
@@ -57,5 +60,6 @@ K bng(K x,K y){P(-KJ!=xt,E_TYP);K z=-1==*xJ(x)?typ(r1(y)):-2==*xJ(x)?ref(r1(y)):
 // adverb
 K each (K (*f)(K  ),K x){P(KK!=xt,(r0(x),E_NYI))K z=k(KK,xn);K e;DO(xn,xK(z)[i]=(*f)(r1(xK(x)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(z),e)))R r0(x),sqz(z);}
 K each2(K (*f)(K,K),K x,K y){K z=k(KK,xn);DO(xn,xK(z)[i]=(*f)(KK==xt?r1(xK(x)[i]):kjx(xJ(x)[i]),KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
-K fld  (K (*f)(K,K),K x){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):E_NYI;P(err(i),(r0(x),i))R r1(x),fld2(f,i,x);}
+K fld  (K (*f)(K,K),K x,G s){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):E_NYI;P(err(i),(r0(x),i))R s?scan(f,i,x):fld2(f,i,x);}
 K fld2 (K (*f)(K,K),K x,K y){K z=r1(x);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i]));)R r0(x),r0(y),sqz(z);}
+K scan (K (*f)(K,K),K x,K y){K z=r1(x),r=k(KK,yn);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):KJ==yt?kjx(xJ(y)[i]):KF==yt?kfx(xF(y)[i]):kcx(xC(y)[i]));xK(r)[i]=r1(z))R r0(x),r0(y),r0(z),sqz(r);}

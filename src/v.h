@@ -5,9 +5,9 @@
 #include "p.h"
 
 // adverb
-K fld(K(*f)(K,K),K x);K fld2(K (*f)(K,K),K x,K y);K each(K (*f)(K),K x);K each2(K (*f)(K,K),K x,K y);
+K fld(K(*f)(K,K),K x,G s);K fld2(K (*f)(K,K),K x,K y);K each(K (*f)(K),K x);K each2(K (*f)(K,K),K x,K y);K scan(K (*f)(K,K),K x,K y);
 // monad
-K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);K whr(K x);K rev(K x);
+K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);K whr(K x);K rev(K x);K str(K x);
 //dyad
 K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K lt(K x,K y);K gt(K x,K y);K set(T *t,K x);K get(T *t);K cat(K x,K y);
 K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(K x,K y);

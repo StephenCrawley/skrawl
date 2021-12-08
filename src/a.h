@@ -8,7 +8,7 @@ typedef char C,*S;typedef unsigned char G;typedef int I;typedef long long J;type
 typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,data
 #define DO(n,x)    {J i=0,_n=(n);for(;i<_n;++i){x;}} // for
 #define W(p,x)     while(p){x;}                      // while
-#define CS(i,a...) case i:{a;}                       // case
+#define CS(i,a)    case i:{a;}                       // case
 #define P(x,y)     {if(x)R(y);}                      // panic!
 #define OZ(s,m)    ((J)&(((s*)0)->m))                // offsetof
 #define SZ         sizeof
