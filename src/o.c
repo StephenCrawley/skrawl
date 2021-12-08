@@ -33,10 +33,10 @@ K r1(K x){if(KK==xt){DO(xn,r1(xK(x)[i]))}xr++;R x;}
 K kfj(K x){K z=k(SGN(xt)*KF,xn);DO(xn,xF(z)[i]=(F)xJ(x)[i]);r0(x);R z;} // float from long
 // print
 ZV pc(K x){O("\"");DO(xn,putchar(xC(x)[i]));O("\"");}
-ZV pj(K x){DO(xn,O("%lld",xJ(x)[i]);if(i!=xn-1)O(" "));}
-ZV pf(K x){C s[9];DO(xn,I r=snprintf(s,9,"%f.6",xF(x)[i]);if(0>r){pk(kerr("'print"));R;};G p=8;W('0'==s[p-1],--p);O("%.*s",p,s);if(i!=xn-1)O(" "))} //print F without trailing 0s
+ZV pj(K x){if(xn){DO(xn,O("%lld",xJ(x)[i]);if(i!=xn-1)O(" "))}else{O("\"j\"$()");};}
+ZV pf(K x){if(xn){C s[9];DO(xn,I r=snprintf(s,9,"%f.6",xF(x)[i]);if(0>r){pk(kerr("'print"));R;};G p=8;W('0'==s[p-1],--p);O("%.*s",p,s);if(i!=xn-1)O(" "));}else{O("\"f\"$()");}} //print F without trailing 0s
 ZV pk_(K x){if(0<xt&&1==xn)O(",");if(KK==xt){if(1==xn){O(",");}else{O("(");}DO(xn,pk_(xK(x)[i]);if(i!=xn-1)O(";"));if(1!=xn)O(")");}else if(KJ==ABS(xt)){pj(x);}else if(KF==ABS(xt)){pf(x);}else if(KC==ABS(xt)){pc(x);}
  else if(err(x)){O("%s",xC(x));}else{pk(E_TYP);};}
 V pk(K x){if(KN==xt){r0(x);R;};if(0<xt&&1==xn)O(",");
  if(DBGP){O("typ:%d  cnt:%lld  ref:%d  dat:\n",xt,xn,xr);}; // print object meta+data
- if(KK==xt){if(1==xn){O(",");}DO(xn,pk_(xK(x)[i]);if(i!=xn-1)O("\n"))}else if(KJ==ABS(xt)){pj(x);}else if(KF==ABS(xt)){pf(x);}else if(KC==ABS(xt)){pc(x);}else if(err(x)){O("%s",xC(x));}else{pk(E_TYP);};O("\n");r0(x);}
+ if(KK==xt){if(1==xn){O(",");}DO(xn,pk_(xK(x)[i]);if(i!=xn-1)O("\n"))if(0==xn)O("()");}else if(KJ==ABS(xt)){pj(x);}else if(KF==ABS(xt)){pf(x);}else if(KC==ABS(xt)){pc(x);}else if(err(x)){O("%s",xC(x));}else{pk(E_TYP);};O("\n");r0(x);}
