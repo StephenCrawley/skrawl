@@ -7,8 +7,8 @@
 #define DBGT 0  // debug token
 #define DBGP 0  // debug parse
 
-/*            (  )  () {  }  [  ]  ;  :  =  <  >  |  ?  +  -  *  %  $  !  &  "  @  ~  #  ,  .  '  /  \  1   2.3 "a" foo \0  not recognised */
-typedef enum {LP,RP,EL,LB,RB,LS,RS,SC,CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,DL,BA,AM,QT,AT,TL,HS,CM,DT,AP,FS,BS,INT,FLT,STR,ID, END,NR}TT;
+/*            (  )  () {  }  [  ]  ;  :  =  <  >  |  ?  +  -  *  %  $  _  !  &  "  @  ~  #  ,  .  '  /  \  1   2.3 "a" foo \0  not recognised */
+typedef enum {LP,RP,EL,LB,RB,LS,RS,SC,CL,EQ,LA,RA,PI,QM,PL,HY,ST,DV,DL,US,BA,AM,QT,AT,TL,HS,CM,DT,AP,FS,BS,INT,FLT,STR,ID, END,NR}TT;
 typedef struct {S s;I l;TT t;}T; // token. start,length,token type
 typedef struct {S s,c;T b[TMAX];T *bp;}TS; // token scanner. start,current,buffer,buffer pointer
 TS ts;
