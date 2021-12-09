@@ -53,4 +53,4 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  x=fact(tk);if(err(x))R x;if(DBGP){O("x: \n");pk(r1(x));O("y: \n");pk(r1(y));O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
  CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R (-KJ==xt&&0>*xJ(x))?bng(x,y):mod(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
- CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))CS(US,R drop(x,y))default:R E_NYI;}}
+ CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))CS(US,R drop(x,y))CS(TL,R mtc(x,y))default:R E_NYI;}}

@@ -51,6 +51,8 @@ K take(K x,K y){P(KJ!=ABS(xt),(r0(x),r0(y),E_TYP));J n=*xJ(x);K z=k(ABS(yt),ABS(
 K drop(K x,K y){P(KJ!=ABS(xt)||0>yt,(r0(x),r0(y),E_TYP))P(KJ==xt,(r0(x),r0(y),E_NYI))J n=*xJ(x);K z=k(yt,MAX(0,yn-n));
  if(KK==yt){DO(z->n,xK(z)[i]=r1(xK(y)[i+n]));}else if(KJ==yt){DO(z->n,xJ(z)[i]=xJ(y)[i+n]);}else if(KF==yt){DO(z->n,xF(z)[i]=xF(y)[i+n]);}else if(KC==yt){DO(z->n,xC(z)[i]=xC(y)[i+n]);}
  else{R r0(x),r0(y),E_TYP;};R r0(x),r0(y),sqz(z);}
+K mtc(K x,K y){P(xt!=yt||xn!=yn,(r0(x),r0(y),kjx(0)));J m=1;if(KK==xt){K r;DO(xn,r=mtc(r1(xK(x)[i]),r1(xK(y)[i]));m=m&&*xJ(r);r0(r))}else if(KJ==ABS(xt)){DO(xn,m=m&&xJ(x)[i]==xJ(y)[i])}
+ else if(KF==ABS(xt)){DO(xn,m=m&&xF(x)[i]==xF(y)[i])}else{DO(xn,m=m&&xC(x)[i]==xC(y)[i])}R r0(x),r0(y),kjx(m);}
 // % is special. always returns float so one arg must be float
 K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(DIV,xF);R z;}
 K mod(K x,K y){P(KJ!=ABS(xt)||-KJ!=yt,(r0(x),r0(y),E_NYI));DYAD_INIT(mod,KJ);DO(xn,xJ(z)[i]=xJ(x)[i]%*xJ(y));R z;}
