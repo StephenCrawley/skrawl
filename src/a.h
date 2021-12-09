@@ -39,9 +39,9 @@ typedef struct k{C t;I r;J n;G d[];}*K;              // type,refcount,length,dat
 #define yn    xN(y)
 // types 1 i(int),2 f(float),3 c(char)  nyi: 4 n(name),5 d(date) 
 #define KK 0  // generic
-#define KJ 1  // long   
-#define KF 2  // float
-#define KC 3  // char
+#define KC 1  // char
+#define KJ 2  // long   
+#define KF 3  // float
 #define KN 7  // null   
 #define KQ 8  // end    
 // nulls

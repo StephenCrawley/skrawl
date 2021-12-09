@@ -23,9 +23,9 @@ K str(K x){K z=k(KK,xn);if(KK==xt){DO(xn,xK(z)[i]=str(r1(xK(x)[i])))}
 #define  EQ(x,y)  ((x) ==(y))
 #define  LT(x,y)  ((x) < (y))
 #define  GT(x,y)  ((x) > (y))
-K sum(K x,K y){DYAD_EXEC(sum,KC,SUM);R z;}
-K sub(K x,K y){DYAD_EXEC(sub,KC,SUB);R z;}
-K prd(K x,K y){DYAD_EXEC(prd,KC,PRD);R z;}
+K sum(K x,K y){DYAD_EXEC(sum,KF,SUM);R z;}
+K sub(K x,K y){DYAD_EXEC(sub,KF,SUB);R z;}
+K prd(K x,K y){DYAD_EXEC(prd,KF,PRD);R z;}
 K  eq(K x,K y){DYAD_EXEC( eq,KJ, EQ);R z;}
 K  lt(K x,K y){DYAD_EXEC( lt,KJ, LT);R z;}
 K  gt(K x,K y){DYAD_EXEC( gt,KJ, GT);R z;}
