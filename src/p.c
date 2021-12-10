@@ -6,7 +6,7 @@
 #define  PLIM 64 // parens literal limit(0;1;...;63)
 K vt[26]={NULL};                                                         // value table (global K vars)
 TT ot[]={EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT,AM,DL};            // operator table
-TT ad[]={AP,FS,BS};                                                      // adverb table
+TT ad[]={AP,FS,BS,ER,EL};                                                      // adverb table
 ZI io(TT t){DO(SZ(ot)/SZ(ot[0]),if(ot[i]==t)R i+1);R 0;}                 // is operator / index(+1) of operator
 ZI ia(TT t){DO(SZ(ad)/SZ(ad[0]),if(ad[i]==t)R i+1);R 0;}                 // is operator / index(+1) of operator
 K (*vm[])()={NULL,NULL,NULL,NULL,rev,NULL,NULL,neg,frs,NULL,til,typ,not,len,enl,NULL,whr},
@@ -26,10 +26,11 @@ ZT com(){W('\n'-*ts.c++,);R nt();}                                       // skip
 V Ti(S a){ts.s=a;ts.c=a;ts.bp=ts.b;}                                     // init new string to tokenize (may replace with non-global solution)
 T nt(){ws();ts.s=ts.c;C c=nc();                                          // return next token
  if(cn(c))R num();if(ca(c))R id();if('"'==c)R chr();switch(c){
- CS('/',if(ts.b==ts.bp)R com();if(' '==ts.s[-1])R com();R mt(FS))        // skip comments and return next token
- CS('(',R(')'==*ts.c?nc(),mt(EL):mt(LP))) CS('_',R mt(US))
+ CS('/',if(ts.b==ts.bp)R com();if(' '==ts.s[-1])R com();if(':'==*ts.c)R(nc(),mt(ER));R mt(FS)) // skip comments and return next token
+ CS('\\',if(':'==*ts.c)R(nc(),mt(EL));R mt(BS))
+ CS('(',R(')'==*ts.c?nc(),mt(LR):mt(LP))) CS('_',R mt(US))
  CS('*',R mt(ST)) CS('+',R mt(PL)) CS('%',R mt(DV)) CS('!',R mt(BA)) CS('-',R hy())   CS('.', R dt())   CS('\'',R mt(AP)) 
- CS('@',R mt(AT)) CS('~',R mt(TL)) CS('#',R mt(HS)) CS(',',R mt(CM)) CS(')', R mt(RP))CS('\\',R mt(BS)) CS('$' ,R mt(DL))
+ CS('@',R mt(AT)) CS('~',R mt(TL)) CS('#',R mt(HS)) CS(',',R mt(CM)) CS(')', R mt(RP))CS('$' ,R mt(DL))
  CS('{',R mt(LB)) CS('}',R mt(RB)) CS('[',R mt(LS)) CS(']',R mt(RS)) CS('<',R mt(LA)) CS('>', R mt(RA)) CS('\0',R mt(END)) 
  CS(';',R mt(SC)) CS(':',R mt(CL)) CS('?',R mt(QM)) CS('|',R mt(PI)) CS('=',R mt(EQ)) CS('&', R mt(AM)) default:R mt(NR);}}
 V rt(){T t;W(END-(t=nt()).t,*ts.bp++=t);*ts.bp=t;}                       // read all tokens from source into buffer ts.b
@@ -47,10 +48,12 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
   else if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t||ST==t||AM==t||PI==t||DL==t){K x=pr(tk+1);
    R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):ST==t?frs(x):HS==t?len(x):PI==t?rev(x):AM==t?whr(x):str(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
- I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t||SC==tk[i+1].t)R fact(tk);else y=pr(tk+i+2);} // handle ( )
- else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t||SC==tk[i+1].t){R fact(tk);}else{y=pr(tk+i+2);}} // parse num literal
- else{y=pr(tk+2);}if(err(y))R y;
+ I i=0;if(LP==t){G n=1;W(n,++i;TT t=tk[i].t;n+=LP==t?1:RP==t?-1:0);if(END==tk[i+1].t||RP==tk[i+1].t||SC==tk[i+1].t)R fact(tk);else y=ia(tk[i+2].t)?pr(tk+i+3):pr(tk+i+2);} // handle ( )
+ else if(INT==t||FLT==t){W(INT==tk[i+1].t||FLT==tk[i+1].t,++i);if(END==tk[i+1].t||RP==tk[i+1].t||SC==tk[i+1].t){R fact(tk);}else{y=ia(tk[i+2].t)?pr(tk+i+3):pr(tk+i+2);}} // parse num literal
+ else{y=ia(tk[2].t)?pr(tk+3):pr(tk+2);}if(err(y))R y;
  x=fact(tk);if(err(x))R x;if(DBGP){O("x: \n");pk(r1(x));O("y: \n");pk(r1(y));O("op: %.*s\n",tk[i+1].l,tk[i+1].s);}; // get x (left operand). debug prints
- switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
- CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R (-KJ==xt&&0>*xJ(x))?bng(x,y):mod(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
- CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))CS(US,R drop(x,y))CS(TL,R mtc(x,y))default:R E_NYI;}}
+ if(!ia(tk[i+2].t)){
+  switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
+  CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R (-KJ==xt&&0>*xJ(x))?bng(x,y):mod(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
+  CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))CS(US,R drop(x,y))CS(TL,R mtc(x,y))default:R E_NYI;}}
+ else{I o=io(tk[i+1].t);switch(tk[i+2].t){CS(ER,R eachr(vd[o],x,y))CS(EL,R eachl(vd[o],x,y))default:R E_NYI;}}}

@@ -64,6 +64,8 @@ ZK ref(K x){K z=k(-KJ,1);xJ(z)[0]=xr-1;r0(x);R z;} // return refcount (-1 to ign
 K bng(K x,K y){P(-KJ!=xt,E_TYP);K z=-1==*xJ(x)?typ(r1(y)):-2==*xJ(x)?ref(r1(y)):E_NYI;r0(x),r0(y);R z;}
 // adverb
 K each (K (*f)(K  ),K x){P(KK!=xt,(r0(x),E_NYI))K z=k(KK,xn);K e;DO(xn,xK(z)[i]=(*f)(r1(xK(x)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(z),e)))R r0(x),sqz(z);}
+K eachr(K (*f)(K,K),K x,K y){if(0<yt)y=kxp(y);K z=k(KK,yn);K e;DO(yn,xK(z)[i]=(*f)(r1(x),r1(xK(y)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(y),r0(z),e)))R r0(x),r0(y),sqz(z);}
+K eachl(K (*f)(K,K),K x,K y){if(0<xt)x=kxp(x);K z=k(KK,xn);K e;DO(xn,xK(z)[i]=(*f)(r1(xK(x)[i]),r1(y));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(y),r0(z),e)))R r0(x),r0(y),sqz(z);}
 K each2(K (*f)(K,K),K x,K y){K z=k(KK,xn);DO(xn,xK(z)[i]=(*f)(KK==xt?r1(xK(x)[i]):kjx(xJ(x)[i]),KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
 K fld  (K (*f)(K,K),K x,G s){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):E_NYI;P(err(i),(r0(x),i))R s?scan(f,i,x):fld2(f,i,x);}
 K fld2 (K (*f)(K,K),K x,K y){K z=r1(x);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i]));)R r0(x),r0(y),sqz(z);}

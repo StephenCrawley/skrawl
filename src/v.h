@@ -6,6 +6,7 @@
 
 // adverb
 K fld(K(*f)(K,K),K x,G s);K fld2(K (*f)(K,K),K x,K y);K each(K (*f)(K),K x);K each2(K (*f)(K,K),K x,K y);K scan(K (*f)(K,K),K x,K y);
+K eachr(K (*f)(K,K),K x,K y);K eachl(K (*f)(K,K),K x,K y);
 // monad
 K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);K whr(K x);K rev(K x);K str(K x);
 //dyad
