@@ -56,4 +56,4 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
   switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
   CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R (-KJ==xt&&0>*xJ(x))?bng(x,y):mod(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
   CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))CS(US,R drop(x,y))CS(TL,R mtc(x,y))default:R E_NYI;}}
- else{I o=io(tk[i+1].t);switch(tk[i+2].t){CS(ER,R eachr(vd[o],x,y))CS(EL,R eachl(vd[o],x,y))default:R E_NYI;}}}
+ else{I o=io(tk[i+1].t);switch(tk[i+2].t){CS(ER,R eachr(vd[o],x,y))CS(EL,R eachl(vd[o],x,y))CS(FS,R fld2(vd[o],x,y))CS(BS,R scan(vd[o],x,y))default:R E_NYI;}}}
