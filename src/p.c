@@ -6,11 +6,11 @@
 #define  PLIM 64 // parens literal limit(0;1;...;63)
 K vt[26]={NULL};                                                         // value table (global K vars)
 TT ot[]={EQ,LA,RA,PI,QM,PL,HY,ST,DV,BA,AT,TL,HS,CM,DT,AM,DL};            // operator table
-TT ad[]={AP,FS,BS,ER,EL};                                                      // adverb table
+TT ad[]={AP,FS,BS,ER,EL,EP};                                             // adverb table
 ZI io(TT t){DO(SZ(ot)/SZ(ot[0]),if(ot[i]==t)R i+1);R 0;}                 // is operator / index(+1) of operator
 ZI ia(TT t){DO(SZ(ad)/SZ(ad[0]),if(ad[i]==t)R i+1);R 0;}                 // is operator / index(+1) of operator
-K (*vm[])()={NULL,NULL,NULL,NULL,rev,NULL,NULL,neg,frs,NULL,til,typ,not,len,enl,NULL,whr},
-  (*vd[])()={NULL,eq,lt,gt,or,NULL,sum,sub,prd,dvd,NULL,at,NULL,take,cat,NULL,and};
+K (*vm[])()={NULL,NULL,NULL,NULL,rev,NULL,NULL,neg,frs,NULL,til,typ,not,len,enl,NULL,whr,str},
+  (*vd[])()={NULL,eq,lt,gt,or,NULL,sum,sub,prd,dvd,NULL,at,mtc,take,cat,NULL,and};
 // tokenizer utilities
 ZT mt(TT t){T z;z.s=ts.s;z.l=(I)(ts.c-ts.s);z.t=t;R z;}                  // make token
 ZC nc(){R *ts.c++;}                                                      // consume next char
@@ -27,9 +27,9 @@ V Ti(S a){ts.s=a;ts.c=a;ts.bp=ts.b;}                                     // init
 T nt(){ws();ts.s=ts.c;C c=nc();                                          // return next token
  if(cn(c))R num();if(ca(c))R id();if('"'==c)R chr();switch(c){
  CS('/',if(ts.b==ts.bp)R com();if(' '==ts.s[-1])R com();if(':'==*ts.c)R(nc(),mt(ER));R mt(FS)) // skip comments and return next token
- CS('\\',if(':'==*ts.c)R(nc(),mt(EL));R mt(BS))
+ CS('\\',if(':'==*ts.c)R(nc(),mt(EL));R mt(BS)) CS('\'',if(':'==*ts.c)R(nc(),mt(EP));R mt(AP)) 
  CS('(',R(')'==*ts.c?nc(),mt(LR):mt(LP))) CS('_',R mt(US))
- CS('*',R mt(ST)) CS('+',R mt(PL)) CS('%',R mt(DV)) CS('!',R mt(BA)) CS('-',R hy())   CS('.', R dt())   CS('\'',R mt(AP)) 
+ CS('*',R mt(ST)) CS('+',R mt(PL)) CS('%',R mt(DV)) CS('!',R mt(BA)) CS('-',R hy())   CS('.', R dt()) 
  CS('@',R mt(AT)) CS('~',R mt(TL)) CS('#',R mt(HS)) CS(',',R mt(CM)) CS(')', R mt(RP))CS('$' ,R mt(DL))
  CS('{',R mt(LB)) CS('}',R mt(RB)) CS('[',R mt(LS)) CS(']',R mt(RS)) CS('<',R mt(LA)) CS('>', R mt(RA)) CS('\0',R mt(END)) 
  CS(';',R mt(SC)) CS(':',R mt(CL)) CS('?',R mt(QM)) CS('|',R mt(PI)) CS('=',R mt(EQ)) CS('&', R mt(AM)) default:R mt(NR);}}
@@ -44,7 +44,8 @@ ZK fact(T *tk){TT t=tk->t;R (INT==t||FLT==t)?prsn(tk):LP==t?prsp(tk):STR==t?prss
 K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
  if(END==t){if(t==ts.b[0].t){R k(KN,0);}else{R kerr("'end");}};if((BS==t&&BS==tk[1].t)&&t==ts.b[0].t){R k(KQ,0);};TT t1=tk[1].t;if(END==t1||RP==t1||SC==t1)R fact(tk); // if next token is END or )->eval+return current token
  if(io(t)){
-  if(ia(tk[1].t)){if(DBGP)O("is adverb\n");K x=pr(tk+2);if(DBGP){O("x:\n");pk(r1(x));}I o=io(t);switch(tk[1].t){CS(AP,R each(vm[o],x))CS(FS,R fld(vd[o],x,0))CS(BS,R fld(vd[o],x,1))default:R E_NYI;}}
+  if(ia(tk[1].t)){if(DBGP)O("is adverb\n");K x=pr(tk+2);if(DBGP){O("x:\n");pk(r1(x));}I o=io(t);switch(tk[1].t){CS(AP,R each(vm[o],x))CS(FS,R fld(vd[o],x,0))
+  CS(BS,R fld(vd[o],x,1))CS(EP,R eachp_(vd[o],x))default:R E_NYI;}}
   else if(AT==t||HY==t||TL==t||BA==t||CM==t||HS==t||ST==t||AM==t||PI==t||DL==t){K x=pr(tk+1);
    R err(x)?x:AT==t?typ(x):HY==t?neg(x):BA==t?til(x):TL==t?not(x):CM==t?enl(x):ST==t?frs(x):HS==t?len(x):PI==t?rev(x):AM==t?whr(x):str(x);}else{R E_NYI;}} // monad operators
  if(CL==tk[1].t){y=pr(tk+2);if(err(y))R y;else{R set(tk,y);}} // assign x:y
@@ -56,4 +57,4 @@ K pr(T *tk){K x,y;TT t=tk->t;// parse+exec
   switch(tk[i+1].t){CS(PL,R sum(x,y))CS(ST,R prd(x,y))CS(DV,R dvd(x,y))CS(HY,R sub(x,y))CS(EQ,R eq(x,y))CS(LA,R lt(x,y)) // case +*%=<
   CS(RA,R gt(x,y))CS(CM,R cat(x,y))CS(BA,R (-KJ==xt&&0>*xJ(x))?bng(x,y):mod(x,y))CS(AT,R at(x,y))CS(DT,R fld2(at,x,y)) // >,!@
   CS(PI,R or(x,y))CS(AM,R and(x,y))CS(HS,R take(x,y))CS(US,R drop(x,y))CS(TL,R mtc(x,y))default:R E_NYI;}}
- else{I o=io(tk[i+1].t);switch(tk[i+2].t){CS(ER,R eachr(vd[o],x,y))CS(EL,R eachl(vd[o],x,y))CS(FS,R fld2(vd[o],x,y))CS(BS,R scan(vd[o],x,y))default:R E_NYI;}}}
+ else{I o=io(tk[i+1].t);switch(tk[i+2].t){CS(ER,R eachr(vd[o],x,y))CS(EL,R eachl(vd[o],x,y))CS(FS,R fld2(vd[o],x,y))CS(BS,R scan(vd[o],x,y))CS(EP,R eachp(vd[o],x,y))default:R E_NYI;}}}

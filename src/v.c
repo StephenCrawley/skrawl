@@ -4,7 +4,7 @@
 #include "p.h"
 // monad
 K neg(K x){P(KF<ABS(xt),(r0(x),E_TYP));MONAD_INIT(KF,xt);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=-(xJ(x)[i]);}else{xF(z)[i]=-(xF(x)[i]);});r0(x);R z;}
-K not(K x){P(KJ!=ABS(xt)||KF!=ABS(xt),(r0(x),E_TYP));K z=k(xt,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});r0(x);R z;;}
+K not(K x){P(KJ!=ABS(xt)&&KF!=ABS(xt),(r0(x),E_TYP));K z=k(KJ,xn);DO(xn,if(KJ==ABS(xt)){xJ(z)[i]=0==xJ(x)[i];}else{xJ(z)[i]=(0.0==xF(x)[i]);});r0(x);R z;;}
 K typ(K x){K z=k(-KJ,1);xJ(z)[0]=xt;r0(x);R z;}
 K til(K x){P(0<xt||KJ!=ABS(xt),(r0(x),E_TYP));K z=k(KJ,*xJ(x));DO(z->n,xJ(z)[i]=i);r0(x);R z;}
 K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
@@ -66,7 +66,11 @@ K bng(K x,K y){P(-KJ!=xt,E_TYP);K z=-1==*xJ(x)?typ(r1(y)):-2==*xJ(x)?ref(r1(y)):
 K each (K (*f)(K  ),K x){if(0<xt)x=kxp(x);K z=k(KK,xn);K e;DO(xn,xK(z)[i]=(*f)(r1(xK(x)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(z),e)))R r0(x),sqz(z);}
 K eachr(K (*f)(K,K),K x,K y){if(0<yt)y=kxp(y);K z=k(KK,yn);K e;DO(yn,xK(z)[i]=(*f)(r1(x),r1(xK(y)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(y),r0(z),e)))R r0(x),r0(y),sqz(z);}
 K eachl(K (*f)(K,K),K x,K y){if(0<xt)x=kxp(x);K z=k(KK,xn);K e;DO(xn,xK(z)[i]=(*f)(r1(xK(x)[i]),r1(y));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(y),r0(z),e)))R r0(x),r0(y),sqz(z);}
+K eachp_(K(*f)(K,K),K x){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):mtc==f?k(KK,0):E_NYI;P(err(i),(r0(x),i))R eachp(f,i,x);}
+K eachp(K (*f)(K,K),K x,K y){if(0<yt)y=kxp(y);
+ K z=k(KK,yn);K e;xK(z)[0]=(*f)(r1(x),r1(*xK(y)));P(err(*xK(z)),(e=r1(*xK(z)),r0(x),r0(y),r0(z),e))
+ DO(yn-1,xK(z)[i+1]=(*f)(r1(xK(y)[i+1]),r1(xK(y)[i]));P(err(xK(z)[i]),(e=r1(xK(z)[i]),r0(x),r0(y),r0(z),e)))R r0(x),r0(y),sqz(z);}
 K each2(K (*f)(K,K),K x,K y){K z=k(KK,xn);DO(xn,xK(z)[i]=(*f)(KK==xt?r1(xK(x)[i]):kjx(xJ(x)[i]),KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i])));r0(x),r0(y);R z;}
-K fld  (K (*f)(K,K),K x,G s){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):E_NYI;P(err(i),(r0(x),i))R s?scan(f,i,x):fld2(f,i,x);}
+K fld  (K (*f)(K,K),K x,G s){K i=sum==f?kjx(0):cat==f?k(KK,0):prd==f?kjx(1):mtc==f?k(KK,0):E_NYI;P(err(i),(r0(x),i))R s?scan(f,i,x):fld2(f,i,x);}
 K fld2 (K (*f)(K,K),K x,K y){K z=r1(x);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):kjx(xJ(y)[i]));)R r0(x),r0(y),sqz(z);}
 K scan (K (*f)(K,K),K x,K y){K z=r1(x),r=k(KK,yn);DO(yn,z=(*f)(z,KK==yt?r1(xK(y)[i]):KJ==yt?kjx(xJ(y)[i]):KF==yt?kfx(xF(y)[i]):kcx(xC(y)[i]));xK(r)[i]=r1(z))R r0(x),r0(y),r0(z),sqz(r);}
