@@ -11,7 +11,7 @@ K eachr(K (*f)(K,K),K x,K y);K eachl(K (*f)(K,K),K x,K y);K eachp(K (*f)(K,K),K 
 K neg(K x);K not(K x);K til(K x);K typ(K x);K enl(K x);K len(K x);K frs(K x);K whr(K x);K rev(K x);K str(K x);
 //dyad
 K sum(K x,K y);K prd(K x,K y);K dvd(K x,K y);K sub(K x,K y);K eq(K x,K y);K lt(K x,K y);K gt(K x,K y);K set(T *t,K x);K get(T *t);K cat(K x,K y);
-K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(K x,K y);K drop(K x,K y);K mtc(K x,K y);K fnd(K x,K y);
+K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(K x,K y);K drop(K x,K y);K mtc(K x,K y);K fnd(K x,K y);K key(K x,K y);
 
 #define MONAD_INIT(maxt,rt) P(xt>maxt,E_TYP); K z=k(rt,xn);
 
@@ -27,6 +27,11 @@ K at(K x,K y);K bng(K x,K y);K and(K x,K y);K or(K x,K y);K mod(K x,K y);K take(
   else if(KK==xt&&0 > yt){DO(zn,xK(z)[i]= f(r1(xK(x)[i]),r1(y)));} \
   else if(0 > xt&&KK==yt){DO(zn,xK(z)[i]= f(r1(x),r1(xK(y)[i])));} \
   else   {r0(x);r0(y);R E_TYP;} \
+  r0(x);r0(y);R z;}                   \
+ if(KD==xt||KD==yt){K z=k(KK,zn);     \
+  if     (xt==yt){R r0(x),r0(y),E_NYI;} \
+  else if(KD==xt){z=f(r1(xK(x)[1]),y);z=key(r1(xK(x)[0]),r1(z));} \
+  else           {z=f(x,r1(xK(y)[1]));z=key(r1(x),r1(xK(y)[0]));} \
   r0(x);r0(y);R z;}                   \
  /* else if simple type */            \
  C zt=MAX(ABS(xt),ABS(yt));           \

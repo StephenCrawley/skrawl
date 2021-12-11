@@ -14,7 +14,8 @@ K whr(K x){P(KJ!=xt,(r0(x),E_TYP));r1(x);R fld2(cat,take(kjx(0),kjx(0)),each2(ta
 K rev(K x){R r1(r1(x)),at(x, sub(len(x),sum(kjx(1),til(len(x)))));} //{x@(#x)-1+!#x}
 K str(K x){K z=k(KK,xn);if(KK==xt){DO(xn,xK(z)[i]=str(r1(xK(x)[i])))}
  else if(KJ==ABS(xt)){C s[100];DO(xn,sprintf(s,"%lld",xJ(x)[i]);K zi=k(KC,strlen(s));J j=zi->n-1;W(j>=0,xC(zi)[j]=s[j];--j);xK(z)[i]=zi);}
- else if(KC==ABS(xt)){DO(xn,xK(z)[i]=enl(kcx(xC(x)[i])));}else{R r0(x),r0(z),E_NYI;}if(0>xt){K z1=r1(*xK(z));r0(z);z=z1;}R r0(x),z;}
+ else if(KC==ABS(xt)){DO(xn,xK(z)[i]=enl(kcx(xC(x)[i])));}else{R r0(x),r0(z),E_NYI;}
+ if(0>xt){K z1=r1(*xK(z));r0(z);z=z1;}R r0(x),z;}
 // dyad
 #define SUM(x,y)  ((x) + (y))
 #define SUB(x,y)  ((x) - (y))
@@ -44,7 +45,9 @@ ZK at_(K x,K y){P(KJ!=ABS(yt),(r0(x),r0(y),E_TYP));K z=k(ABS(xt)*SGN(yt),yn);
  else if(KC==ABS(xt)){DO(yn,xC(z)[i]=xC(x)[xJ(y)[i]])}
  else                {DO(yn,xF(z)[i]=xF(x)[xJ(y)[i]])}
  r0(x);r0(y);if(KK==xt&&1==yn&&0<yt)z=enl(z);R sqz(z);} 
-K at(K x,K y){K z;if(KJ==ABS(yt)){z=at_(r1(x),r1(y));}else{z=k(KK,yn);DO(yn,xK(z)[i]=at(r1(x),r1(xK(y)[i])));}r0(x),r0(y);R z;}
+K at(K x,K y){K z;
+ if(KD==xt){R z=at(r1(xv),fnd(r1(xk),r1(y))),r0(x),r0(y),z;}
+ else{if(KJ==ABS(yt)){z=at_(r1(x),r1(y));}else{z=k(KK,yn);DO(yn,xK(z)[i]=at(r1(x),r1(xK(y)[i])));}}R r0(x),r0(y),z;}
 K take(K x,K y){P(KJ!=ABS(xt),(r0(x),r0(y),E_TYP));J n=*xJ(x);K z=k(ABS(yt),ABS(n));J o=0>n?yn-(ABS(n)%yn):0;n=ABS(n);
  if(KJ==ABS(yt)){DO(n,xJ(z)[i]=xJ(y)[(o+i)%yn])}else if(KC==ABS(yt)){DO(n,xC(z)[i]=xC(y)[(o+i)%yn])}
  else if(KF==ABS(yt)){DO(n,xF(z)[i]=xF(y)[(o+i)%yn])}else{DO(n,xK(z)[i]=r1(xK(y)[(o+i)%yn]))}R r0(x),r0(y),sqz(z);}
@@ -53,7 +56,11 @@ K drop(K x,K y){P(KJ!=ABS(xt)||0>yt,(r0(x),r0(y),E_TYP))P(KJ==xt,(r0(x),r0(y),E_
  else{R r0(x),r0(y),E_TYP;};R r0(x),r0(y),sqz(z);}
 K mtc(K x,K y){P(xt!=yt||xn!=yn,(r0(x),r0(y),kjx(0)));J m=1;if(KK==xt){K r;DO(xn,r=mtc(r1(xK(x)[i]),r1(xK(y)[i]));m=m&&*xJ(r);r0(r))}else if(KJ==ABS(xt)){DO(xn,m=m&&xJ(x)[i]==xJ(y)[i])}
  else if(KF==ABS(xt)){DO(xn,m=m&&xF(x)[i]==xF(y)[i])}else{DO(xn,m=m&&xC(x)[i]==xC(y)[i])}R r0(x),r0(y),kjx(m);}
-K fnd(K x,K y){if(0!=xt)x=kxp(x);if(0!=yt)y=kxp(y);K z=k(KJ,yn);DO(yn,DO_J(xn+1,if(j==xn){xJ(z)[i]=j;}else{K r=mtc(r1(xK(y)[i]),r1(xK(x)[j]));J c=*xJ(r);r0(r);if(c){xJ(z)[i]=j;break;}}))R r0(x),r0(y),sqz(z);}
+K fnd(K x,K y){
+ if(KD==xt){K z=at(r1(xk), fnd(r1(xv),r1(y)));R r0(x),r0(y),z;}
+ if(0!=xt)x=kxp(x);if(0!=yt)y=kxp(y);K z=k(KJ,yn);DO(yn,DO_J(xn+1,if(j==xn){xJ(z)[i]=j;}else{K r=mtc(r1(xK(y)[i]),r1(xK(x)[j]));J c=*xJ(r);r0(r);if(c){xJ(z)[i]=j;break;}}))
+ R r0(x),r0(y),sqz(z);}
+K key(K x,K y){P(xn!=yn,(r0(x),r0(y),E_LEN))K z=kd();xK(z)[0]=x,xK(z)[1]=y;R z;}
 // % is special. always returns float so one arg must be float
 K dvd(K x,K y){if(KJ==ABS(xt)&&KJ==ABS(yt)){y=kfj(y);};DYAD_INIT(dvd,KF);DYAD_EXEC_ZA(DIV,xF);R z;}
 K mod(K x,K y){P(KJ!=ABS(xt)||-KJ!=yt,(r0(x),r0(y),E_NYI));DYAD_INIT(mod,KJ);DO(xn,xJ(z)[i]=xJ(x)[i]%*xJ(y));R z;}
