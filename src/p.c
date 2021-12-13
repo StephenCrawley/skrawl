@@ -29,10 +29,10 @@ T nt(){ws();ts.s=ts.c;C c=nc();                                          // retu
  CS('/',if(ts.b==ts.bp)R com();if(' '==ts.s[-1])R com();if(':'==*ts.c)R(nc(),mt(ER));R mt(FS)) // skip comments and return next token
  CS('\\',if(':'==*ts.c)R(nc(),mt(EL));R mt(BS)) CS('\'',if(':'==*ts.c)R(nc(),mt(EP));R mt(AP)) 
  CS('(',R(')'==*ts.c?nc(),mt(LR):mt(LP))) CS('_',R mt(US))
- CS('*',R mt(ST)) CS('+',R mt(PL)) CS('%',R mt(DV)) CS('!',R mt(BA)) CS('-',R hy())   CS('.', R dt()) 
- CS('@',R mt(AT)) CS('~',R mt(TL)) CS('#',R mt(HS)) CS(',',R mt(CM)) CS(')', R mt(RP))CS('$' ,R mt(DL))
- CS('{',R mt(LB)) CS('}',R mt(RB)) CS('[',R mt(LS)) CS(']',R mt(RS)) CS('<',R mt(LA)) CS('>', R mt(RA)) CS('\0',R mt(END)) 
- CS(';',R mt(SC)) CS(':',R mt(CL)) CS('?',R mt(QM)) CS('|',R mt(PI)) CS('=',R mt(EQ)) CS('&', R mt(AM)) default:R mt(NR);}}
+ CS('*',R mt(ST)) CS('+',R mt(PL)) CS('%',R mt(DV)) CS('!',R mt(BA)) CS('-',R hy())   CS('.',R dt()) 
+ CS('@',R mt(AT)) CS('~',R mt(TL)) CS('#',R mt(HS)) CS(',',R mt(CM)) CS(')',R mt(RP)) CS('$',R mt(DL))
+ CS('{',R mt(LB)) CS('}',R mt(RB)) CS('[',R mt(LS)) CS(']',R mt(RS)) CS('<',R mt(LA)) CS('>',R mt(RA)) CS('\0',R mt(END)) 
+ CS(';',R mt(SC)) CS(':',R mt(CL)) CS('?',R mt(QM)) CS('|',R mt(PI)) CS('=',R mt(EQ)) CS('&',R mt(AM)) default:R mt(NR);}}
 V rt(){T t;W(END-(t=nt()).t,*ts.bp++=t);*ts.bp=t;}                       // read all tokens from source into buffer ts.b
 V pt(T t){O("typ:%2d len:%d lexeme:'%.*s'\n",t.t,t.l,t.l,t.s);}          // debug,print token
 V pT(){O("tokens:\n");T t;I i=0;W(END-(t=ts.b[i++]).t,pt(t));pt(t);}     // print all tokens using pt
