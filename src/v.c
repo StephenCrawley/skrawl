@@ -10,7 +10,7 @@ K til(K x){P(0<xt||KJ!=ABS(xt),(r0(x),E_TYP));K z=k(KJ,*xJ(x));DO(z->n,xJ(z)[i]=
 K len(K x){K z=k(-KJ,0);xJ(z)[0]=xn;r0(x);R z;}
 K enl(K x){K z;if(0<=xt){z=k(KK,1);xK(z)[0]=r1(x);}else{z=mc(x,k(ABS(xt),1));};R r0(x),z;}
 K frs(K x){K z=KK==xt?r1(xK(x)[0]):KJ==xt?kjx(xJ(x)[0]):KF==xt?kfx(xF(x)[0]):(-KJ==xt||-KF==xt)?r1(x):E_TYP;r0(x);R z;}
-K whr(K x){P(KJ!=xt,(r0(x),E_TYP));r1(x);R fld2(cat,take(kjx(0),kjx(0)),each2(take,or(kjx(0),x),til(len(x))));} //{,/x#'!#x}
+K whr(K x){P(KJ!=xt,(r0(x),E_TYP))J acc=0,h=0;DO(xn,if(0<xJ(x)[i])acc+=xJ(x)[i])K z=k(KJ,acc);DO(xn,if(0<xJ(x)[i])DO_J(xJ(x)[i],xJ(z)[h++]=i))R r0(x),z;}
 K rev(K x){R r1(r1(x)),at(x, sub(len(x),sum(kjx(1),til(len(x)))));} //{x@(#x)-1+!#x}
 K str(K x){K z=k(KK,xn);if(KK==xt){DO(xn,xK(z)[i]=str(r1(xK(x)[i])))}
  else if(KJ==ABS(xt)){C s[100];DO(xn,sprintf(s,"%lld",xJ(x)[i]);K zi=k(KC,strlen(s));J j=zi->n-1;W(j>=0,xC(zi)[j]=s[j];--j);xK(z)[i]=zi);}
@@ -58,7 +58,9 @@ K mtc(K x,K y){P(xt!=yt||xn!=yn,(r0(x),r0(y),kjx(0)));J m=1;if(KK==xt){K r;DO(xn
  else if(KF==ABS(xt)){DO(xn,m=m&&xF(x)[i]==xF(y)[i])}else{DO(xn,m=m&&xC(x)[i]==xC(y)[i])}R r0(x),r0(y),kjx(m);}
 K fnd(K x,K y){
  if(KD==xt){K z=at(r1(xk), fnd(r1(xv),r1(y)));R r0(x),r0(y),z;}
- if(0!=xt)x=kxp(x);if(0!=yt)y=kxp(y);K z=k(KJ,yn);DO(yn,DO_J(xn+1,if(j==xn){xJ(z)[i]=j;}else{K r=mtc(r1(xK(y)[i]),r1(xK(x)[j]));J c=*xJ(r);r0(r);if(c){xJ(z)[i]=j;break;}}))
+ if(0!=xt)x=kxp(x);
+ if(0!=yt)y=kxp(y);
+ K z=k(KJ,yn);DO(yn,DO_J(xn+1,if(j==xn){xJ(z)[i]=j;}else{K r=mtc(r1(xK(y)[i]),r1(xK(x)[j]));J c=*xJ(r);r0(r);if(c){xJ(z)[i]=j;break;}}))
  R r0(x),r0(y),sqz(z);}
 K key(K x,K y){P(xn!=yn,(r0(x),r0(y),E_LEN))K z=kd();xK(z)[0]=x,xK(z)[1]=y;R z;}
 // % is special. always returns float so one arg must be float
