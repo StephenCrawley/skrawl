@@ -1,0 +1,58 @@
+/todo
+IMPLEMENT K-LEVEL TESTS (read k tests from file and print errors)
+implement mixed lists
+implement name type
+implement time type
+implement date type
+implement each adverb ' for 
+implement over adverb / parsing for dyads
+implement scan adverb \
+implement full variable name support
+fix deletion of variables on exit (if 2 vars pointing at one object, calls free twice)
+fix cat,DYAD_INIT,at_ ineffciency due to comparisons inside DO
+fix object cleanup when error in DYAD_INIT
+fix object cleanup when error in at_ (eg )
+add bounds checks to at_ and return nulls where index not in domain
+fix var-int (returns 'end)
+/done
+[2021.11.05] refactor v.h (too many conditions in DYAD_EXEC. not flexible enough regarding types and accessors)
+[2021.11.06] fix comparisons (floats return f instead of j)
+[2021.11.06] fix float cat (, was only implemented for j)
+[2021.11.06] remove trailing zeros from printed floats
+[2021.11.06] implement generic list (can create with cat, and can be printed)
+[2021.11.06] implement cat for different types
+[2021.11.07] fix decrement when assigned variable is assigned a new value
+[2021.11.07] fix atom op atom returning vector
+[2021.11.07] fix j atom % j vector
+[2021.11.07] implement enlist ,
+[2021.11.07] implement count #
+[2021.11.08] fix r0/r1 on generic lists
+[2021.11.08] fixed enl/cat bugs (forgot to r1 when reusing objects)
+[2021.11.08] print "," in front of enlisted singletons
+[2021.11.08] implement \\ exit
+[2021.11.08] fix no-op command in parse (hitting Enter returns 'end error)
+[2021.11.08] change KG to KK for generic object type (as generic object contains K objects, and G is shorthand for unsigned char)
+[2021.11.10] implement arithmetic operators to work generic objects (currently just simple vectors)
+[2021.11.10] implement first *
+[2021.11.11] added R1 (increment x. return x)
+[2021.11.11] fixed OOB write bug in kerr
+[2021.11.11] added at_ (for later use when implementing dyadic apply @)
+[2021.11.11] added sqz (tries to coerce list of atoms into a simple list)
+[2021.11.12] implement index @ and .
+[2021.11.16] implement max(or) | and min(and) &
+[2021.11.18] implement where & {,/(0|x)#'!#x}
+[2021.11.20] replace r1 with R1 where appropriate (maybe just redefine r1 as R1 and update everywhere)
+[2021.11.20] better printing of generic objects
+fix vector@,atom (currently handled in sqz, should be handled in at/at_)
+sqz shouldn't need to take a type 
+[2021.12.01] implement char type
+[2021.12.01] implement generic list literal
+[2021.12.01] fix # with string as right operand (causes malloc error in subsequent calls)
+[2021.12.01] fix parse of statements ending with ; (returns 'end error)
+[2021.12.03] implement special () parsing
+[2021.12.03] implement over adverb / parsing for monads for + * ,
+[2021.12.04] take now handles generic vectors
+[2021.12.04] take now handles negative left arg
+[2021.12.04] bugfix sqz for 0-length arg 
+[2021.12.04] fix bug in j%j (returns enlisted singleton)
+[2021.12.04] refactor enl using new mc(memcpy)
