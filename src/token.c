@@ -16,7 +16,7 @@ static Token makeToken(Scanner *scanner, TokenType type){
     token.length = (uint16_t)(scanner->current - scanner->start);
     token.type = type;
     // TODO : add TOKEN debug printing
-    printf("token\nstart: %c\nlength: %d\ntype: %d\n\n", *scanner->start, token.length, token.type); //debug
+    //printf("token\nstart: %c\nlength: %d\ntype: %d\n\n", *scanner->start, token.length, token.type); //debug
     return token;
 }
 
