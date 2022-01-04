@@ -181,7 +181,7 @@ static void printK_(K x){
             if (i != last) putchar('\n');
         }
     }
-    else if (KN ==     xt)       ; 
+    else if (KN ==     xt) return; 
     else if (KC == ABS(xt)) pC(x);
     else if (KI == ABS(xt)) pI(x);
     else if (KF == ABS(xt)) pF(x);
