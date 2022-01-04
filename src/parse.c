@@ -163,11 +163,13 @@ static K parseParens(Parser *parser, Scanner *scanner){
     uint64_t n = 1;
     arr[0] = expression(scanner, parser);
     while (TOKEN_SEMICOLON == parser->current.type){
-        capacity = GROW_CAPACITY(capacity);
-        arr = realloc(arr, capacity * sizeof(K) );
-        if (NULL == arr){
-            printf("Failed to realloc during number literal parse");
-            exit(1);            
+        if (n == capacity){
+            capacity = GROW_CAPACITY(capacity);
+            arr = realloc(arr, capacity * sizeof(K) );
+            if (NULL == arr){
+                printf("Failed to realloc during number literal parse");
+                exit(1);            
+            }
         }
         advance(parser, scanner);
         arr[n] = expression(scanner, parser);
