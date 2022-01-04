@@ -81,13 +81,15 @@ static bool atNoun(TokenType type){
 }
 
 static bool atVerb(TokenType type){
-    return TOKEN_PLUS == type || TOKEN_STAR == type || TOKEN_MINUS == type || TOKEN_DIVIDE == type|| 
-           TOKEN_PIPE == type || TOKEN_BANG == type || TOKEN_COMMA == type || TOKEN_AND == type ||
-           TOKEN_AT   == type || TOKEN_HASH == type;
+    return  TOKEN_PLUS  == type || TOKEN_STAR   == type || TOKEN_MINUS  == type || TOKEN_DIVIDE == type ||
+            TOKEN_PIPE  == type || TOKEN_BANG   == type || TOKEN_COMMA  == type || TOKEN_AND    == type ||
+            TOKEN_AT    == type || TOKEN_HASH   == type || TOKEN_CARET  == type || TOKEN_DOLLAR == type ||
+            TOKEN_TILDE == type || TOKEN_EQUAL  == type || TOKEN_LANGLE == type || TOKEN_RANGLE == type ||
+            TOKEN_QMARK == type || TOKEN_USCORE == type;
 }
 
 static bool atAdverb(TokenType type){
-    return TOKEN_FSLASH == type || TOKEN_BSLASH == type || TOKEN_APOSTROPHE == type;
+    return TOKEN_FSLASH == type || TOKEN_BSLASH == type || TOKEN_APOSTROPHE == type || TOKEN_EACHR == type || TOKEN_EACHL == type || TOKEN_EACHPRIOR == type;
 }
 
 // to parse a list of numbers we do the following:

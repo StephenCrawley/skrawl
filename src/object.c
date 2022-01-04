@@ -149,7 +149,9 @@ static void pO(K x){
     char ops[] = KOPS;
     char op = ops[ (int8_t) *xc ];
     putchar(op);
-    if (KM == xt) putchar(':');
+    // if monad or digraph (/: \: ':) put : to stdout
+    if (KM == xt || TOKEN_EACHL == xc[0] || TOKEN_EACHR == xc[0] || TOKEN_EACHPRIOR == xc[0]) 
+        putchar(':');
 }
 
 // prints a K object on one line

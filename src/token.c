@@ -16,7 +16,7 @@ static Token makeToken(Scanner *scanner, TokenType type){
     token.length = (uint16_t)(scanner->current - scanner->start);
     token.type = type;
     // TODO : add TOKEN debug printing
-    //printf("token\nstart: %c\nlength: %d\ntype: %d\n\n", *scanner->start, token.length, token.type); //debug
+    printf("token\nstart: %c\nlength: %d\ntype: %d\n\n", *scanner->start, token.length, token.type); //debug
     return token;
 }
 
@@ -72,6 +72,16 @@ static Token minusToken(Scanner *scanner){
     return numberToken(scanner, 0);
 }
 
+// \ and / can mean scan or over respectively, or can start the \: and /: digraphs
+static Token digraphToken(Scanner *scanner){
+    if (':' == *scanner->current){
+        scanner->current++;
+        return makeToken(scanner, ('/' == *scanner->start) ? TOKEN_EACHR : ('\\' == *scanner->start) ? TOKEN_EACHL : TOKEN_EACHPRIOR);
+    }
+
+    return makeToken(scanner, ('/' == *scanner->start) ? TOKEN_FSLASH : ('\\' == *scanner->start) ? TOKEN_BSLASH : TOKEN_APOSTROPHE);
+}
+
 Token nextToken(Scanner *scanner){
     skipWhitespace(scanner);
     scanner->start = scanner->current;
@@ -93,9 +103,18 @@ Token nextToken(Scanner *scanner){
         case '@' : return makeToken(scanner, TOKEN_AT);
         case '.' : return  dotToken(scanner);
         case '#' : return makeToken(scanner, TOKEN_HASH);
-        case '/' : return makeToken(scanner, TOKEN_FSLASH);
-        case '\\': return makeToken(scanner, TOKEN_BSLASH);
-        case '\'': return makeToken(scanner, TOKEN_APOSTROPHE);
+        case '^' : return makeToken(scanner, TOKEN_CARET);
+        case '$' : return makeToken(scanner, TOKEN_DOLLAR);
+        case '~' : return makeToken(scanner, TOKEN_TILDE);
+        case '=' : return makeToken(scanner, TOKEN_EQUAL);
+        case '<' : return makeToken(scanner, TOKEN_LANGLE);
+        case '>' : return makeToken(scanner, TOKEN_RANGLE);
+        case '?' : return makeToken(scanner, TOKEN_QMARK);
+        case '_' : return makeToken(scanner, TOKEN_USCORE);
+        case ':' : return makeToken(scanner, TOKEN_COLON);
+        case '/' : return digraphToken(scanner);
+        case '\\': return digraphToken(scanner);
+        case '\'': return digraphToken(scanner);
         case '(' : return makeToken(scanner, TOKEN_LPAREN);
         case ')' : return makeToken(scanner, TOKEN_RPAREN);
         case ';' : return makeToken(scanner, TOKEN_SEMICOLON);
