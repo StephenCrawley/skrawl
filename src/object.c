@@ -175,7 +175,7 @@ void printOneLineK(K x){
     else {printf("can't print type: %d",xt);}
 }
 
-static void printK_(K x){
+void printK(K x){
     // if general K object, print each element on its own line
     if (KK == xt){
         for (uint64_t i = 0, last = xn-1; i < xn; ++i){
@@ -192,10 +192,5 @@ static void printK_(K x){
     else if (KA ==     xt)  pO(x);
     else {printf("can't print type: %d",xt);}
     putchar('\n');
-}
-
-// print K object
-void printK(K x){
-    printK_(x);
     unref(x);
 }
