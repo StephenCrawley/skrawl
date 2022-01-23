@@ -154,6 +154,12 @@ static void pO(K x){
         putchar(':');
 }
 
+// print error
+static void pE(K x){
+    putchar('\'');
+    for (uint64_t i = 0; i < xn; ++i) putchar( xc[i] );
+}
+
 // prints a K object on one line
 // used to print child K objects in a general K list
 void printOneLineK(K x){
@@ -172,6 +178,7 @@ void printOneLineK(K x){
     else if (KM ==     xt)  pO(x);
     else if (KD ==     xt)  pO(x);
     else if (KA ==     xt)  pO(x);
+    else if (KE ==     xt)  pE(x);
     else {printf("can't print type: %d",xt);}
 }
 
@@ -190,6 +197,7 @@ void printK(K x){
     else if (KM ==     xt)  pO(x);
     else if (KD ==     xt)  pO(x);
     else if (KA ==     xt)  pO(x);
+    else if (KE ==     xt)  pE(x);
     else {printf("can't print type: %d",xt);}
     putchar('\n');
     unref(x);
