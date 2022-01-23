@@ -60,6 +60,14 @@ K Kc(char x){
     return r;
 }
 
+K Kerr(const char *error){
+    uint64_t n = strlen(error);
+    K r = ma(sizeof(C), n);
+    rt = KE;
+    for (uint64_t i = 0; i < n; ++i) rc[i] = error[i];
+    return r;
+}
+
 // squeeze a general K list into a more compact simple list if possible
 // eg (1;2;3) -> 1 2 3 or ("a";"b";"c") -> "abc" 
 K squeeze(K x){
