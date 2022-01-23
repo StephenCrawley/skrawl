@@ -16,12 +16,16 @@ typedef struct k {
     uint8_t  d[]; // data
 } *K;
 
-// the below are used for K types, and correspond to type representation within k itself
+// the below are used for K types. the 1-letter names correspond to the typenames within k itself
 // for example the k expression:
 // @ 1 2 3
 // meaning "type of 1 2 3", returns `I, indicating a 64-bit signed integer array
 // the below abbreviations are only used in the context of K object data
-typedef char C; typedef int64_t I; typedef double F;
+typedef char    C; 
+typedef int64_t I; 
+typedef double  F;
+typedef K (*M)(K);     // monadic function
+typedef K (*D)(K, K);  // dyadic  function
 
 // K accessors
 // these provide shorthand access to K struct members, significantly cleaning up the code
