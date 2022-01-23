@@ -82,8 +82,6 @@ static Token minusToken(Scanner *scanner){
     }
     
     return makeToken(scanner, TOKEN_MINUS);
-    
-    return numberToken(scanner, 0);
 }
 
 // \ and / can mean scan or over respectively, or can start the \: and /: digraphs
