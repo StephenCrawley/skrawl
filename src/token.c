@@ -33,6 +33,14 @@ static bool isNumber(char c){
     return '0' <= c && '9' >= c;
 }
 
+static bool isOperator(char c){
+    static const char ops[] = KOPS;
+    for (int i = 0, n = sizeof(ops) / sizeof(char); i < n; ++i){
+        if (c == ops[i]) return true;
+    }
+    return false;
+}
+
 static Token identifierToken(Scanner *scanner){
     while (isAlpha(*scanner->current) || isNumber(*scanner->current)){
         scanner->current++;
@@ -64,10 +72,16 @@ static Token dotToken(Scanner *scanner){
 // 1)  -3+1 (parsed as -3 + 1. evaluates to minus -2)
 // 2) - 3+1 (parsed as -(3+1), or "negate 3+1". evaluates to -4)
 static Token minusToken(Scanner *scanner){
-    if (isNumber(*scanner->current))
-        if (scanner->start != scanner->source)
-            if (' ' != scanner->start[-1])
-                return makeToken(scanner, TOKEN_MINUS);
+    if (isNumber(*scanner->current)){
+        if (scanner->source == scanner->start)
+            return numberToken(scanner, 0);
+        else {
+            if (' ' == scanner->start[-1] || isOperator(scanner->start[-1]))
+                return numberToken(scanner, 0);
+        }
+    }
+    
+    return makeToken(scanner, TOKEN_MINUS);
     
     return numberToken(scanner, 0);
 }
