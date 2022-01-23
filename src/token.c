@@ -15,12 +15,16 @@ static Token makeToken(Scanner *scanner, TokenType type){
     token.start = scanner->start;
     token.length = (uint16_t)(scanner->current - scanner->start);
     token.type = type;
-    // TODO : add TOKEN debug printing
-    //printf("token\nstart: %c\nlength: %d\ntype: %d\n\n", *scanner->start, token.length, token.type); //debug
+
+#ifdef DBGTOKEN
+    printf("length: %d   type: %-2d   token: %.*s \n", token.length, token.type, token.length, token.start);
+#endif
+
     return token;
 }
 
 // TODO : add line info
+// TODO : newlines to be treated as expression separators
 static void skipWhitespace(Scanner *scanner){
     while ('\n' == *scanner->current || '\r' == *scanner->current || ' ' == *scanner->current) scanner->current++;
 }
@@ -85,6 +89,7 @@ static Token minusToken(Scanner *scanner){
 }
 
 // \ and / can mean scan or over respectively, or can start the \: and /: digraphs
+// TODO? : monad digraphs
 static Token digraphToken(Scanner *scanner){
     if (':' == *scanner->current){
         scanner->current++;
