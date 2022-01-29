@@ -18,7 +18,6 @@ typedef struct chunk {
     
     // parse
     K    parseTree;
-    bool parseError;
 } Chunk;
 
 // public function declarations

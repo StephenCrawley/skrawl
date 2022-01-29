@@ -7,7 +7,8 @@
 #define STACK_MAX 128
 
 typedef enum {
-    INTERPRET_OK,   
+    INTERPRET_OK,
+    INTERPRET_PARSE_ERROR,
     INTERPRET_COMPILE_ERROR
 } InterpretResult;
 

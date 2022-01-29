@@ -3,6 +3,8 @@
 #include "parse.h" 
 #include "verb.h"
 #include "object.h"
+#include "compile.h"
+#include "debug.h"
 
 #define PUSH(k)  (*vm->top = (k), vm->top++)
 #define POP      (*(--vm->top))
@@ -22,6 +24,10 @@ static void freeVM(VM *vm){
 static void run(VM *vm){
     for (;;){
         uint8_t instruction = *vm->ip++;
+
+#ifdef DBGCODE
+        disassemble(vm, instruction);
+#endif
         switch (instruction){
 
             // push a constant (source code literal) onto the stack
@@ -30,20 +36,32 @@ static void run(VM *vm){
                 break;
             }
 
-            // pop 2 objects and add them. push result onto the stack
-            case OP_ADD : {
-                K y = POP; 
+            case OP_DYAD_START ... OP_DYAD_END : {
                 K x = POP; 
-                K r = add(x, y);
+                K y = POP;
+                D f = dyads[instruction];
+                K r = (*f)(x, y);
                 PUSH(r);
                 break;
             }
 
-            // pop an object and print it
+            case OP_ENLIST : {
+                uint64_t count =  *vm->ip++;
+                K r = k(KK, count);
+                for (uint64_t i = 0; i < count; ++i) rk[i] = POP;
+                r = squeeze(r);
+                PUSH(r);
+                break;
+            }
+
             case OP_RETURN : {
                 printK( POP );
                 return;
             }
+
+            default:
+                printf("error! op not recognized.\n");
+                return;
         }
     }
 }
@@ -52,19 +70,24 @@ InterpretResult interpret(const char *source){
     // init new Chunk
     Chunk *chunk = initNewChunk();
 
-    // compile source into chunk
-    bool compileSuccess = compile(source, chunk);
+    // parse source. parse tree is saved in chunk->parseTree
+    // the tree is a K object
+    bool parseSuccess = parse(source, chunk);
 
-    // return error if compilation failed
-    if (!compileSuccess) return INTERPRET_COMPILE_ERROR;
-    else { printK( ref(chunk->parseTree) ); freeChunk(chunk); return INTERPRET_OK;}
+    // return error if parsing failed
+    if (!parseSuccess) return INTERPRET_PARSE_ERROR;
 
-    // *** CURRENTLY VM IS NOT USED *** //
-    // source is parsed and parse tree is returned if successful
-    // TODO : compile to bytecode from parse tree
+// if flag is set, parse input and print the parse tree only
+#ifdef DBGPARSE
+    printK( ref(chunk->parseTree) );
+    freeChunk(chunk);
+    return INTERPRET_OK;
+#endif
+
+    compile(chunk);
 
     // run bytecode in VM
-    VM *vm = initVM(chunk); 
+    VM *vm = initVM(chunk);
     run(vm);
 
     // cleanup and return success

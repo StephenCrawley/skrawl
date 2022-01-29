@@ -5,9 +5,9 @@
 #include "chunk.h"
 #include "object.h"
 
-#define REPORT_ERROR(error...)    \
+#define REPORT_ERROR(...)         \
         if(!parser->panic){       \
-            printf(error);        \
+            printf(__VA_ARGS__);  \
             parser->panic = true; \
         }
 
@@ -77,7 +77,7 @@ static bool atExprEnd(TokenType type){
 }
 
 static bool atNoun(TokenType type){
-    return TOKEN_NUMBER == type || TOKEN_FLOAT == type || TOKEN_LPAREN == type || TOKEN_STRING == type;
+    return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || TOKEN_FLOAT == type;
 }
 
 static bool atVerb(TokenType type){
@@ -169,7 +169,7 @@ static K parseParens(Parser *parser, Scanner *scanner){
             capacity = GROW_CAPACITY(capacity);
             arr = realloc(arr, capacity * sizeof(K) );
             if (NULL == arr){
-                printf("Failed to realloc during number literal parse");
+                printf("Failed to realloc during general list parse");
                 exit(1);            
             }
         }
@@ -392,28 +392,23 @@ static K Expressions(Scanner *scanner, Chunk *chunk, Parser *parser){
     return r;
 }
 
-static void parse(Scanner *scanner, Chunk *chunk){ 
+bool parse(const char *source, Chunk *chunk){ 
+    // init a new scanner instance
+    Scanner *scanner = initNewScanner(source);
     // init the parser. the parser is simple struct containing previous&current token and a panic flag
     Parser parser;
     parser.panic = false;
+
     advance(&parser, scanner);
     if (TOKEN_EOF == parser.current.type){
         chunk->parseTree = KNUL;
-        return;
+        return true;
     }
 
     K r = Expressions(scanner, chunk, &parser);
-    chunk->parseError = parser.panic;
     chunk->parseTree = r;
-}
 
-bool compile(const char *source, Chunk *chunk){ 
-    // init a new scanner instance
-    Scanner *scanner = initNewScanner(source);
-
-    // parse. saves a parse tree in the chunk
-    parse(scanner, chunk);
-    if (chunk->parseError){
+    if (parser.panic){
         printf("Parse error.\n");
         freeChunk(chunk);
         free(scanner);

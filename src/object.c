@@ -12,7 +12,6 @@ K ref(K x){
 }
 
 void unref(K x){
-    //printf("type %d\n",xt);
     // if generic K type, call 'unref' on all child K objects
     if (KK == xt){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
@@ -99,6 +98,17 @@ K squeeze(K x){
     return r;
 }
 
+// expand a simple K list to a general list 
+// eg 1 2 3 -> (1;2;3) or "abc" -> ("a";"b";"c")
+K expand(K x){
+    K r = k(KK, xn);
+    if      (KI == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ki( xi[i] );
+    else if (KF == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
+    else if (KC == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kc( xc[i] );
+    else {unref(x), unref(r); return Kerr("type error! can't expand");}
+    return r;
+}
+
 // print functionality
 // pX are private helpers to print various types
 // printK is public print function
@@ -146,7 +156,7 @@ static void pF(K x){
 static void pC(K x){
     if (0 < xt && 1 == xn) putchar(',');
     putchar('"');
-    for (uint64_t i=0; i<xn; ++i) putchar( xc[i] );
+    for (uint64_t i = 0; i < xn; ++i) putchar( xc[i] );
     putchar('"');
 }
 
@@ -154,7 +164,7 @@ static void pC(K x){
 // these objects contain a single char which indexes the KOPS string
 // this index is also used to access the function pointer for the op
 static void pO(K x){
-    char ops[] = KOPS;
+    static const char ops[] = KOPS;
     char op = ops[ (int8_t) *xc ];
     putchar(op);
     // if monad or digraph (/: \: ':) put : to stdout
@@ -209,4 +219,10 @@ void printK(K x){
     else {printf("can't print type: %d",xt);}
     putchar('\n');
     unref(x);
+}
+
+void debugPrintK(K x){
+    printf("len: %ld, type: %d\n", xn, xt);
+    printK(x);
+    putchar('\n');
 }

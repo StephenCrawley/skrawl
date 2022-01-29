@@ -1,11 +1,9 @@
-#ifndef COMPILE
-#define COMPILE
+#ifndef PARSE
+#define PARSE
 
 #include "a.h"
 #include "token.h"
 #include "chunk.h"
-
-enum {OP_CONSTANT, OP_ADD, OP_RETURN};
 
 typedef struct {
     Token previous;
@@ -13,6 +11,6 @@ typedef struct {
     bool  panic;
 } Parser;
 
-bool compile(const char *source, Chunk *chunk);
+bool parse(const char *source, Chunk *chunk);
 
 #endif

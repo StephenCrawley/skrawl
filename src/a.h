@@ -50,11 +50,13 @@ typedef K (*D)(K, K);  // dyadic  function
 #define xn       COUNT(x)
 #define yn       COUNT(y)
 #define rn       COUNT(r)
+#define tn       COUNT(t)
 // object data pointer
 #define DATA(k)  ((k)->d)
 // char pointer
 #define CHAR(k)  ((C*)DATA(k))
 #define xc       CHAR(x)
+#define yc       CHAR(y)
 #define rc       CHAR(r)
 #define tc       CHAR(t)
 // 64-bit signed int pointer
@@ -65,6 +67,7 @@ typedef K (*D)(K, K);  // dyadic  function
 // double precision float pointer
 #define FLOAT(k) ((F*)DATA(k))
 #define xf       FLOAT(x)
+#define yf       FLOAT(y)
 #define rf       FLOAT(r)
 // general K pointer (for a K object containing K objects)
 #define KOBJ(k)  ((K*)DATA(k))

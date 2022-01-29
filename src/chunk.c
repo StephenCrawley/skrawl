@@ -12,13 +12,12 @@ Chunk* initNewChunk(){
     chunk->kCount = 0;
     chunk->kSize = 8;
     chunk->parseTree = NULL;
-    chunk->parseError = false;
     return chunk;
 }
 
 void freeChunk(Chunk *chunk){
     // free the array of constants
-    for (int i=0; i < chunk->kCount; ++i) free(chunk->k[i]);
+    //for (int i = 0; i < chunk->kCount; ++i) free(chunk->k[i]);
     free(chunk->k);
 
     // free the bytecode

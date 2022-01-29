@@ -14,10 +14,14 @@ K k(int8_t type, uint64_t count);
 K Ki(int64_t x);
 K Kf(double x);
 K Kc(char x);
+K Kerr(const char *error);
 
 K squeeze(K x);
+K expand(K x);
 
 // print K object
 void printK(K x);
+void printOneLineK(K x);
+void debugPrintK(K x);
 
 #endif
