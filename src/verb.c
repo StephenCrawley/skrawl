@@ -80,7 +80,10 @@
     else if (KC == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xc, yi) } \
     else if (KC == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xc, yf) } \
     else if (KC == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) } \
-    else {unref(x),unref(y);return Kerr("type error! dyad operand has incompatible type");} \
+    else { /* incompatible type. return error */                                \
+        unref(x),unref(y),unref(r);                                             \
+        return Kerr("type error! dyad operand has incompatible type");          \
+    }                                                                           \
     unref(x), unref(y);
 
 // executes the dyadic operation
