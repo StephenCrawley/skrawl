@@ -58,6 +58,13 @@ static Token stringToken(Scanner *scanner){
     return makeToken(scanner, TOKEN_STRING);
 }
 
+static Token symbolToken(Scanner *scanner){
+    while (isAlpha(*scanner->current) || isNumber(*scanner->current)){
+        scanner->current++;
+    }
+    return makeToken(scanner, TOKEN_SYMBOL);
+}
+
 static Token numberToken(Scanner *scanner, uint16_t acc){
     while (isNumber(*scanner->current) || '.' == *scanner->current){
         if('.' == *scanner->current) acc++;
@@ -107,6 +114,7 @@ Token nextToken(Scanner *scanner){
     if (isAlpha(c))  return identifierToken(scanner);
     if (isNumber(c)) return numberToken(scanner, 0);
     if ('"' == c)    return stringToken(scanner);
+    if ('`' == c)    return symbolToken(scanner);
     
     switch(c){
         case '+' : return makeToken(scanner, TOKEN_PLUS);

@@ -64,6 +64,7 @@ typedef K (*D)(K, K);  // dyadic  function
 #define xi       INT(x)
 #define yi       INT(y)
 #define ri       INT(r)
+#define ti       INT(t)
 // double precision float pointer
 #define FLOAT(k) ((F*)DATA(k))
 #define xf       FLOAT(x)
@@ -83,16 +84,18 @@ enum {
     KC,        // char
     KI,        // int
     KF,        // float
+    KS,        // symbol
     KM,        // monadic function
     KD,        // dyadic function
     KA,        // adverb
     KN         // null
 };
-#define KWIDTHS 8,1,8,8,1,1,1,0 // in bytes
+#define KWIDTHS 8,1,8,8,8,1,1,1,0 // in bytes
 #define KOPS "+*-%.!|&,@#^$~=<>?_:/\\'\\/'";
 
 // utility macros
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ABS(x) MAX((x), -(x))
 
 #endif

@@ -13,7 +13,7 @@ typedef enum {
     // identifier
     TOKEN_ID,
     // literals
-    TOKEN_NUMBER, TOKEN_FLOAT, TOKEN_STRING,
+    TOKEN_NUMBER, TOKEN_FLOAT, TOKEN_STRING, TOKEN_SYMBOL,
     // punctuation
     TOKEN_SEMICOLON, TOKEN_LPAREN, TOKEN_RPAREN,
     // end and errors

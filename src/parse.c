@@ -77,7 +77,7 @@ static bool atExprEnd(TokenType type){
 }
 
 static bool atNoun(TokenType type){
-    return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || TOKEN_FLOAT == type;
+    return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || TOKEN_FLOAT == type || TOKEN_SYMBOL == type;
 }
 
 static bool atVerb(TokenType type){
@@ -202,6 +202,31 @@ static K parseParens(Parser *parser, Scanner *scanner){
     return r;
 }
 
+static K parseSymbol(Parser *parser, Scanner *scanner){
+    K r, t;
+    uint64_t capacity = 1, j = 1;
+    r = k(-KS, capacity);
+    const char *str = &parser->previous.start[0];
+    str++;
+    MAKE_SYMBOL(ri[0], str, parser->previous.length-1);
+    while (TOKEN_SYMBOL == parser->current.type){
+        if (j == capacity){
+            capacity = GROW_CAPACITY(capacity);
+            t = k(KS, capacity);
+            for (uint64_t i = 0; i < rn; ++i) ti[i] = ri[i];
+            unref(r);
+            r = t;
+        }
+        advance(parser, scanner);
+        str = &parser->previous.start[0];
+        str++;
+        MAKE_SYMBOL(ri[j], str, parser->previous.length-1);
+        ++j;
+    }
+    rn = j;
+    return r;
+}
+
 static K parseNoun(Parser *parser, Scanner *scanner){
     K r;
 
@@ -217,8 +242,11 @@ static K parseNoun(Parser *parser, Scanner *scanner){
     else if (TOKEN_LPAREN == parser->previous.type){
         r = parseParens(parser, scanner);
     }
+    else if (TOKEN_SYMBOL == parser->previous.type){
+        r = parseSymbol(parser, scanner);
+    }
     else {
-        REPORT_ERROR("Not yet implemented or error.\n");
+        REPORT_ERROR("Error! Noun not yet implemented.\n");
         r = KNUL;
     }
 

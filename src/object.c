@@ -160,6 +160,19 @@ static void pC(K x){
     putchar('"');
 }
 
+// print symbol object
+static void pS(K x){
+    if (0 < xt && 1 == xn) putchar(',');
+    for (uint64_t i = 0; i < xn; ++i){
+        putchar('`');
+        void *ptr = &xi[i];
+        uint8_t j = 0;
+        while (((char *)ptr)[j] && j != 8){
+            putchar(((char *)ptr)[j++]);
+        };
+    }
+}
+
 // print op (monad / dyad / adverb)
 // these objects contain a single char which indexes the KOPS string
 // this index is also used to access the function pointer for the op
@@ -193,6 +206,7 @@ void printOneLineK(K x){
     else if (KC == ABS(xt)) pC(x);
     else if (KI == ABS(xt)) pI(x);
     else if (KF == ABS(xt)) pF(x);
+    else if (KS == ABS(xt)) pS(x);
     else if (KM ==     xt)  pO(x);
     else if (KD ==     xt)  pO(x);
     else if (KA ==     xt)  pO(x);
@@ -212,6 +226,7 @@ void printK(K x){
     else if (KC == ABS(xt)) pC(x);
     else if (KI == ABS(xt)) pI(x);
     else if (KF == ABS(xt)) pF(x);
+    else if (KS == ABS(xt)) pS(x);
     else if (KM ==     xt)  pO(x);
     else if (KD ==     xt)  pO(x);
     else if (KA ==     xt)  pO(x);

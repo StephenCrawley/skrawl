@@ -50,7 +50,7 @@ static void compileNode(Chunk *chunk, K x){
         compileMonad(chunk, x);
         return;
     }
-    else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt)){
+    else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KS == ABS(xt)){
         addConstant(chunk, x);
         return;
     }
