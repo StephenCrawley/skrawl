@@ -253,13 +253,13 @@ static K parseNoun(Parser *parser, Scanner *scanner){
     return r;
 }
 
-static K parseMonad(Parser *parser, Scanner *scanner){
+static K parseMonad(Parser *parser){
     K r = k(KM, 1);
     rc[0] = (char) parser->previous.type;
     return r; 
 }
 
-static K parseDyad(Parser *parser, Scanner *scanner){
+static K parseDyad(Parser *parser){
     K r = k(KD, 1);
     rc[0] = (char) parser->previous.type;
     return r; 
@@ -320,7 +320,7 @@ static K expression(Scanner *scanner, Parser *parser){
         }
         else if (atVerb(parser->current.type)){
             advance(parser, scanner);
-            K infix = parseDyad(parser, scanner);
+            K infix = parseDyad(parser);
             if (TOKEN_EOF == parser->current.type) // 1+
                 r = join(infix, prefix);
             else if (atAdverb(parser->current.type)){
@@ -358,7 +358,7 @@ static K expression(Scanner *scanner, Parser *parser){
         //            | verb
         K prefix;
         if (atAdverb(parser->current.type)){
-            prefix = parseDyad(parser, scanner);
+            prefix = parseDyad(parser);
             advance(parser, scanner);
             prefix = parseAdverb(parser, scanner, prefix);
             if (TOKEN_EOF == parser->current.type)
@@ -371,7 +371,7 @@ static K expression(Scanner *scanner, Parser *parser){
 
         }
         else {
-            prefix = parseMonad(parser, scanner);
+            prefix = parseMonad(parser);
         }
         if (atExprEnd(parser->current.type)) 
             return r;
