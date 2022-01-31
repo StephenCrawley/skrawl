@@ -106,6 +106,7 @@ K expand(K x){
     else if (KF == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
     else if (KC == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kc( xc[i] );
     else {unref(x), unref(r); return Kerr("type error! can't expand");}
+    unref(x);
     return r;
 }
 

@@ -7,6 +7,17 @@
 #define SUB(x, y)  ((x) - (y))
 #define DIV(x, y)  ((x) / (y))
 
+// macro to handle errors
+// cleans up objects and returns the error
+// assumes a temp object t is present
+#define HANDLE_IF_ERROR                                                           \
+    if (KE == tt){                /* if error was returned */                     \
+        unref(x), unref(y);       /* unref the args */                            \
+        while (i--) unref(rk[i]); /* unref the child objects already assigned */  \
+        free(r);                                                                  \
+        return t;                                                                 \
+    }
+
 // dyadic arithmetic operation
 // k arithmetic ops are "atomic"
 // that is, for "atom op vector" the atom recursively drills down to each element of the vector
@@ -18,72 +29,90 @@
 // DYADIC_INIT handles 2 cases
 // it calls function f recursively if any of the arguments are general lists
 // or it initializes the return value if none of the args are general lists
-#define DYADIC_INIT(f)                                                          \
-    /* if operands are vectors of different lengths, return length error */     \
-    if ((KK <= xt && KK <= yt) && xn != yn){                                    \
-        unref(x), unref(y);                                                     \
-        return Kerr("length error! operands don't conform");                    \
-    }                                                                           \
-    K r; /* declare return value */                                             \
-                                                                                \
-    /* 2 cases: */                                                              \
+#define DYADIC_INIT(f)                                                           \
+    /* if operands are vectors of different lengths, return length error */      \
+    if ((KK <= xt && KK <= yt) && xn != yn){                                     \
+        unref(x), unref(y);                                                      \
+        return Kerr("length error! operands don't conform");                     \
+    }                                                                            \
+    K r, t; /* declare return and temp value */                                  \
+                                                                                 \
+    /* 2 cases: */                                                               \
     /*   a) 1 or both of the operands are general lists -> recursively call on each list element and return result */  \
     /*   b) both operands are atomic or simple lists -> set up the return type but don't return anything */ \
-                                                                                \
-    /* case a: */                                                               \
-    /* TODO : error handling. need to check return val from recursive calls */  \
-    if(KK == xt || KK == yt){                                                   \
-        r = k(KK, MAX(xn, yn));                                                 \
-        if(KK == xt && KK == yt){                                               \
-            for(uint64_t i = 0; i < rn; ++i) rk[i] = f(ref(xk[i]), ref(yk[i])); \
-        }                                                                       \
-        else if(KK == xt && 0 > yt){                                            \
-            for(uint64_t i = 0; i < rn; ++i) rk[i] = f(ref(xk[i]), ref(y));     \
-        }                                                                       \
-        else if(0 > xt && KK == yt){                                            \
-            for(uint64_t i = 0; i < rn; ++i) rk[i] = f(ref(x),     ref(yk[i])); \
-        }                                                                       \
-        else if(KK == xt && 0 < yt){                                            \
-            K t = expand(y);                                                    \
-            for(uint64_t i = 0; i < rn; ++i) rk[i] = f(ref(xk[i]), ref(tk[i])); \
-            unref(t);                                                           \
-        }                                                                       \
-        else if(0 < xt && KK == yt){                                            \
-            K t = expand(x);                                                    \
-            for(uint64_t i = 0; i < rn; ++i) rk[i] = f(ref(tk[i]), ref(yk[i])); \
-            unref(t);                                                           \
-        }                                                                       \
-        else {                                                                  \
-            unref(r);                                                           \
-            r = Kerr("type error! dyad operands have incorrect type");          \
-        }                                                                       \
-        unref(x), unref(y);                                                     \
-        return r;                                                               \
-    }                                                                           \
-                                                                                \
-    /* case b: */                                                               \
-    /* return type is the wider of the 2 operands */                            \
-    int8_t   rtype  = MAX(ABS(xt), ABS(yt));                                    \
-    rtype = (0 < xt || 0 < yt) ? rtype : -rtype;                                \
-    uint64_t rcount = MAX(xn, yn);                                              \
+                                                                                 \
+    /* case a: */                                                                \
+    /* TODO : error handling. need to check return val from recursive calls */   \
+    if(KK == xt || KK == yt){                                                    \
+        r = k(KK, MAX(xn, yn));                                                  \
+        if(KK == xt && KK == yt){                                                \
+            for(uint64_t i = 0; i < rn; ++i){                                    \
+                t = f(ref(xk[i]), ref(yk[i]));                                   \
+                HANDLE_IF_ERROR;                                                 \
+                rk[i] = t;                                                       \
+            }                                                                    \
+        }                                                                        \
+        else if(KK == xt && 0 > yt){                                             \
+            for(uint64_t i = 0; i < rn; ++i){                                    \
+                t = f(ref(xk[i]), ref(y));                                       \
+                HANDLE_IF_ERROR;                                                 \
+                rk[i] = t;                                                       \
+            }                                                                    \
+        }                                                                        \
+        else if(0 > xt && KK == yt){                                             \
+            for(uint64_t i = 0; i < rn; ++i){                                    \
+                t = f(ref(x),     ref(yk[i]));                                   \
+                HANDLE_IF_ERROR;                                                 \
+                rk[i] = t;                                                       \
+            }                                                                    \
+        }                                                                        \
+        else if(KK == xt && 0 < yt){                                             \
+            y = expand(y);                                                       \
+            for(uint64_t i = 0; i < rn; ++i){                                    \
+                t = f(ref(xk[i]), ref(yk[i]));                                   \
+                HANDLE_IF_ERROR;                                                 \
+                rk[i] = t;                                                       \
+            }                                                                    \
+        }                                                                        \
+        else if(0 < xt && KK == yt){                                             \
+            x = expand(x);                                                       \
+            for(uint64_t i = 0; i < rn; ++i){                                    \
+                t = f(ref(xk[i]), ref(yk[i]));                                   \
+                HANDLE_IF_ERROR;                                                 \
+                rk[i] = t;                                                       \
+            }                                                                    \
+        }                                                                        \
+        else {                                                                   \
+            unref(r);                                                            \
+            r = Kerr("type error! dyad operands have incorrect type");           \
+        }                                                                        \
+        unref(x), unref(y);                                                      \
+        return r;                                                                \
+    }                                                                            \
+                                                                                 \
+    /* case b: */                                                                \
+    /* return type is the wider of the 2 operands */                             \
+    int8_t   rtype  = MAX(ABS(xt), ABS(yt));                                     \
+    rtype = (0 < xt || 0 < yt) ? rtype : -rtype;                                 \
+    uint64_t rcount = MAX(xn, yn);                                               \
     r = k(rtype, rcount);
 
 // wrapper around DYADIC_OP_EXEC
 // provides correct object accessor for the operation fepending on type
-#define DYADIC_OP(op)                                                           \
-    if      (KI == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yi) } \
-    else if (KI == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xi, yf) } \
-    else if (KI == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) } \
-    else if (KF == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yi) } \
-    else if (KF == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yf) } \
-    else if (KF == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yc) } \
-    else if (KC == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xc, yi) } \
-    else if (KC == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xc, yf) } \
-    else if (KC == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) } \
-    else { /* incompatible type. return error */                                \
-        unref(x),unref(y),unref(r);                                             \
-        return Kerr("type error! dyad operand has incompatible type");          \
-    }                                                                           \
+#define DYADIC_OP(op)                                                            \
+    if      (KI == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yi) }  \
+    else if (KI == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xi, yf) }  \
+    else if (KI == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) }  \
+    else if (KF == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yi) }  \
+    else if (KF == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yf) }  \
+    else if (KF == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yc) }  \
+    else if (KC == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xc, yi) }  \
+    else if (KC == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xc, yf) }  \
+    else if (KC == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) }  \
+    else { /* incompatible type. return error */                                 \
+        unref(x),unref(y),unref(r);                                              \
+        return Kerr("type error! dyad operand has incompatible type");           \
+    }                                                                            \
     unref(x), unref(y);
 
 // executes the dyadic operation
