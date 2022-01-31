@@ -18,6 +18,8 @@ static VM *initVM(Chunk *chunk){
 }
 
 static void freeVM(VM *vm){
+    for (uint64_t i = 0, n = vm->top - vm->stack; i < n; ++i)
+        unref( vm->stack[i] );
     free(vm);
 }
 
