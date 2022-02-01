@@ -145,7 +145,7 @@ static K parseNumber(Parser *parser, Scanner *scanner){
     return r;
 }
 
-static K parseString(Parser *parser, Scanner *scanner){
+static K parseString(Parser *parser){
     Token token = parser->previous;
     uint64_t n = token.length - 2; // -2 to ignore the ""
     K r = k(1 == n ? -KC : KC, n);
@@ -237,7 +237,7 @@ static K parseNoun(Parser *parser, Scanner *scanner){
     }
     // if string. eg "foobar"
     else if (TOKEN_STRING == parser->previous.type){
-        r = parseString(parser, scanner);
+        r = parseString(parser);
     }
     // if parens. eg (1+2)%3 
     else if (TOKEN_LPAREN == parser->previous.type){
@@ -393,7 +393,7 @@ static K expression(Scanner *scanner, Parser *parser){
 }
 
 // <Expressions>  ::=  <Exprs> ";" <expression>  |  <expression>
-static K Expressions(Scanner *scanner, Chunk *chunk, Parser *parser){
+static K Expressions(Scanner *scanner, Parser *parser){
     // parse an expression
     K r = expression(scanner, parser);
     
@@ -434,7 +434,7 @@ bool parse(const char *source, Chunk *chunk){
         return true;
     }
 
-    K r = Expressions(scanner, chunk, &parser);
+    K r = Expressions(scanner, &parser);
     chunk->parseTree = r;
 
     if (parser.panic){
