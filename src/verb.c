@@ -124,24 +124,25 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-D dyads[] = {add, multiply, subtract, divide};
+//           +    *         -         %       .     !     |    &  
+D dyads[] = {add, multiply, subtract, divide, NULL, NULL, max, min};
 
 K add(K x, K y){
     DYADIC_INIT(add); // declare return object r, type rtype, count rcount
     DYADIC_OP(ADD); 
-    return  r;
+    return r;
 }
 
 K multiply(K x, K y){
     DYADIC_INIT(multiply); // declare return object r, type rtype, count rcount
     DYADIC_OP(PRD); 
-    return  r;
+    return r;
 }
 
 K subtract(K x, K y){
     DYADIC_INIT(subtract); // declare return object r, type rtype, count rcount
     DYADIC_OP(SUB); 
-    return  r;
+    return r;
 }
 
 K divide(K x, K y){
@@ -153,5 +154,17 @@ K divide(K x, K y){
 
     DYADIC_INIT(divide); // declare return object r, type rtype, count rcount
     DYADIC_OP(DIV); 
-    return  r;
+    return r;
+}
+
+K max(K x, K y){
+    DYADIC_INIT(max); // declare return object r, type rtype, count rcount
+    DYADIC_OP(MAX); 
+    return r;
+}
+
+K min(K x, K y){
+    DYADIC_INIT(min); // declare return object r, type rtype, count rcount
+    DYADIC_OP(MIN); 
+    return r;
 }

@@ -9,10 +9,12 @@ K add(K x,K y);
 K subtract(K x,K y);
 K multiply(K x,K y);
 K divide(K x,K y);
+K max(K x,K y);
+K min(K x,K y);
 
 // monadic verbs
 K flip(K x);
 
-D dyads[4];
+D dyads[8];
 
 #endif
