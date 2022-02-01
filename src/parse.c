@@ -40,6 +40,7 @@ static K append(K x, K y){
     // copy y
     rk[xn] = y;
 
+    free(x);
     return r;
 }
 
