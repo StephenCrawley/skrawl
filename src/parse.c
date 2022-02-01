@@ -157,7 +157,7 @@ static K parseString(Parser *parser, Scanner *scanner){
 
 static K parseParens(Parser *parser, Scanner *scanner){
     if (TOKEN_EOF == parser->current.type){
-        REPORT_ERROR("Expected expression after '('\n");
+        REPORT_ERROR("Parse error! Expected expression after '('\n");
     }
 
     uint64_t capacity = 8;
@@ -178,8 +178,9 @@ static K parseParens(Parser *parser, Scanner *scanner){
         ++n;
     }
     if (TOKEN_RPAREN != parser->current.type){
+        while (n--) free(arr[n]);
         free(arr);
-        REPORT_ERROR("Expected ')'\n");
+        REPORT_ERROR("Parse error! Expected ')'\n");
         if (TOKEN_EOF == parser->current.type){
             return KNUL;
         }
@@ -437,7 +438,6 @@ bool parse(const char *source, Chunk *chunk){
     chunk->parseTree = r;
 
     if (parser.panic){
-        printf("Parse error.\n");
         freeChunk(chunk);
         free(scanner);
         chunk = NULL;
