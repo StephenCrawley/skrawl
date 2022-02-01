@@ -55,7 +55,7 @@ static void compileNode(Chunk *chunk, K x){
         return;
     }
     else {
-        printf("Compile error! Unrecognised op.");
+        printf("Compile error! Unrecognised op.\n");
         return;
     }
 
