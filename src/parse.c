@@ -27,16 +27,11 @@ static void advance(Parser *parser, Scanner *scanner){
     parser->current = nextToken(scanner);
 }
 
-static K append(K x, K y){
-    uint64_t n = xn+1;                                    
-    K r = k(KK, n);
+static K appendExpression(K x, K y){                                 
+    K r = k(KK, xn+1);
     // copy x
-    if (KK == xt){
-        for (uint64_t i = 0 ; i < xn; ++i) rk[i] = xk[i];
-    }
-    else {
-        rk[0] = x;
-    }
+    for (uint64_t i = 0 ; i < xn; ++i) rk[i] = xk[i];
+
     // copy y
     rk[xn] = y;
 
@@ -383,7 +378,7 @@ static K expression(Scanner *scanner, Parser *parser){
             rk[1] = expression(scanner, parser);
         }
     }
-    else { // no input or error. return generic null
+    else { // error. report and return generic null
         parser->panic = true;
 
         REPORT_ERROR("Unexpected token '%.*s'\n.",parser->current.length,parser->current.start);
@@ -407,7 +402,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
         while (TOKEN_SEMICOLON == parser->current.type){
             advance(parser, scanner);
             t = expression(scanner, parser);
-            r = append(r, t);
+            r = appendExpression(r, t);
         }
     }
     else if (TOKEN_EOF  == parser->current.type)
