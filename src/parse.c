@@ -432,6 +432,7 @@ bool parse(const char *source, Chunk *chunk){
     advance(&parser, scanner);
     if (TOKEN_EOF == parser.current.type){
         chunk->parseTree = KNUL;
+        free(scanner);
         return true;
     }
 
