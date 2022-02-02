@@ -70,30 +70,23 @@ K Kerr(const char *error){
 // squeeze a general K list into a more compact simple list if possible
 // eg (1;2;3) -> 1 2 3 or ("a";"b";"c") -> "abc" 
 K squeeze(K x){
-    if (KK != xt) return x; // can only squeeze general lists
+    // can only squeeze general lists
+    if (KK != xt) return x;
 
+    // can only squeeze general list of atoms
     int8_t type = TYPE( xk[0] );
-    if (0 <= type) return x; // can only squeeze general list of atoms
+    if (0 <= type) return x; 
 
-    for (uint64_t i = 1; i < xn; ++i){
-        if (type != TYPE( xk[i] )) return x; // can't squeeze if types differ
-    }
+    // can't squeeze if types differ
+    for (uint64_t i = 1; i < xn; ++i) 
+        if (type != TYPE( xk[i] )) return x; 
 
+    // squeeze
     K r = k(ABS(type), xn);
-    if (KI == rt)
-        for (uint64_t i = 0; i < xn; ++i){
-            ri[i] = INT( xk[i] )[0];
-        }
-    else if (KF == rt)
-        for (uint64_t i = 0; i < xn; ++i){
-            rf[i] = FLOAT( xk[i] )[0];
-        }
-    else if (KC == rt)
-        for (uint64_t i = 0; i < xn; ++i){
-            rc[i] = CHAR( xk[i] )[0];
-        }
+    if      (KI == rt) for (uint64_t i = 0; i < xn; ++i) ri[i] = INT  ( xk[i] )[0];
+    else if (KF == rt) for (uint64_t i = 0; i < xn; ++i) rf[i] = FLOAT( xk[i] )[0];
+    else if (KC == rt) for (uint64_t i = 0; i < xn; ++i) rc[i] = CHAR ( xk[i] )[0];
     else {printf("squeeze type NYI. exit...\n"); exit(1);}
-
     unref(x);
     return r;
 }
