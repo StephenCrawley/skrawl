@@ -108,7 +108,7 @@ K expand(K x){
 // printK is public print function
 
 // print int object
-static void pI(K x){
+static void printI(K x){
     if (xn){
         if (0 < xt && 1 == xn) putchar(',');
         for (uint64_t i = 0, last = xn-1; i < xn; ++i){
@@ -123,7 +123,7 @@ static void pI(K x){
 
 // print float object
 // truncates trailing 0s
-static void pF(K x){
+static void printF(K x){
     if (xn){ // if not empty 0-count object
         if (0 < xt && 1 == xn) putchar(',');
         char buff[9]; // TODO : fix. major bug
@@ -147,7 +147,7 @@ static void pF(K x){
 }
 
 // print char object
-static void pC(K x){
+static void printC(K x){
     if (0 < xt && 1 == xn) putchar(',');
     putchar('"');
     for (uint64_t i = 0; i < xn; ++i) putchar( xc[i] );
@@ -155,7 +155,7 @@ static void pC(K x){
 }
 
 // print symbol object
-static void pS(K x){
+static void printS(K x){
     if (0 < xt && 1 == xn) putchar(',');
     for (uint64_t i = 0; i < xn; ++i){
         putchar('`');
@@ -170,7 +170,7 @@ static void pS(K x){
 // print op (monad / dyad / adverb)
 // these objects contain a single char which indexes the KOPS string
 // this index is also used to access the function pointer for the op
-static void pO(K x){
+static void printO(K x){
     static const char ops[] = KOPS;
     char op = ops[ (int8_t) *xc ];
     putchar(op);
@@ -180,7 +180,7 @@ static void pO(K x){
 }
 
 // print error
-static void pE(K x){
+static void printE(K x){
     putchar('\'');
     for (uint64_t i = 0; i < xn; ++i) putchar( xc[i] );
 }
@@ -197,14 +197,14 @@ void printOneLineK(K x){
         putchar(')');
     }
     else if (KN ==     xt)  printf("::");
-    else if (KC == ABS(xt)) pC(x);
-    else if (KI == ABS(xt)) pI(x);
-    else if (KF == ABS(xt)) pF(x);
-    else if (KS == ABS(xt)) pS(x);
-    else if (KM ==     xt)  pO(x);
-    else if (KD ==     xt)  pO(x);
-    else if (KA ==     xt)  pO(x);
-    else if (KE ==     xt)  pE(x);
+    else if (KC == ABS(xt)) printC(x);
+    else if (KI == ABS(xt)) printI(x);
+    else if (KF == ABS(xt)) printF(x);
+    else if (KS == ABS(xt)) printS(x);
+    else if (KM ==     xt)  printO(x);
+    else if (KD ==     xt)  printO(x);
+    else if (KA ==     xt)  printO(x);
+    else if (KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
 }
 
@@ -217,14 +217,14 @@ void printK(K x){
         }
     }
     else if (KN ==     xt)  {unref(x);return;}
-    else if (KC == ABS(xt)) pC(x);
-    else if (KI == ABS(xt)) pI(x);
-    else if (KF == ABS(xt)) pF(x);
-    else if (KS == ABS(xt)) pS(x);
-    else if (KM ==     xt)  pO(x);
-    else if (KD ==     xt)  pO(x);
-    else if (KA ==     xt)  pO(x);
-    else if (KE ==     xt)  pE(x);
+    else if (KC == ABS(xt)) printC(x);
+    else if (KI == ABS(xt)) printI(x);
+    else if (KF == ABS(xt)) printF(x);
+    else if (KS == ABS(xt)) printS(x);
+    else if (KM ==     xt)  printO(x);
+    else if (KD ==     xt)  printO(x);
+    else if (KA ==     xt)  printO(x);
+    else if (KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
     putchar('\n');
     unref(x);
