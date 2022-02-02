@@ -159,10 +159,17 @@ static void printS(K x){
     if (0 < xt && 1 == xn) putchar(',');
     for (uint64_t i = 0; i < xn; ++i){
         putchar('`');
-        void *ptr = &xi[i];
+
+        // symbols are contained in 8-byte slots
+        // we access each symbol with xi (int64_t pointer) 
+        // then cast this to char pointer so we can access and print each byte
+        char *ptr = (char *) &xi[i];
         uint8_t j = 0;
-        while (((char *)ptr)[j] && j != 8){
-            putchar(((char *)ptr)[j++]);
+
+        // symbols less than 8 chars are '\0' padded.
+        // print while not null char AND within the 8 bytes
+        while (ptr[j] && j != 8){
+            putchar(ptr[j++]);
         };
     }
 }
