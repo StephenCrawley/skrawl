@@ -50,7 +50,7 @@ static void compileNode(Chunk *chunk, K x){
         compileMonad(chunk, x);
         return;
     }
-    else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KS == ABS(xt)){
+    else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KS == ABS(xt) || KN == ABS(xt)){
         addConstant(chunk, x);
         return;
     }
@@ -65,8 +65,18 @@ static void compileNode(Chunk *chunk, K x){
     }
 }
 
+static void compileExpressions(Chunk *chunk, K x){
+    if(KK == xt && -KC == TYPE(xk[0]) && ';' == CHAR(xk[0])[0]){ // if ; separated expressions
+        for(uint64_t i = 1; i < xn; ++i)
+            compileNode(chunk, xk[i]);
+    }
+    else {
+        compileNode(chunk, x);
+    }
+}
+
 bool compile(Chunk *chunk){
-    compileNode(chunk, chunk->parseTree);
+    compileExpressions(chunk, chunk->parseTree);
     addByte(chunk, OP_RETURN);
     return true;
 }
