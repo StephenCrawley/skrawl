@@ -25,7 +25,7 @@ void printOneLineK(K x);
 void debugPrintK(K x);
 
 // make a symbol from char array
-// the chars are encoded directly into a uint64_t, meaning symbols can only be 8 chars long max
+// the chars are encoded directly into a uint64_t, meaning symbols can only be 8 bytes long max
 // symbols less than 8 chars are padded with '\0'
 #define MAKE_SYMBOL(dest, string, length) \
     dest = 0; \
