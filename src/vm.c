@@ -25,11 +25,12 @@ static void freeVM(VM *vm){
 
 static void run(VM *vm){
     for (;;){
-        uint8_t instruction = *vm->ip++;
 
 #ifdef DBGCODE
-        disassemble(vm, instruction);
+        disassemble(vm, vm->ip);
 #endif
+
+        uint8_t instruction = *vm->ip++;
         switch (instruction){
 
             // push a constant (source code literal) onto the stack
