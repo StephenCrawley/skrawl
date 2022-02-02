@@ -223,7 +223,7 @@ void printK(K x){
             if (i != last) putchar('\n');
         }
     }
-    else if (KN ==     xt) return; 
+    else if (KN ==     xt)  {unref(x);return;}
     else if (KC == ABS(xt)) pC(x);
     else if (KI == ABS(xt)) pI(x);
     else if (KF == ABS(xt)) pF(x);
