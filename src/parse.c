@@ -190,7 +190,7 @@ static K parseParens(Parser *parser, Scanner *scanner){
         // where first elem is the enlist operator
         r = k(KK, n+1);
         for (uint64_t i = 0, j = 1; i < n; ++i,++j) rk[j] = arr[i];
-        K t = k(KM, 1);
+        K t = k(KU, 1);
         tc[0] = (char) TOKEN_COMMA; //enlist op
         rk[0] = t;
     }
@@ -251,13 +251,13 @@ static K parseNoun(Parser *parser, Scanner *scanner){
 }
 
 static K parseMonad(Parser *parser){
-    K r = k(KM, 1);
+    K r = k(KU, 1);
     rc[0] = (char) parser->previous.type;
     return r; 
 }
 
 static K parseDyad(Parser *parser){
-    K r = k(KD, 1);
+    K r = k(KV, 1);
     rc[0] = (char) parser->previous.type;
     return r; 
 }

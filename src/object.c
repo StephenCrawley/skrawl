@@ -182,7 +182,7 @@ static void printO(K x){
     char op = ops[ (int8_t) *xc ];
     putchar(op);
     // if monad or digraph (/: \: ':) put : to stdout
-    if (KM == xt || TOKEN_EACHL == xc[0] || TOKEN_EACHR == xc[0] || TOKEN_EACHPRIOR == xc[0]) 
+    if (KU == xt || TOKEN_EACHL == xc[0] || TOKEN_EACHR == xc[0] || TOKEN_EACHPRIOR == xc[0]) 
         putchar(':');
 }
 
@@ -208,8 +208,8 @@ void printOneLineK(K x){
     else if (KI == ABS(xt)) printI(x);
     else if (KF == ABS(xt)) printF(x);
     else if (KS == ABS(xt)) printS(x);
-    else if (KM ==     xt)  printO(x);
-    else if (KD ==     xt)  printO(x);
+    else if (KU ==     xt)  printO(x);
+    else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
     else if (KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
@@ -228,8 +228,8 @@ void printK(K x){
     else if (KI == ABS(xt)) printI(x);
     else if (KF == ABS(xt)) printF(x);
     else if (KS == ABS(xt)) printS(x);
-    else if (KM ==     xt)  printO(x);
-    else if (KD ==     xt)  printO(x);
+    else if (KU ==     xt)  printO(x);
+    else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
     else if (KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}

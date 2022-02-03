@@ -85,12 +85,13 @@ enum {
     KI,        // int
     KF,        // float
     KS,        // symbol
-    KM,        // monadic function
-    KD,        // dyadic function
+    KD,        // dictionary
+    KU,        // monadic function
+    KV,        // dyadic function
     KA,        // adverb
     KN         // null
 };
-#define KWIDTHS 8,1,8,8,8,1,1,1,0 // in bytes
+#define KWIDTHS 8,1,8,8,8,8,1,1,1,0 // in bytes
 #define KOPS "+*-%.!|&,@#^$~=<>?_:/\\'\\/'";
 
 // utility macros

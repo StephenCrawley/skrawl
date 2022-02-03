@@ -22,7 +22,7 @@ static void addConstant(Chunk *chunk, K x){
 }
 
 // dyadic arithmetic operators are executed with the OP_DYAD opcode
-// the upper 3 bits encode the index into the dyads array of function pointers.
+// the char value is an index into the dyad[] array in verb.c
 static void compileDyad(Chunk *chunk, K x){
     uint8_t opcode = (uint8_t) xc[0];
     addByte(chunk, opcode);
@@ -42,11 +42,11 @@ static void compileNode(Chunk *chunk, K x){
     if (KK == xt){
         for (int8_t i = xn-1; i >= 0; --i) compileNode(chunk, xk[i]); // TODO : set limits for source code literals
     }
-    else if (KD == xt){
+    else if (KV == xt){
         compileDyad(chunk, x);
         return;
     }
-    else if (KM == xt){
+    else if (KU == xt){
         compileMonad(chunk, x);
         return;
     }
