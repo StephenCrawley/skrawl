@@ -16,7 +16,7 @@ static void addByte(Chunk *chunk, uint8_t code){
 // the instruction is followed by the constant's index in chunk->k
 static void addConstant(Chunk *chunk, K x){
     addByte(chunk, OP_CONSTANT);
-    chunk->k[chunk->kCount] = x;
+    chunk->k[chunk->kCount] = ref(x);
     addByte(chunk, (uint8_t)chunk->kCount);
     chunk->kCount++;
 }

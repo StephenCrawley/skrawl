@@ -17,7 +17,7 @@ Chunk* initNewChunk(){
 
 void freeChunk(Chunk *chunk){
     // free the array of constants
-    //for (int i = 0; i < chunk->kCount; ++i) free(chunk->k[i]);
+    while (chunk->kCount--) unref(chunk->k[chunk->kCount]);
     free(chunk->k);
 
     // free the bytecode
