@@ -163,11 +163,11 @@ static void printS(K x){
         // symbols are contained in 8-byte slots
         // we access each symbol with xi (int64_t pointer) 
         // then cast this to char pointer so we can access and print each byte
-        char *ptr = (char *) &xi[i];
-        uint8_t j = 0;
+        char *ptr = (char *)(xi + i);
 
         // symbols less than 8 chars are '\0' padded.
         // print while not null char AND within the 8 bytes
+        uint8_t j = 0;
         while (ptr[j] && j != 8){
             putchar(ptr[j++]);
         };
