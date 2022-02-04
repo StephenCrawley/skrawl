@@ -124,8 +124,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .     !     |    &  
-D dyads[] = {add, multiply, subtract, divide, NULL, NULL, max, min};
+//           +    *         -         %       .     !    |    &  
+D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min};
 
 K add(K x, K y){
     DYADIC_INIT(add); // declare return object r, type rtype, count rcount
@@ -166,5 +166,24 @@ K max(K x, K y){
 K min(K x, K y){
     DYADIC_INIT(min); // declare return object r, type rtype, count rcount
     DYADIC_OP(MIN); 
+    return r;
+}
+
+K key(K x, K y){
+    // `k!`v -> error
+    if (0 > xt || 0 > yt){
+        unref(x), unref(y);
+        return Kerr("type error! can't key non-list args");
+    }
+    // `k`k1!1 2 3 -> error
+    if (xn != yn){
+        unref(x), unref(y);
+        return Kerr("length error! can't key args of different lengths");
+    }
+
+    K r = k(KD, 2);
+    rk[0] = x;
+    rk[1] = y;
+
     return r;
 }

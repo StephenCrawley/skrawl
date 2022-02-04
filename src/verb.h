@@ -11,6 +11,7 @@ K multiply(K x,K y);
 K divide(K x,K y);
 K max(K x,K y);
 K min(K x,K y);
+K key(K x,K y);
 
 // monadic verbs
 K flip(K x);

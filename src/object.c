@@ -4,7 +4,7 @@
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
-    if (KK == xt){
+    if (KK == xt || KD ==xt){
         for (uint64_t i = 0; i < xn; ++i) ref(xk[i]);
     }
 
@@ -13,7 +13,7 @@ K ref(K x){
 
 void unref(K x){
     // if generic K type, call 'unref' on all child K objects
-    if (KK == xt){
+    if (KK == xt || KD == xt){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
     }
 
@@ -174,6 +174,13 @@ static void printS(K x){
     }
 }
 
+// print dictionary
+static void printD(K x){
+    printOneLineK(xk[0]);
+    putchar('!');
+    printOneLineK(xk[1]);
+}
+
 // print op (monad / dyad / adverb)
 // these objects contain a single char which indexes the KOPS string
 // this index is also used to access the function pointer for the op
@@ -208,6 +215,7 @@ void printOneLineK(K x){
     else if (KI == ABS(xt)) printI(x);
     else if (KF == ABS(xt)) printF(x);
     else if (KS == ABS(xt)) printS(x);
+    else if (KD ==     xt)  printD(x);
     else if (KU ==     xt)  printO(x);
     else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
@@ -228,6 +236,7 @@ void printK(K x){
     else if (KI == ABS(xt)) printI(x);
     else if (KF == ABS(xt)) printF(x);
     else if (KS == ABS(xt)) printS(x);
+    else if (KD ==     xt)  printD(x);
     else if (KU ==     xt)  printO(x);
     else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
