@@ -2,13 +2,14 @@
 #include "verb.h"
 
 // dyadic arithmetic macros
-#define ADD(x, y)  ((x) + (y))
-#define PRD(x, y)  ((x) * (y))
-#define SUB(x, y)  ((x) - (y))
-#define DIV(x, y)  ((x) / (y))
+#define ADD(x, y)   ((x) + (y))
+#define PRD(x, y)   ((x) * (y))
+#define SUB(x, y)   ((x) - (y))
+#define DIV(x, y)   ((x) / (y))
 // dyadic boolean macros
-#define LESS(x, y) ((x) < (y))
-#define MORE(x, y) ((x) > (y))
+#define LESS(x, y)  ((x) < (y))
+#define MORE(x, y)  ((x) > (y))
+#define EQUAL(x, y) ((x) ==(y))
 
 // macro to handle errors
 // cleans up objects and returns the error
@@ -128,8 +129,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .     !    |    &    <     >
-D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more};
+//           +    *         -         %       .     !    |    &    <     >     =
+D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -182,6 +183,12 @@ K less(K x, K y){
 K more(K x, K y){
     DYADIC_INIT(more, KI); // declare return object r, type rtype, count rcount
     DYADIC_OP(MORE); 
+    return r;
+}
+
+K equal(K x, K y){
+    DYADIC_INIT(equal, KI); // declare return object r, type rtype, count rcount
+    DYADIC_OP(EQUAL); 
     return r;
 }
 

@@ -13,11 +13,12 @@ K max(K x,K y);
 K min(K x,K y);
 K less(K x,K y);
 K more(K x,K y);
+K equal(K x,K y);
 K key(K x,K y);
 
 // monadic verbs
 K flip(K x);
 
-D dyads[10];
+D dyads[11];
 
 #endif
