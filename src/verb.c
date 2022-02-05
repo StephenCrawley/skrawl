@@ -6,6 +6,9 @@
 #define PRD(x, y)  ((x) * (y))
 #define SUB(x, y)  ((x) - (y))
 #define DIV(x, y)  ((x) / (y))
+// dyadic boolean macros
+#define LESS(x, y) ((x) < (y))
+#define MORE(x, y) ((x) > (y))
 
 // macro to handle errors
 // cleans up objects and returns the error
@@ -29,7 +32,7 @@
 // DYADIC_INIT handles 2 cases
 // it calls function f recursively if any of the arguments are general lists
 // or it initializes the return value if none of the args are general lists
-#define DYADIC_INIT(f)                                                           \
+#define DYADIC_INIT(f, maxtype)                                                  \
     /* if operands are vectors of different lengths, return length error */      \
     if ((KK <= xt && KK <= yt) && xn != yn){                                     \
         unref(x), unref(y);                                                      \
@@ -92,7 +95,8 @@
                                                                                  \
     /* case b: */                                                                \
     /* return type is the wider of the 2 operands */                             \
-    int8_t   rtype  = MAX(ABS(xt), ABS(yt));                                     \
+    int8_t rtype =  MAX(ABS(xt), ABS(yt));                                       \
+    rtype = MIN(maxtype, rtype);                                                 \
     rtype = (0 < xt || 0 < yt) ? rtype : -rtype;                                 \
     uint64_t rcount = MAX(xn, yn);                                               \
     r = k(rtype, rcount);
@@ -124,23 +128,23 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .     !    |    &  
-D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min};
+//           +    *         -         %       .     !    |    &    <     >
+D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more};
 
 K add(K x, K y){
-    DYADIC_INIT(add); // declare return object r, type rtype, count rcount
+    DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
     DYADIC_OP(ADD); 
     return r;
 }
 
 K multiply(K x, K y){
-    DYADIC_INIT(multiply); // declare return object r, type rtype, count rcount
+    DYADIC_INIT(multiply, KF); // declare return object r, type rtype, count rcount
     DYADIC_OP(PRD); 
     return r;
 }
 
 K subtract(K x, K y){
-    DYADIC_INIT(subtract); // declare return object r, type rtype, count rcount
+    DYADIC_INIT(subtract, KF); // declare return object r, type rtype, count rcount
     DYADIC_OP(SUB); 
     return r;
 }
@@ -152,20 +156,32 @@ K divide(K x, K y){
     // it could be a little smarter than this. eg cast, and cast the shorter/simpler arg
     if (KF != xt && KF != yt) x = multiply(Kf(1), x);
 
-    DYADIC_INIT(divide); // declare return object r, type rtype, count rcount
+    DYADIC_INIT(divide, KF); // declare return object r, type rtype, count rcount
     DYADIC_OP(DIV); 
     return r;
 }
 
 K max(K x, K y){
-    DYADIC_INIT(max); // declare return object r, type rtype, count rcount
+    DYADIC_INIT(max, KF); // declare return object r, type rtype, count rcount
     DYADIC_OP(MAX); 
     return r;
 }
 
 K min(K x, K y){
-    DYADIC_INIT(min); // declare return object r, type rtype, count rcount
+    DYADIC_INIT(min, KF); // declare return object r, type rtype, count rcount
     DYADIC_OP(MIN); 
+    return r;
+}
+
+K less(K x, K y){
+    DYADIC_INIT(less, KI); // declare return object r, type rtype, count rcount
+    DYADIC_OP(LESS); 
+    return r;
+}
+
+K more(K x, K y){
+    DYADIC_INIT(more, KI); // declare return object r, type rtype, count rcount
+    DYADIC_OP(MORE); 
     return r;
 }
 
