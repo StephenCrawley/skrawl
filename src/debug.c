@@ -21,6 +21,11 @@ void disassemble(VM *vm, uint8_t *instr){
             printf("OP_DYAD %-10c", ops[ instr[0] ]);
             break;
         }
+        case OP_MONAD_START ... OP_MONAD_END : {
+            static const char *ops = KOPS;
+            printf("OP_MONAD %-9c", ops[ instr[0] - OP_MONAD_START ]);
+            break;
+        }
         case OP_ENLIST : {
             printf("%-13s", "OP_ENLIST");
             break;

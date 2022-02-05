@@ -48,6 +48,14 @@ static void run(VM *vm){
                 break;
             }
 
+            case OP_MONAD_START ... OP_MONAD_END : {
+                K x = POP; 
+                M f = monads[instruction - OP_MONAD_START];
+                K r = (*f)(x);
+                PUSH(r);
+                break;
+            }
+
             case OP_ENLIST : {
                 uint64_t count =  *vm->ip++;
                 K r = k(KK, count);
