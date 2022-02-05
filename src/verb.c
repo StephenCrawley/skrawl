@@ -210,3 +210,52 @@ K key(K x, K y){
 
     return r;
 }
+
+// monadic verb table
+M monads[] = {flip};
+
+K flip(K x){
+    // must be a general list
+    if(KK != xt){
+        unref(x);
+        return Kerr("rank error!");
+    }
+
+    // must be rectangular
+    uint64_t n = COUNT( xk[0] );
+    for (uint64_t i = 1; i < xn; ++i){
+        if (n != COUNT( xk[i]) ){
+            unref(x);
+            return Kerr("length error!");
+        }
+    }
+
+    // we operate on a temp variable
+    K t = k(KK, xn);
+    for (uint64_t i = 0; i < xn; ++i){
+        // if any of the list elements are simple vectors, expand
+        if (0 < TYPE( xk[i] )) 
+            tk[i] = expand( ref(xk[i]) );
+        // else element unchanged
+        else {
+            tk[i] = ref( xk[i] );
+        }
+    }
+
+    // return value
+    K r = k(KK, n);
+    for (uint64_t i = 0; i < n; ++i) rk[i] = k(KK, xn);
+
+    // flip
+    for (uint64_t i = 0; i < xn; ++i){
+        for (uint64_t j = 0; j < n; ++j)
+            KOBJ( rk[j] )[i] = ref( KOBJ( tk[i] )[j] );
+    }
+
+    unref(x), unref(t);
+
+    for (uint64_t i = 0; i < rn; ++i)
+        rk[i] = squeeze(rk[i]);
+
+    return r;
+}

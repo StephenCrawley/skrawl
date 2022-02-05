@@ -15,10 +15,10 @@ K less(K x,K y);
 K more(K x,K y);
 K equal(K x,K y);
 K key(K x,K y);
+D dyads[11];
 
 // monadic verbs
 K flip(K x);
-
-D dyads[11];
+M monads[1];
 
 #endif
