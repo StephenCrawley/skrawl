@@ -109,45 +109,50 @@ K expand(K x){
 
 // print int object
 static void printI(K x){
-    if (xn){
-        if (0 < xt && 1 == xn) putchar(',');
-        for (uint64_t i = 0, last = xn-1; i < xn; ++i){
-            printf("%ld", xi[i]);
-            if (i != last) putchar(' ');
-        }
-    }
-    else {
+    if (0 == xn){
         printf("0#0");
+        return;
+    }
+
+    if (0 < xt && 1 == xn) putchar(',');
+    for (uint64_t i = 0, last = xn-1; i < xn; ++i){
+        printf("%ld", xi[i]);
+        if (i != last) putchar(' ');
     }
 }
 
 // print float object
 // truncates trailing 0s
 static void printF(K x){
-    if (xn){ // if not empty 0-count object
-        if (0 < xt && 1 == xn) putchar(',');
-        char buff[9]; // TODO : fix. major bug
-        for (uint64_t i = 0, last = xn-1; i < xn; ++i) {
-            int r = snprintf(buff, 9, "%f.6", xf[i]);
-            if (0 > r){ // if snprintf failed
-                printf("'print float");
-                return;
-            }
-            // remove trailing 0s
-            uint8_t p = 8;
-            while ('0' == buff[p-1]) --p;
-            // print
-            printf("%.*s", p, buff);
-            if (i != last) putchar(' ');
-        }
-    }
-    else {
+    if (0 == xn){
         printf("0#0.");
+        return;
+    }
+
+    if (0 < xt && 1 == xn) putchar(',');
+    char buf[9]; // TODO : fix. major bug
+    for (uint64_t i = 0, last = xn-1; i < xn; ++i) {
+        int r = snprintf(buf, 9, "%f.6", xf[i]);
+        if (0 > r){ // if snprintf failed
+            printf("'print float");
+            return;
+        }
+        // remove trailing 0s
+        uint8_t p = 8;
+        while ('0' == buf[p-1]) --p;
+        // print
+        printf("%.*s", p, buf);
+        if (i != last) putchar(' ');
     }
 }
 
 // print char object
 static void printC(K x){
+    if (0 == xn){
+        printf("\"\"");
+        return;
+    }
+
     if (0 < xt && 1 == xn) putchar(',');
     putchar('"');
     for (uint64_t i = 0; i < xn; ++i) putchar( xc[i] );
@@ -156,6 +161,11 @@ static void printC(K x){
 
 // print symbol object
 static void printS(K x){
+    if (0 == xn){
+        printf("0#`");
+        return;
+    }
+
     if (0 < xt && 1 == xn) putchar(',');
     for (uint64_t i = 0; i < xn; ++i){
         putchar('`');
@@ -170,7 +180,7 @@ static void printS(K x){
         uint8_t j = 0;
         while (ptr[j] && j != 8){
             putchar(ptr[j++]);
-        };
+        }
     }
 }
 
