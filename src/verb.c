@@ -212,7 +212,8 @@ K key(K x, K y){
 }
 
 // monadic verb table
-M monads[] = {flip};
+//            +     *
+M monads[] = {flip, first};
 
 K flip(K x){
     // must be a general list
@@ -257,5 +258,30 @@ K flip(K x){
     for (uint64_t i = 0; i < rn; ++i)
         rk[i] = squeeze(rk[i]);
 
+    return r;
+}
+
+K first(K x){
+    K r;
+
+    // return atoms unchanged
+    if(0 > xt) return x;
+    // dictionary
+    else if (KD == xt){
+        r = first( ref(xk[1]) );
+    }
+    // simple vector
+    else if (0 < xt){
+        r = k(-xt, 1);
+        if      (KI == xt) ri[0] = xi[0];
+        else if (KF == xt) rf[0] = xf[0];
+        else if (KC == xt) rc[0] = xc[0];
+        else    {unref(r); r = Kerr("type error!");}
+    }
+    // general list
+    else {
+        r = ref( xk[0] );
+    }
+    unref(x);
     return r;
 }
