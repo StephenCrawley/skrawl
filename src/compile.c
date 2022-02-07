@@ -39,8 +39,9 @@ static void compileMonad(Chunk *chunk, K x){
 
 // walk the parse tree and emit bytecode
 static void compileNode(Chunk *chunk, K x){
+    // first compile operands
     if (KK == xt){
-        for (int8_t i = xn-1; i >= 0; --i) compileNode(chunk, xk[i]); // TODO : set limits for source code literals
+        for (int8_t i = 1; i < xn; ++i) compileNode(chunk, xk[i]); // TODO : set limits in parser for source code literals
     }
     else if (KV == xt){
         compileDyad(chunk, x);
@@ -59,7 +60,11 @@ static void compileNode(Chunk *chunk, K x){
         return;
     }
 
-    // OP_ENLIST immediately encodes the number of elements to pop and enlist after the instruction
+    // next compile operator
+    compileNode(chunk, xk[0]);
+
+    // next compile immediate operands
+    // eg OP_ENLIST immediately encodes the number of elements to pop and enlist after the instruction
     if (OP_ENLIST == chunk->code[chunk->codeCount - 1]){
         addByte(chunk, (uint8_t) xn-1);
     }

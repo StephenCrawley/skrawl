@@ -40,8 +40,8 @@ static void run(VM *vm){
             }
 
             case OP_DYAD_START ... OP_DYAD_END : {
-                K x = POP; 
-                K y = POP;
+                K y = POP; 
+                K x = POP;
                 D f = dyads[instruction];
                 K r = (*f)(x, y);
                 PUSH(r);
