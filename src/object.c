@@ -59,6 +59,12 @@ K Kc(char x){
     return r;
 }
 
+K Ks(int64_t x){
+    K r = k(-KS, 1);
+    ri[0] = x;
+    return r;
+}
+
 K Kerr(const char *error){
     uint64_t n = strlen(error);
     K r = ma(sizeof(C), n);
@@ -86,6 +92,7 @@ K squeeze(K x){
     if      (KI == rt) for (uint64_t i = 0; i < xn; ++i) ri[i] = INT  ( xk[i] )[0];
     else if (KF == rt) for (uint64_t i = 0; i < xn; ++i) rf[i] = FLOAT( xk[i] )[0];
     else if (KC == rt) for (uint64_t i = 0; i < xn; ++i) rc[i] = CHAR ( xk[i] )[0];
+    else if (KS == rt) for (uint64_t i = 0; i < xn; ++i) ri[i] = INT  ( xk[i] )[0];
     else {printf("squeeze type NYI. exit...\n"); exit(1);}
     unref(x);
     return r;
@@ -98,6 +105,7 @@ K expand(K x){
     if      (KI == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ki( xi[i] );
     else if (KF == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
     else if (KC == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kc( xc[i] );
+    else if (KS == xt) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ks( xi[i] );
     else {unref(x), unref(r); return Kerr("type error! can't expand");}
     unref(x);
     return r;
