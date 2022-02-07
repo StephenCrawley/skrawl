@@ -276,6 +276,7 @@ K first(K x){
         if      (KI == xt) ri[0] = xi[0];
         else if (KF == xt) rf[0] = xf[0];
         else if (KC == xt) rc[0] = xc[0];
+        else if (KS == xt) ri[0] = xi[0];
         else    {unref(r); r = Kerr("type error!");}
     }
     // general list
