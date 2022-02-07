@@ -41,7 +41,7 @@ static void compileMonad(Chunk *chunk, K x){
 static void compileNode(Chunk *chunk, K x){
     // first compile operands
     if (KK == xt){
-        for (int8_t i = 1; i < xn; ++i) compileNode(chunk, xk[i]); // TODO : set limits in parser for source code literals
+        for (uint8_t i = 1; i < xn; ++i) compileNode(chunk, xk[i]); // TODO : set limits in parser for source code literals
     }
     else if (KV == xt){
         compileDyad(chunk, x);
