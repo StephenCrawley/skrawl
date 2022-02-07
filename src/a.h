@@ -24,8 +24,8 @@ typedef struct k {
 typedef char    C; 
 typedef int64_t I; 
 typedef double  F;
-typedef K (*M)(K);     // monadic function
-typedef K (*D)(K, K);  // dyadic  function
+typedef K (*M)(K);     // monadic function. TODO : rename to U
+typedef K (*D)(K, K);  // dyadic  function. TODO : rename to V
 
 // K accessors
 // these provide shorthand access to K struct members, significantly cleaning up the code
