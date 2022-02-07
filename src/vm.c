@@ -74,6 +74,12 @@ static void run(VM *vm){
                 printf("error! op not recognized.\n");
                 return;
         }
+
+        // short circuit if error
+        if (KE == TYPE( *(vm->top - 1) )){
+            printK( POP );
+            return;
+        }
     }
 }
 
