@@ -246,7 +246,7 @@ static K flipDictOrTab(K x){
         for (uint64_t i = 1; i < xn; ++i){
             if (n != COUNT( KOBJ(xk[1])[i] )){
                 unref(x);
-                return Kerr("length error! dict values must be equal lenfth");
+                return Kerr("length error! dict values must be equal length");
             }
         }
 
