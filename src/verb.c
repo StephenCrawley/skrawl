@@ -129,8 +129,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .     !    |    &    <     >     =
-D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal};
+//           +    *         -         %       .     !    |    &    <     >     =      ~
+D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal, match};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -192,6 +192,57 @@ K equal(K x, K y){
     return r;
 }
 
+K match(K x, K y){
+    // types must match
+    if (xt != yt){
+        unref(x), unref(y);
+        return Ki(false);
+    }
+
+    // lengths must match
+    if (xn != yn){
+        unref(x), unref(y);
+        return Ki(false);
+    }
+
+    // call match recursively on general lists
+    if (KK == xt || KD == xt || KT == xt){
+        K r = Ki(true);
+        K t;
+        for (uint64_t i = 0; i < xn; ++i){
+            t = match( ref(xk[i]), ref(yk[i]) );
+            ri[0] = ri[0] && ti[0];
+            unref(t);
+        }
+        unref(x), unref(y);
+        return r;
+    }
+
+    // check elements are equal
+    bool equal = true;
+    if (KI == ABS(xt) || KS == ABS(xt)){
+        for (uint64_t i = 0; i < xn; ++i){
+            equal = equal && (xi[i] == yi[i]);
+            if (!equal) break;
+        }
+    }
+    else if (KF == ABS(xt)){
+        for (uint64_t i = 0; i < xn; ++i){
+            equal = equal && (xf[i] == yf[i]);
+            if (!equal) break;
+        }
+    }
+    else if (KC == ABS(xt)){
+        for (uint64_t i = 0; i < xn; ++i){
+            equal = equal && (xc[i] == yc[i]);
+            if (!equal) break;
+        }
+    }
+    
+    unref(x), unref(y);
+    return Ki(equal);
+}
+
 K key(K x, K y){
     // `k!`v -> error
     if (0 > xt || 0 > yt){
@@ -233,7 +284,7 @@ static K flipDictOrTab(K x){
             unref(x);
             return Kerr("rank error! dict value must be general list");
         }
-        
+
         for (uint64_t i = 0; i < xn; ++i){
             if (0 > TYPE( KOBJ(xk[1])[i] )){
                 unref(x);
