@@ -215,11 +215,60 @@ K key(K x, K y){
 //            +     *
 M monads[] = {flip, first};
 
+static K flipDictOrTab(K x){
+    K r;
+
+    if (KT == xt){
+        r = ref(xk[0]);
+    }
+    else {
+        // can't flip dict if key isn't symbol
+        if (KS != TYPE( xk[0] )){
+            unref(x);
+            return Kerr("type error! dict key must be symbol");
+        }
+
+        // dict values must be lists
+        if (KK != TYPE( xk[1] )){
+            unref(x);
+            return Kerr("rank error! dict value must be general list");
+        }
+        
+        for (uint64_t i = 0; i < xn; ++i){
+            if (0 > TYPE( KOBJ(xk[1])[i] )){
+                unref(x);
+                return Kerr("rank error! dict values must not be atoms");
+            }
+        }
+
+        // dict values must have same count
+        uint64_t n = COUNT( KOBJ(xk[1])[0] );
+        for (uint64_t i = 1; i < xn; ++i){
+            if (n != COUNT( KOBJ(xk[1])[i] )){
+                unref(x);
+                return Kerr("length error! dict values must be equal lenfth");
+            }
+        }
+
+        // return value
+        r = k(KT, 1);
+        rk[0] = ref(x);
+    }
+
+    unref(x);
+    return r;
+}
+
 K flip(K x){
     // must be a general list
-    if(KK != xt){
+    if(KK != xt && KD != xt && KT != xt){
         unref(x);
         return Kerr("rank error!");
+    }
+
+    // separate function to flip dicts and tables
+    if (KD != xt || KT != xt){
+        return flipDictOrTab(x);
     }
 
     // must be rectangular
