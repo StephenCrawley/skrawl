@@ -1,6 +1,7 @@
 #include "a.h"
 #include "token.h"
 #include "object.h"
+#include "verb.h"
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
@@ -13,7 +14,7 @@ K ref(K x){
 
 void unref(K x){
     // if generic K type, call 'unref' on all child K objects
-    if (KK == xt || KD == xt){
+    if (KK == xt || KD == xt || KT == xt){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
     }
 
@@ -73,14 +74,55 @@ K Kerr(const char *error){
     return r;
 }
 
+// function to squeeze a general list of dictionaries into a table
+static K squeezeDicts(K x){
+    // first check all dict keys are symbols
+    for (uint64_t i = 0; i < xn; ++i)
+        if(KS != TYPE( KOBJ(xk[i])[0] )) return x;
+
+    // check all dict keys are the same
+    K key = KOBJ( xk[0] )[0];
+    K tmp;
+    for (uint64_t i = 1; i < xn; ++i){
+        tmp = KOBJ( xk[i] )[0];
+
+        // check keys have same count. if not, return x
+        if (COUNT(key) != COUNT(tmp)) return x;
+
+        // check keys are equal. if not, return x
+        for (uint8_t j = 0; j < COUNT(key); ++j)
+            if (INT(key)[j] != INT(tmp)[j]) return x;
+    }
+
+    // create column data
+    K t = k(KK, xn);
+    for (uint64_t i = 0; i < xn; ++i) tk[i] = ref( KOBJ(xk[i])[1] );
+    K cols = flip(t);
+
+    // create table
+    // a table object contains a single element: a dict object
+    K dict = k(KD, 2);
+    KOBJ(dict)[0] = ref(key);
+    KOBJ(dict)[1] = cols;
+    K r = k(KT, 1);
+    rk[0] = dict;
+
+    unref(x);
+    return r;
+}
+
 // squeeze a general K list into a more compact simple list if possible
 // eg (1;2;3) -> 1 2 3 or ("a";"b";"c") -> "abc" 
 K squeeze(K x){
     // can only squeeze general lists
     if (KK != xt) return x;
 
-    // can only squeeze general list of atoms
     int8_t type = TYPE( xk[0] );
+
+    // if type is dictionary, call squeezeDicts and return result
+    if (KD == type) return squeezeDicts(x);
+
+    // can only squeeze general list of atoms
     if (0 <= type) return x; 
 
     // can't squeeze if types differ
@@ -199,6 +241,12 @@ static void printD(K x){
     printOneLineK(xk[1]);
 }
 
+// print table
+static void printT(K x){
+    putchar('+');
+    printD(xk[0]);
+}
+
 // print op (monad / dyad / adverb)
 // these objects contain a single char which indexes the KOPS string
 // this index is also used to access the function pointer for the op
@@ -234,6 +282,7 @@ void printOneLineK(K x){
     else if (KF == ABS(xt)) printF(x);
     else if (KS == ABS(xt)) printS(x);
     else if (KD ==     xt)  printD(x);
+    else if (KT ==     xt)  printT(x);
     else if (KU ==     xt)  printO(x);
     else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
@@ -255,6 +304,7 @@ void printK(K x){
     else if (KF == ABS(xt)) printF(x);
     else if (KS == ABS(xt)) printS(x);
     else if (KD ==     xt)  printD(x);
+    else if (KT ==     xt)  printT(x);
     else if (KU ==     xt)  printO(x);
     else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
