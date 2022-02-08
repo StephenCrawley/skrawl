@@ -59,7 +59,7 @@ static void run(VM *vm){
             case OP_ENLIST : {
                 uint64_t count =  *vm->ip++;
                 K r = k(KK, count);
-                for (uint64_t i = 0; i < count; ++i) rk[i] = POP;
+                while (count--) rk[count] = POP;
                 r = squeeze(r);
                 PUSH(r);
                 break;
