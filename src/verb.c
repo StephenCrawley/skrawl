@@ -102,18 +102,31 @@
     uint64_t rcount = MAX(xn, yn);                                               \
     r = k(rtype, rcount);
 
+#define DYADIC_OP_RETURN_I(op) DYADIC_OP_ACCESSORS(op, ri)
+
+#define DYADIC_OP_RETURN_F(op) DYADIC_OP_ACCESSORS(op, rf)
+
+#define DYADIC_OP(op)                                                            \
+    if (KI == ABS(rt)){                                                          \
+        DYADIC_OP_ACCESSORS(op, ri);                                             \
+    }                                                                            \
+    else if (KF == ABS(rt)) {                                                    \
+        DYADIC_OP_ACCESSORS(op, rf);                                             \
+    }                                                                            \
+    else {                                                                       \
+        unref(x), unref(y), unref(r);                                            \
+        return Kerr("type error. return type incompatible");                     \
+    }  
+
 // wrapper around DYADIC_OP_EXEC
 // provides correct object accessor for the operation fepending on type
-#define DYADIC_OP(op)                                                            \
-    if      (KI == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yi) }  \
-    else if (KI == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xi, yf) }  \
-    else if (KI == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) }  \
-    else if (KF == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yi) }  \
-    else if (KF == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yf) }  \
-    else if (KF == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xf, yc) }  \
-    else if (KC == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xc, yi) }  \
-    else if (KC == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, rf, xc, yf) }  \
-    else if (KC == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ri, xi, yc) }  \
+#define DYADIC_OP_ACCESSORS(op, ra)                                              \
+    if      (KI == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xi, yi) }  \
+    else if (KI == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xi, yf) }  \
+    else if (KI == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xi, yc) }  \
+    else if (KF == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xf, yi) }  \
+    else if (KF == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xf, yf) }  \
+    else if (KF == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xf, yc) }  \
     else { /* incompatible type. return error */                                 \
         unref(x),unref(y),unref(r);                                              \
         return Kerr("type error! dyad operand has incompatible type");           \
@@ -158,37 +171,37 @@ K divide(K x, K y){
     if (KF != xt && KF != yt) x = multiply(Kf(1), x);
 
     DYADIC_INIT(divide, KF); // declare return object r, type rtype, count rcount
-    DYADIC_OP(DIV); 
+    DYADIC_OP_RETURN_F(DIV); 
     return r;
 }
 
 K max(K x, K y){
     DYADIC_INIT(max, KF); // declare return object r, type rtype, count rcount
-    DYADIC_OP(MAX); 
+    DYADIC_OP_RETURN_I(MAX); 
     return r;
 }
 
 K min(K x, K y){
     DYADIC_INIT(min, KF); // declare return object r, type rtype, count rcount
-    DYADIC_OP(MIN); 
+    DYADIC_OP_RETURN_I(MIN); 
     return r;
 }
 
 K less(K x, K y){
     DYADIC_INIT(less, KI); // declare return object r, type rtype, count rcount
-    DYADIC_OP(LESS); 
+    DYADIC_OP_RETURN_I(LESS); 
     return r;
 }
 
 K more(K x, K y){
     DYADIC_INIT(more, KI); // declare return object r, type rtype, count rcount
-    DYADIC_OP(MORE); 
+    DYADIC_OP_RETURN_I(MORE); 
     return r;
 }
 
 K equal(K x, K y){
     DYADIC_INIT(equal, KI); // declare return object r, type rtype, count rcount
-    DYADIC_OP(EQUAL); 
+    DYADIC_OP_RETURN_I(EQUAL); 
     return r;
 }
 
