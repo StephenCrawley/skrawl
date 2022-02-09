@@ -93,6 +93,56 @@
         unref(x), unref(y);                                                      \
         return r;                                                                \
     }                                                                            \
+    else if (KD == xt || KD == yt){                                              \
+        if (KD == xt && KD == yt) {                                              \
+            unref(x), unref(y);                                                  \
+            return Kerr("not yet implemented: dict op dict");                    \
+        }                                                                        \
+                                                                                 \
+        if (KD == xt){                                                           \
+            t = f(ref(xk[1]) , ref(y));                                          \
+            if (KE == tt){                                                       \
+                unref(x), unref(y);                                              \
+                return t;                                                        \
+            }                                                                    \
+            r = key(ref(xk[0]), t);                                              \
+        }                                                                        \
+        else {                                                                   \
+            t = f(ref(x) , ref(yk[1]));                                          \
+            if (KE == tt){                                                       \
+                unref(x), unref(y);                                              \
+                return t;                                                        \
+            }                                                                    \
+            r = key(ref(yk[0]), t);                                              \
+        }                                                                        \
+        unref(x), unref(y);                                                      \
+        return r;                                                                \
+    }                                                                            \
+    else if (KT == xt || KT == yt){                                              \
+        if (KT == xt && KT == yt) {                                              \
+            unref(x), unref(y);                                                  \
+            return Kerr("not yet implemented: table op table");                  \
+        }                                                                        \
+                                                                                 \
+        if (KT == xt){                                                           \
+            t = f(ref(xk[0]) , ref(y));                                          \
+            if (KE == tt){                                                       \
+                unref(x), unref(y);                                              \
+                return t;                                                        \
+            }                                                                    \
+            r = flip(t);                                                         \
+        }                                                                        \
+        else {                                                                   \
+            t = f(ref(x) , ref(yk[0]));                                          \
+            if (KE == tt){                                                       \
+                unref(x), unref(y);                                              \
+                return t;                                                        \
+            }                                                                    \
+            r = flip(t);                                                         \
+        }                                                                        \
+        unref(x), unref(y);                                                      \
+        return r;                                                                \
+    }                                                                            \
                                                                                  \
     /* case b: */                                                                \
     /* return type is the wider of the 2 operands */                             \
