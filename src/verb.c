@@ -123,10 +123,8 @@
 #define DYADIC_OP_ACCESSORS(op, ra)                                              \
     if      (KI == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xi, yi) }  \
     else if (KI == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xi, yf) }  \
-    else if (KI == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xi, yc) }  \
     else if (KF == ABS(xt) && KI == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xf, yi) }  \
     else if (KF == ABS(xt) && KF == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xf, yf) }  \
-    else if (KF == ABS(xt) && KC == ABS(yt)) { DYADIC_OP_EXEC(op, ra, xf, yc) }  \
     else { /* incompatible type. return error */                                 \
         unref(x),unref(y),unref(r);                                              \
         return Kerr("type error! dyad operand has incompatible type");           \
