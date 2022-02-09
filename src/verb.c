@@ -152,10 +152,6 @@
     uint64_t rcount = MAX(xn, yn);                                               \
     r = k(rtype, rcount);
 
-#define DYADIC_OP_RETURN_I(op) DYADIC_OP_ACCESSORS(op, ri)
-
-#define DYADIC_OP_RETURN_F(op) DYADIC_OP_ACCESSORS(op, rf)
-
 #define DYADIC_OP(op)                                                            \
     if (KI == ABS(rt)){                                                          \
         DYADIC_OP_ACCESSORS(op, ri);                                             \
@@ -167,6 +163,10 @@
         unref(x), unref(y), unref(r);                                            \
         return Kerr("type error. return type incompatible");                     \
     }  
+
+#define DYADIC_OP_RETURN_I(op) DYADIC_OP_ACCESSORS(op, ri)
+
+#define DYADIC_OP_RETURN_F(op) DYADIC_OP_ACCESSORS(op, rf)
 
 // wrapper around DYADIC_OP_EXEC
 // provides correct object accessor for the operation fepending on type
