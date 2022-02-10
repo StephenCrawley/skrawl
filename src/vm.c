@@ -59,6 +59,7 @@ static void run(VM *vm){
             case OP_DYAD_MORE:
             case OP_DYAD_EQUAL:
             case OP_DYAD_MATCH:
+            case OP_DYAD_FIND:
                 x = POP; 
                 y = POP;
                 g = dyads[instruction];

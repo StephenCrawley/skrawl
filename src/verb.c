@@ -190,8 +190,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .     !    |    &    <     >     =      ~
-D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal, match};
+//           +    *         -         %       .     !    |    &    <     >     =      ~      ?
+D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal, match, find};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -323,6 +323,43 @@ K key(K x, K y){
     return r;
 }
 
+// x?y
+// returns vector of indices, the 1st occurence of each y in x
+// if y not in x, returns count of x
+// ex: 1 3 5 7 ? 1 2 5 -> 0 4 2
+K find(K x, K y){
+    if (0 > xt){
+        unref(x), unref(y);
+        return Kerr("type error! x arg must be list");
+    }
+
+    int8_t type = 0 > yt ? -KI : KI;
+    K r, t;
+    bool equal;
+
+    x = expand(x);
+    y = expand(y);
+    r = k(type, yn);
+    
+    // iterate y
+    for (uint64_t i = 0; i < yn; ++i){
+        // iterate x
+        for (uint64_t j = 0; j < xn; ++j){
+            t = match(ref(xk[j]), ref(yk[i]));
+            equal = ti[0];
+            unref(t);
+            if (equal){
+                ri[i] = j;
+                break;
+            }
+            ri[i] = xn;
+        }
+    }
+
+    unref(x), unref(y);
+    return r;
+}
+
 // monadic verb table
 //            +     *
 M monads[] = {flip, first};
@@ -379,7 +416,7 @@ K flip(K x){
     }
 
     // separate function to flip dicts and tables
-    if (KD != xt || KT != xt){
+    if (KD == xt || KT == xt){
         return flipDictOrTab(x);
     }
 

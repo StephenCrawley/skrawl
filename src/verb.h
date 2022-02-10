@@ -16,7 +16,8 @@ K more(K x,K y);
 K equal(K x,K y);
 K match(K x,K y);
 K key(K x,K y);
-D dyads[12];
+K find(K x,K y);
+D dyads[13];
 
 // monadic verbs
 K flip(K x);

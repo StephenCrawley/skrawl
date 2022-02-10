@@ -23,6 +23,7 @@ enum {
     OP_DYAD_MORE,
     OP_DYAD_EQUAL,
     OP_DYAD_MATCH,
+    OP_DYAD_FIND,
     // monadic (1 argument) operators
     // the opcode is used to index the monads[] array (defined in verbs.c)
     // eg monads[opcode - OP_MONAD_START]
