@@ -79,7 +79,7 @@ static void run(VM *vm){
             case OP_ENLIST:
                 n =  *vm->ip++;
                 r = k(KK, n);
-                while (n--) rk[n] = POP;
+                for (uint64_t i = 0; i < n; ++i) rk[i] = POP;
                 r = squeeze(r);
                 PUSH(r);
                 break;
