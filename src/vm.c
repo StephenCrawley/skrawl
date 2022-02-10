@@ -59,8 +59,8 @@ static void run(VM *vm){
             case OP_DYAD_MORE:
             case OP_DYAD_EQUAL:
             case OP_DYAD_MATCH:
-                y = POP; 
-                x = POP;
+                x = POP; 
+                y = POP;
                 g = dyads[instruction];
                 r = (*g)(x, y);
                 PUSH(r);
