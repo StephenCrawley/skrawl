@@ -7,33 +7,46 @@
 // prints opcode, opcode name, op immediate arg (if any), stack. eg:
 // 032  OP_ENLIST   2   (3 4;1 2)
 void disassemble(VM *vm, uint8_t *instr){
+    // ops string
+    static const char *ops = KOPS;
+
     // print opcode
     printf("%03d  ", instr[0]);
 
     // print opcode name
     switch(instr[0]){
-        case OP_CONSTANT : {
+        case OP_CONSTANT:
             printf("%-13s", "OP_CONSTANT");
             break;
-        }
-        case OP_DYAD_START ... OP_DYAD_END : {
-            static const char *ops = KOPS;
+
+        case OP_DYAD_ADD:
+        case OP_DYAD_MULTIPLY:
+        case OP_DYAD_SUBTRACT:
+        case OP_DYAD_DIVIDE:
+        case OP_DYAD_DOTAPPLY:
+        case OP_DYAD_KEY:
+        case OP_DYAD_MIN:
+        case OP_DYAD_MAX:
+        case OP_DYAD_LESS:
+        case OP_DYAD_MORE:
+        case OP_DYAD_EQUAL:
+        case OP_DYAD_MATCH: 
             printf("OP_DYAD %-10c", ops[ instr[0] ]);
             break;
-        }
-        case OP_MONAD_START ... OP_MONAD_END : {
-            static const char *ops = KOPS;
+
+        case OP_MONAD_FLIP:
+        case OP_MONAD_FIRST:
             printf("OP_MONAD %-9c", ops[ instr[0] - OP_MONAD_START ]);
             break;
-        }
-        case OP_ENLIST : {
+
+        case OP_ENLIST:
             printf("%-13s", "OP_ENLIST");
             break;
-        }
-        case OP_RETURN : {
+
+        case OP_RETURN:
             printf("%-18s", "OP_RETURN");
             break;
-        }
+
         default : printf("%-17s", "OP_UNKNOWN");
     }
 

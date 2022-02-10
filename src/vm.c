@@ -24,6 +24,14 @@ static void freeVM(VM *vm){
 }
 
 static void run(VM *vm){
+
+    // declare variables used by VM
+    K x, y;     // objects popped from stack
+    K r;        // return object to be pushed on the stack
+    M f;        // monadic function 
+    D g;        // dyadic  function 
+    uint64_t n; // count 
+
     for (;;){
 
 #ifdef DBGCODE
@@ -34,44 +42,56 @@ static void run(VM *vm){
         switch (instruction){
 
             // push a constant (source code literal) onto the stack
-            case OP_CONSTANT : {
+            case OP_CONSTANT:
                 PUSH( ref(vm->chunk->k[*vm->ip++]) );
                 break;
-            }
 
-            case OP_DYAD_START ... OP_DYAD_END : {
-                K y = POP; 
-                K x = POP;
-                D f = dyads[instruction];
-                K r = (*f)(x, y);
+            // dyadic operators
+            case OP_DYAD_ADD:
+            case OP_DYAD_MULTIPLY:
+            case OP_DYAD_SUBTRACT:
+            case OP_DYAD_DIVIDE:
+            case OP_DYAD_DOTAPPLY:
+            case OP_DYAD_KEY:
+            case OP_DYAD_MIN:
+            case OP_DYAD_MAX:
+            case OP_DYAD_LESS:
+            case OP_DYAD_MORE:
+            case OP_DYAD_EQUAL:
+            case OP_DYAD_MATCH:
+                y = POP; 
+                x = POP;
+                g = dyads[instruction];
+                r = (*g)(x, y);
                 PUSH(r);
                 break;
-            }
 
-            case OP_MONAD_START ... OP_MONAD_END : {
-                K x = POP; 
-                M f = monads[instruction - OP_MONAD_START];
-                K r = (*f)(x);
+            // monadic operators
+            case OP_MONAD_FLIP:
+            case OP_MONAD_FIRST:
+                x = POP; 
+                f = monads[instruction - OP_MONAD_START];
+                r = (*f)(x);
                 PUSH(r);
                 break;
-            }
 
-            case OP_ENLIST : {
-                uint64_t count =  *vm->ip++;
-                K r = k(KK, count);
-                while (count--) rk[count] = POP;
+            // enlist 
+            case OP_ENLIST:
+                n =  *vm->ip++;
+                r = k(KK, n);
+                while (n--) rk[n] = POP;
                 r = squeeze(r);
                 PUSH(r);
                 break;
-            }
 
-            case OP_RETURN : {
+            // print top of stack and stop execution
+            case OP_RETURN:
                 printK( POP );
                 return;
-            }
 
+            // unknown instruction. print error and stop execution
             default:
-                printf("error! op not recognized.\n");
+                printf("error! VM instruction not recognized: %03d\n", instruction);
                 return;
         }
 

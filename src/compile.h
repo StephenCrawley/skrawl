@@ -4,20 +4,35 @@
 #include "a.h"
 #include "chunk.h"
 
+#define OP_MONAD_START 0x10
+
 // Bytecode Instructions
 enum {
-    // OP_DYAD_START and OP_DYAD_END is the range containing dyadic operator opcodes
-    // opcodes in this range are used as an index into the dyads[] array defined in verbs.c
-    // the index is 
-    OP_DYAD_START  = 0x00,
-    OP_DYAD_END    = 0x0F,
-    // OP_MONAD_START and OP_MONAD_END is the range containing monadic operator opcodes
-    // opcodes in this range, minus OP_MONAD_START, are used as an index into the monads[] array defined in verbs.c
+    // dyadic (2 argument) operators
+    // opcodes in this range are used as an index into the dyads[] array (defined in verbs.c)
+    // eg dyads[opcode]
+    OP_DYAD_ADD = 0x00,
+    OP_DYAD_MULTIPLY,
+    OP_DYAD_SUBTRACT,
+    OP_DYAD_DIVIDE,
+    OP_DYAD_DOTAPPLY,
+    OP_DYAD_KEY,
+    OP_DYAD_MIN,
+    OP_DYAD_MAX,
+    OP_DYAD_LESS,
+    OP_DYAD_MORE,
+    OP_DYAD_EQUAL,
+    OP_DYAD_MATCH,
+    // monadic (1 argument) operators
+    // the opcode is used to index the monads[] array (defined in verbs.c)
     // eg monads[opcode - OP_MONAD_START]
-    OP_MONAD_START = 0x10,
-    OP_MONAD_END   = 0x1F,
+    OP_MONAD_FLIP = OP_MONAD_START,
+    OP_MONAD_FIRST,
+    // put list literal into K object
     OP_ENLIST,
+    // load literal value from constants array
     OP_CONSTANT,
+    // print top of stack and stop execution
     OP_RETURN
 };
 
