@@ -158,10 +158,11 @@ K expand(K x){
     else if (KS == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ks( xi[i] );
     else if (KD == ABS(xt)) rk[0] = ref(x);
     else if (KT == ABS(xt)) {
-        K cols =      KOBJ(xk[0])[0]  ;
-        K vals = ref( KOBJ(xk[0])[1] );
+        K keys = KOBJ(xk[0])[0];
+        K vals = KOBJ(xk[0])[1];
         vals = flip(ref(vals));
-        for (uint64_t i = 0; i < COUNT(vals); ++i) rk[i] = key(ref(cols) , KOBJ(vals)[i]);
+        for (uint64_t i = 0; i < COUNT(vals); ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
+        unref(vals);
     }
     else {
         unref(x), unref(r);
