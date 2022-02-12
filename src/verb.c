@@ -468,6 +468,11 @@ K first(K x){
     else if (KD == xt){
         r = first( ref(xk[1]) );
     }
+    // table
+    else if (KT == xt){
+        x = expand(x);
+        r = ref( xk[0] );
+    }
     // simple vector
     else if (0 < xt){
         r = k(-xt, 1);
