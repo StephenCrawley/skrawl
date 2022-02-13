@@ -360,8 +360,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -
-M monads[] = {flip, first, negate};
+//            +     *      -       %
+M monads[] = {flip, first, negate, square};
 
 static K flipDictOrTab(K x){
     K r;
@@ -407,6 +407,8 @@ static K flipDictOrTab(K x){
     return r;
 }
 
+// +x
+// +(1 1;2 3) -> (1 2;1 3)
 K flip(K x){
     // must be a general list
     if(KK != xt && KD != xt && KT != xt){
@@ -458,6 +460,8 @@ K flip(K x){
     return r;
 }
 
+// *x
+// *1 2 3 -> 1
 K first(K x){
     K r;
 
@@ -521,6 +525,45 @@ K negate(K x){
             }
             rk[i] = t;
         }
+    }
+
+    unref(x);
+    return r;
+}
+
+// %x
+// %4 2 -> 2 1.4142
+K square(K x){
+    K r, t;
+
+    if (KK == xt){
+        r = k(KK, xn);
+        for (uint64_t i = 0; i < xn; ++i){
+            t = square( ref(xk[i]) );
+            if (KE == tt){
+                while (i--) unref(rk[i]);
+                free(r), unref(x);
+                return t;
+            }
+            rk[i] = t;
+        }
+    }
+    else if (KD == xt){
+        t = square(ref(xk[1]));
+        r = (KE == tt) ? t : key(ref(xk[0]), t);
+        unref(x);
+        return r;
+    }
+    else if (KT == xt){
+        r = square( ref(xk[0]) );
+    }
+    else if (KI == ABS(xt) || KF == ABS(xt)){
+        r = k(0 > xt ? -KF : KF, xn);
+        x = multiply(Kf(1), x);
+        for (uint64_t i = 0; i < xn; ++i) rf[i] = sqrt(xf[i]);
+    }
+    else {
+        r = Kerr("type error! arg must be numeric type");
     }
 
     unref(x);

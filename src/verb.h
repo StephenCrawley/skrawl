@@ -23,6 +23,7 @@ D dyads[13];
 K flip(K x);
 K first(K x);
 K negate(K x);
-M monads[3];
+K square(K x);
+M monads[4];
 
 #endif

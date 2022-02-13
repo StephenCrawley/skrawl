@@ -75,7 +75,7 @@ static void run(VM *vm){
             case OP_MONAD_FLIP:
             case OP_MONAD_FIRST:
             case OP_MONAD_NEGATE:
-                x = POP; 
+            case OP_MONAD_SQRT:
                 f = monads[instruction - OP_MONAD_START];
                 if (NULL == f){
                     PUSH(Kerr("nyi"));
