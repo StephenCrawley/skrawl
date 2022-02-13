@@ -29,6 +29,7 @@ enum {
     // eg monads[opcode - OP_MONAD_START]
     OP_MONAD_FLIP = OP_MONAD_START,
     OP_MONAD_FIRST,
+    OP_MONAD_NEGATE,
     // put list literal into K object
     OP_ENLIST,
     // load literal value from constants array

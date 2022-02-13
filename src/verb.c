@@ -360,8 +360,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *
-M monads[] = {flip, first};
+//            +     *      -
+M monads[] = {flip, first, negate};
 
 static K flipDictOrTab(K x){
     K r;
@@ -485,6 +485,31 @@ K first(K x){
     else {
         r = ref( xk[0] );
     }
+    unref(x);
+    return r;
+}
+
+K negate(K x){
+    if (KS == ABS(xt)){
+        unref(x);
+        return Kerr("type error!");
+    }
+
+    K r;
+
+    if (KD == xt){
+        r = key(ref(xk[0]), negate(ref(xk[1])));
+        unref(x);
+        return r;
+    }
+
+    r = k(xt, xn);
+    if      (KI == xt) for (uint64_t i = 0; i < xn; ++i) ri[i] = -xi[i];
+    else if (KF == xt) for (uint64_t i = 0; i < xn; ++i) rf[i] = -xf[i];
+    else if (KC == xt) for (uint64_t i = 0; i < xn; ++i) rc[i] = -xc[i];
+    else if (KK == xt) for (uint64_t i = 0; i < xn; ++i) rk[i] = negate( ref(xk[i]) );
+    else if (KT == xt) rk[0] = negate( ref(xk[0]) );
+
     unref(x);
     return r;
 }

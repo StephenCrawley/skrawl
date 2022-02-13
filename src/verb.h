@@ -22,6 +22,7 @@ D dyads[13];
 // monadic verbs
 K flip(K x);
 K first(K x);
-M monads[2];
+K negate(K x);
+M monads[3];
 
 #endif

@@ -37,6 +37,7 @@ void disassemble(VM *vm, uint8_t *instr){
 
         case OP_MONAD_FLIP:
         case OP_MONAD_FIRST:
+        case OP_MONAD_NEGATE:
             printf("OP_MONAD %-9c", ops[ instr[0] - OP_MONAD_START ]);
             break;
 

@@ -70,6 +70,7 @@ static void run(VM *vm){
             // monadic operators
             case OP_MONAD_FLIP:
             case OP_MONAD_FIRST:
+            case OP_MONAD_NEGATE:
                 x = POP; 
                 f = monads[instruction - OP_MONAD_START];
                 r = (*f)(x);
