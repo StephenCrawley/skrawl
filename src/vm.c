@@ -34,7 +34,7 @@ static void run(VM *vm){
 
     for (;;){
 
-#ifdef DBGCODE
+#ifdef DISASSEMBLE
         disassemble(vm, vm->ip);
 #endif
 
@@ -117,7 +117,7 @@ InterpretResult interpret(const char *source){
     if (!parseSuccess) return INTERPRET_PARSE_ERROR;
 
 // if flag is set, parse input and print the parse tree only
-#ifdef DBGPARSE
+#ifdef DBG_PARSE
     printK( ref(chunk->parseTree) );
     freeChunk(chunk);
     return INTERPRET_OK;

@@ -16,7 +16,7 @@ static Token makeToken(Scanner *scanner, TokenType type){
     token.length = (uint16_t)(scanner->current - scanner->start);
     token.type = type;
 
-#ifdef DBGTOKEN
+#ifdef DBG_TOKEN
     printf("length: %d   type: %-2d   token: %.*s \n", token.length, token.type, token.length, token.start);
 #endif
 
