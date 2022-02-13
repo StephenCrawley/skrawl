@@ -1,5 +1,5 @@
-#ifndef COMPILE
-#define COMPILE
+#ifndef COMPILE_H
+#define COMPILE_H
 
 #include "a.h"
 #include "chunk.h"

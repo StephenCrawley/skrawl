@@ -1,5 +1,5 @@
-#ifndef OBJECT
-#define OBJECT
+#ifndef OBJECT_H
+#define OBJECT_H
 
 #include "a.h"
 

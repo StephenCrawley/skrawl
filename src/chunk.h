@@ -1,5 +1,5 @@
-#ifndef CHUNK
-#define CHUNK
+#ifndef CHUNK_H
+#define CHUNK_H
 
 #include "a.h"
 

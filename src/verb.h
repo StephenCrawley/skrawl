@@ -1,5 +1,5 @@
-#ifndef VERB
-#define VERB
+#ifndef VERB_H
+#define VERB_H
 
 #include "a.h"
 #include "object.h"

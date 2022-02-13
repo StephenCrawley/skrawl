@@ -1,5 +1,5 @@
-#ifndef PARSE
-#define PARSE
+#ifndef PARSE_H
+#define PARSE_H
 
 #include "a.h"
 #include "token.h"

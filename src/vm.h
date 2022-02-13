@@ -1,5 +1,5 @@
-#ifndef MACHINE
-#define MACHINE
+#ifndef MACHINE_H
+#define MACHINE_H
 
 #include "a.h"
 #include "chunk.h"
