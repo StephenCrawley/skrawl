@@ -281,22 +281,21 @@ K match(K x, K y){
 
     // check elements are equal
     bool equal = true;
-    if (KI == ABS(xt) || KS == ABS(xt)){
+    // 8-byte types
+    if (KI == ABS(xt) || KS == ABS(xt) || KF == ABS(xt)){ 
         for (uint64_t i = 0; i < xn; ++i){
-            equal = equal && (xi[i] == yi[i]);
-            if (!equal) break;
-        }
-    }
-    else if (KF == ABS(xt)){
-        for (uint64_t i = 0; i < xn; ++i){
-            equal = equal && (xf[i] == yf[i]);
-            if (!equal) break;
+            if (xi[i] != yi[i]){
+                equal = false;
+                break;
+            }
         }
     }
     else if (KC == ABS(xt)){
         for (uint64_t i = 0; i < xn; ++i){
-            equal = equal && (xc[i] == yc[i]);
-            if (!equal) break;
+            if (xc[i] != yc[i]){
+                equal = false;
+                break;
+            }
         }
     }
     
