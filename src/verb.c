@@ -489,26 +489,39 @@ K first(K x){
     return r;
 }
 
+// -x
+// - 1 2 3 -> -1 -2 -3
 K negate(K x){
     if (KS == ABS(xt)){
         unref(x);
         return Kerr("type error!");
     }
 
-    K r;
+    K r, t;
 
     if (KD == xt){
-        r = key(ref(xk[0]), negate(ref(xk[1])));
+        t = negate(ref(xk[1]));
+        r = (KE == tt) ? t : key(ref(xk[0]), t);
         unref(x);
         return r;
     }
 
     r = k(xt, xn);
-    if      (KI == xt) for (uint64_t i = 0; i < xn; ++i) ri[i] = -xi[i];
-    else if (KF == xt) for (uint64_t i = 0; i < xn; ++i) rf[i] = -xf[i];
-    else if (KC == xt) for (uint64_t i = 0; i < xn; ++i) rc[i] = -xc[i];
-    else if (KK == xt) for (uint64_t i = 0; i < xn; ++i) rk[i] = negate( ref(xk[i]) );
-    else if (KT == xt) rk[0] = negate( ref(xk[0]) );
+    if      (KI == ABS(xt)) for (uint64_t i = 0; i < xn; ++i) ri[i] = -xi[i];
+    else if (KF == ABS(xt)) for (uint64_t i = 0; i < xn; ++i) rf[i] = -xf[i];
+    else if (KC ==     xt)  for (uint64_t i = 0; i < xn; ++i) rc[i] = -xc[i];
+    else if (KT ==     xt)  rk[0] = negate( ref(xk[0]) );
+    else if (KK ==     xt){
+        for (uint64_t i = 0; i < xn; ++i){
+            t = negate( ref(xk[i]) );
+            if (KE == tt){
+                while(i--) unref(rk[i]);
+                free(r), unref(x);
+                return t;
+            }
+            rk[i] = t;
+        }
+    }
 
     unref(x);
     return r;
