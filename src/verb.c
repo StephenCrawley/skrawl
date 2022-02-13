@@ -360,8 +360,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %       .     !
-M monads[] = {flip, first, negate, square, NULL, enumerate};
+//            +     *      -       %       .     !          |
+M monads[] = {flip, first, negate, square, NULL, enumerate, reverse};
 
 static K flipDictOrTab(K x){
     K r;
@@ -580,6 +580,27 @@ K enumerate(K x){
 
     K r = k(KI, xi[0]);
     for (uint64_t i = 0; i < rn; ++i) ri[i] = i;
+    unref(x);
+    return r;
+}
+
+K reverse(K x){
+    K r;
+
+    if (KD == xt){
+        r = key(reverse(ref(xk[0])), reverse(ref(xk[1])));
+        unref(x);
+        return r;
+    }
+
+    x = expand(x);
+    r = k(KK, xn);
+    for (uint64_t i = 0, n = xn/2; i < n; ++i){
+        rk[i] = ref(xk[xn - (i+1)]);
+        rk[xn - (i+1)] = ref(xk[i]);
+    }
+    if (0 != xn%2) rk[xn/2] = ref(xk[xn/2]);
+    r = squeeze(r);
     unref(x);
     return r;
 }
