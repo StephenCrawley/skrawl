@@ -24,6 +24,7 @@ K flip(K x);
 K first(K x);
 K negate(K x);
 K square(K x);
-M monads[4];
+K enumerate(K x);
+M monads[6];
 
 #endif

@@ -325,7 +325,7 @@ K key(K x, K y){
 // x?y
 // returns vector of indices, the 1st occurence of each y in x
 // if y not in x, returns count of x
-// ex: 1 3 5 7 ? 1 2 5 -> 0 4 2
+// 1 3 5 7 ? 1 2 5 -> 0 4 2
 K find(K x, K y){
     if (0 > xt){
         unref(x), unref(y);
@@ -360,8 +360,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %
-M monads[] = {flip, first, negate, square};
+//            +     *      -       %       .     !
+M monads[] = {flip, first, negate, square, NULL, enumerate};
 
 static K flipDictOrTab(K x){
     K r;
@@ -566,6 +566,20 @@ K square(K x){
         r = Kerr("type error! arg must be numeric type");
     }
 
+    unref(x);
+    return r;
+}
+
+// !x
+// !3 -> 0 1 2
+K enumerate(K x){
+    if (-KI != xt){
+        unref(x);
+        return Kerr("type error! arg must be int atom");
+    }
+
+    K r = k(KI, xi[0]);
+    for (uint64_t i = 0; i < rn; ++i) ri[i] = i;
     unref(x);
     return r;
 }
