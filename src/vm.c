@@ -60,9 +60,13 @@ static void run(VM *vm){
             case OP_DYAD_EQUAL:
             case OP_DYAD_MATCH:
             case OP_DYAD_FIND:
+                g = dyads[instruction];
+                if (NULL == g){
+                    PUSH(Kerr("nyi"));
+                    break;
+                }
                 x = POP; 
                 y = POP;
-                g = dyads[instruction];
                 r = (*g)(x, y);
                 PUSH(r);
                 break;
@@ -73,6 +77,11 @@ static void run(VM *vm){
             case OP_MONAD_NEGATE:
                 x = POP; 
                 f = monads[instruction - OP_MONAD_START];
+                if (NULL == f){
+                    PUSH(Kerr("nyi"));
+                    break;
+                }
+                x = POP;
                 r = (*f)(x);
                 PUSH(r);
                 break;
