@@ -8,7 +8,24 @@
 #include "vm.h"
 #define SOURCE_MAX 1024
 
-// static void runFile(){} // TODO
+static void runFile(VM *vm, const char * file){
+    FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+
+    fp = fopen(file, "r");
+    if (NULL == fp){
+        printf("file error! couldn't read %s", file);
+        exit(EXIT_FAILURE);
+    }
+
+    while (-1 != getline(&line, &len, fp))
+        interpret(vm, line);
+
+    fclose(fp);
+    if (line)
+        free(line);
+}
 
 void repl(VM *vm){
     char source[SOURCE_MAX];
@@ -22,7 +39,7 @@ void repl(VM *vm){
     }
 }
 
-int main(int argc, const char* argv[]){
+int main(int argc, const char **argv){
     
     // if too many command line args passed, exit
     if (2 < argc){
@@ -34,9 +51,7 @@ int main(int argc, const char* argv[]){
 
     // run file 
     if (2 == argc){
-        printf("file load not yet implemented. exiting...\n");
-        // runFile(vm, argv[1]); TODO : implement load from file
-        exit(1);
+        runFile(vm, argv[1]);
     };
 
     // run interactive 
