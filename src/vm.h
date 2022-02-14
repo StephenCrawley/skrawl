@@ -20,6 +20,7 @@ typedef struct vm {
 } VM;
 
 // public function declarations
-InterpretResult interpret(const char *source);
+InterpretResult interpret(VM *vm, const char *source);
+VM *initVM();
 
 #endif

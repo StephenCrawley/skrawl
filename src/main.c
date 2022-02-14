@@ -10,15 +10,15 @@
 
 // static void runFile(){} // TODO
 
-void repl(){
+void repl(VM *vm){
     char source[SOURCE_MAX];
-    for(;;){
+    for (;;){
         putchar(' ');
-        if(!fgets(source, sizeof(source), stdin)){
+        if (!fgets(source, sizeof(source), stdin)){
             putchar('\n');
             break;
         }
-        interpret(source);
+        interpret(vm, source);
     }
 }
 
@@ -29,14 +29,16 @@ int main(int argc, const char* argv[]){
         printf("Too many args. Usage:\n\n\tk [file.k]\n\n");
         exit(1);
     }
-    
+    // init a VM instance
+    VM *vm = initVM();
+
     // run file 
     if (2 == argc){
         printf("file load not yet implemented. exiting...\n");
-        // runFile(argv[1]); TODO : implement load from file
+        // runFile(vm, argv[1]); TODO : implement load from file
         exit(1);
     };
 
     // run interactive 
-    repl();
+    repl(vm);
 }

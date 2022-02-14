@@ -9,18 +9,25 @@
 #define PUSH(k)  (*vm->top = (k), vm->top++)
 #define POP      (*(--vm->top))
 
-static VM *initVM(Chunk *chunk){
+VM *initVM(){
     VM *vm = malloc(sizeof(struct vm));
-    vm->chunk = chunk;
-    vm->ip = chunk->code;
+    vm->chunk = NULL;
+    vm->ip = NULL;
     vm->top = vm->stack;
     return vm;
 }
 
-static void freeVM(VM *vm){
+static void addChunkToVM(VM *vm, Chunk *chunk){
+    vm->chunk = chunk;
+    vm->ip = chunk->code;
+}
+
+static void cleanup(VM *vm){
+    // unref stack members
     for (uint64_t i = 0, n = vm->top - vm->stack; i < n; ++i)
         unref( vm->stack[i] );
-    free(vm);
+    // reset stackTop
+    vm->top = vm->stack;
 }
 
 static void run(VM *vm){
@@ -117,7 +124,7 @@ static void run(VM *vm){
     }
 }
 
-InterpretResult interpret(const char *source){
+InterpretResult interpret(VM *vm, const char *source){
     // init new Chunk
     Chunk *chunk = initNewChunk();
 
@@ -138,11 +145,11 @@ InterpretResult interpret(const char *source){
     compile(chunk);
 
     // run bytecode in VM
-    VM *vm = initVM(chunk);
+    addChunkToVM(vm, chunk);
     run(vm);
 
     // cleanup and return success
     freeChunk(chunk);
-    freeVM(vm);
+    cleanup(vm);
     return INTERPRET_OK;
 }
