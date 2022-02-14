@@ -106,6 +106,26 @@ static Token digraphToken(Scanner *scanner){
     return makeToken(scanner, ('/' == *scanner->start) ? TOKEN_FSLASH : ('\\' == *scanner->start) ? TOKEN_BSLASH : TOKEN_APOSTROPHE);
 }
 
+// forward slash(fs) can be part of adverb or start a comment
+// fs at line start is comment
+// fs preceded by ' ' is comment
+// otherwise it forms adverb
+static Token forwardSlash(Scanner *scanner){
+    if(scanner->source == (scanner->current - 1)){
+        while ('\0' != scanner->current[0] && '\n' != scanner->current[0]) 
+            scanner->current++;
+        return(nextToken(scanner));
+    }
+    else if (' ' == scanner->current[-2] || '\n' == scanner->current[-2]){
+        while ('\0' != scanner->current[0] && '\n' != scanner->current[0]) 
+            scanner->current++;
+        return(nextToken(scanner));
+    }
+    else {
+        return digraphToken(scanner);
+    }
+}
+
 Token nextToken(Scanner *scanner){
     skipWhitespace(scanner);
     scanner->start = scanner->current;
@@ -137,7 +157,7 @@ Token nextToken(Scanner *scanner){
         case '?' : return makeToken(scanner, TOKEN_QMARK);
         case '_' : return makeToken(scanner, TOKEN_USCORE);
         case ':' : return makeToken(scanner, TOKEN_COLON);
-        case '/' : return digraphToken(scanner);
+        case '/' : return forwardSlash(scanner);
         case '\\': return digraphToken(scanner);
         case '\'': return digraphToken(scanner);
         case '(' : return makeToken(scanner, TOKEN_LPAREN);
