@@ -604,3 +604,11 @@ K reverse(K x){
     unref(x);
     return r;
 }
+
+// ,x
+// ,1 -> ,1
+K enlist(K x){
+    K r = k(KK, 1);
+    rk[0] = ref(x);
+    return squeeze(r);
+}
