@@ -342,6 +342,7 @@ K find(K x, K y){
     
     // iterate y
     for (uint64_t i = 0; i < yn; ++i){
+        ri[i] = xn;
         // iterate x
         for (uint64_t j = 0; j < xn; ++j){
             t = match(ref(xk[j]), ref(yk[i]));
@@ -351,7 +352,6 @@ K find(K x, K y){
                 ri[i] = j;
                 break;
             }
-            ri[i] = xn;
         }
     }
 
