@@ -584,6 +584,8 @@ K enumerate(K x){
     return r;
 }
 
+// |x
+// |1 2 3 -> 3 2 1
 K reverse(K x){
     K r;
 
