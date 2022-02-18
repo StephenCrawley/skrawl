@@ -361,7 +361,7 @@ K find(K x, K y){
 
 // monadic verb table
 //            +     *      -       %       .     !          |
-M monads[] = {flip, first, negate, square, NULL, enumerate, reverse};
+M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse};
 
 static K flipDictOrTab(K x){
     K r;
@@ -533,13 +533,13 @@ K negate(K x){
 
 // %x
 // %4 2 -> 2 1.4142
-K square(K x){
+K squareRoot(K x){
     K r, t;
 
     if (KK == xt){
         r = k(KK, xn);
         for (uint64_t i = 0; i < xn; ++i){
-            t = square( ref(xk[i]) );
+            t = squareRoot( ref(xk[i]) );
             if (KE == tt){
                 while (i--) unref(rk[i]);
                 free(r), unref(x);
@@ -549,13 +549,13 @@ K square(K x){
         }
     }
     else if (KD == xt){
-        t = square(ref(xk[1]));
+        t = squareRoot(ref(xk[1]));
         r = (KE == tt) ? t : key(ref(xk[0]), t);
         unref(x);
         return r;
     }
     else if (KT == xt){
-        r = square( ref(xk[0]) );
+        r = squareRoot( ref(xk[0]) );
     }
     else if (KI == ABS(xt) || KF == ABS(xt)){
         r = k(0 > xt ? -KF : KF, xn);

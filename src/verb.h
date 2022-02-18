@@ -23,7 +23,7 @@ D dyads[13];
 K flip(K x);
 K first(K x);
 K negate(K x);
-K square(K x);
+K squareRoot(K x);
 K enumerate(K x);
 K reverse(K x);
 K enlist(K x); //not currently in monads[] array
