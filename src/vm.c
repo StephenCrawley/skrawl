@@ -131,9 +131,9 @@ InterpretResult interpret(VM *vm, const char *source){
     // parse source. parse tree is saved in chunk->parseTree
     // the tree is a K object
     bool parseSuccess = parse(source, chunk);
-
-    // return error if parsing failed
-    if (!parseSuccess) return INTERPRET_PARSE_ERROR;
+    if (!parseSuccess){
+        return INTERPRET_PARSE_ERROR;
+    }
 
 // if flag is set, parse input and print the parse tree only
 #ifdef DBG_PARSE
@@ -142,8 +142,11 @@ InterpretResult interpret(VM *vm, const char *source){
     return INTERPRET_OK;
 #endif
 
-    compile(chunk);
-
+    bool compileSuccess = compile(chunk);
+    if (!compileSuccess){
+        freeChunk(chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
     // run bytecode in VM
     addChunkToVM(vm, chunk);
     run(vm);

@@ -14,6 +14,7 @@ K k(int8_t type, uint64_t count);
 K Ki(int64_t x);
 K Kf(double x);
 K Kc(char x);
+K Ks(int64_t x);
 K Kerr(const char *error);
 
 K squeeze(K x);

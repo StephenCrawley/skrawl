@@ -12,6 +12,7 @@ Chunk* initNewChunk(){
     chunk->kCount = 0;
     chunk->kSize = 8;
     chunk->parseTree = NULL;
+    chunk->compileError = false;
     return chunk;
 }
 
@@ -24,7 +25,7 @@ void freeChunk(Chunk *chunk){
     free(chunk->code);
 
     // free the parseTree
-    if(NULL != chunk->parseTree) unref(chunk->parseTree);
+    if (NULL != chunk->parseTree) unref(chunk->parseTree);
 
     // free the chunk
     free(chunk);

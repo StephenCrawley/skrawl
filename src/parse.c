@@ -4,6 +4,7 @@
 #include "token.h"
 #include "chunk.h"
 #include "object.h"
+#include "verb.h"
 
 #define REPORT_ERROR(...)         \
         if(!parser->panic){       \
@@ -73,7 +74,8 @@ static bool atExprEnd(TokenType type){
 }
 
 static bool atNoun(TokenType type){
-    return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || TOKEN_FLOAT == type || TOKEN_SYMBOL == type;
+    return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || 
+           TOKEN_FLOAT  == type || TOKEN_SYMBOL == type || TOKEN_ID     == type;
 }
 
 static bool atVerb(TokenType type){
@@ -217,6 +219,13 @@ static K parseSymbol(Parser *parser, Scanner *scanner){
         ++j;
     }
     rn = j;
+    return enlist(r);
+}
+
+static K parseId(Parser *parser){
+    K r = k(-KS, 1);
+    const char *str = &parser->previous.start[0];
+    MAKE_SYMBOL(ri[0], str, parser->previous.length);
     return r;
 }
 
@@ -237,6 +246,9 @@ static K parseNoun(Parser *parser, Scanner *scanner){
     }
     else if (TOKEN_SYMBOL == parser->previous.type){
         r = parseSymbol(parser, scanner);
+    }
+    else if (TOKEN_ID == parser->previous.type){
+        r = parseId(parser);
     }
     else {
         REPORT_ERROR("Error! Noun not yet implemented.\n");

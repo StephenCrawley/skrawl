@@ -17,7 +17,10 @@ typedef struct chunk {
     uint16_t kCount;  // number of K literals
     
     // parse
-    K    parseTree;
+    K        parseTree;
+
+    // compile
+    bool     compileError;
 } Chunk;
 
 // public function declarations

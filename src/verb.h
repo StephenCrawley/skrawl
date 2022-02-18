@@ -26,6 +26,7 @@ K negate(K x);
 K square(K x);
 K enumerate(K x);
 K reverse(K x);
+K enlist(K x); //not currently in monads[] array
 M monads[7];
 
 #endif

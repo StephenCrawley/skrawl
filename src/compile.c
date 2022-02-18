@@ -44,6 +44,24 @@ static void compileLeaf(Chunk *chunk, K x){
     else if (KU == xt){
         compileMonad(chunk, x);
     }
+    // note KS is positive only (no 'ABS')
+    // this is because symbol literals are parsed to: ,`sym`literal (enlisted sym)
+    // variable names are parsed to atomic symbols, and are handled separately 
+    else if (KS == xt){
+        // sym atom literal
+        if (1 == xn){
+            addConstant(chunk, Ks(xi[0]));
+        }
+        // sym list literal
+        else {
+            addConstant(chunk, x);
+        }
+    }
+    // TODO : implement variables
+    else if (-KS == xt){
+        chunk->compileError = true;
+        printf("error! variables not yet implemented\n");
+    }
     else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KS == ABS(xt) || KN == ABS(xt)){
         addConstant(chunk, x);
     }
@@ -92,5 +110,5 @@ static void compileExpressions(Chunk *chunk, K x){
 bool compile(Chunk *chunk){
     compileExpressions(chunk, chunk->parseTree);
     addByte(chunk, OP_RETURN);
-    return true;
+    return !(chunk->compileError);
 }
