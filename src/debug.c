@@ -53,7 +53,7 @@ void disassemble(VM *vm, uint8_t *instr){
             printf("%-18s", "OP_RETURN");
             break;
 
-        default : printf("%-17s", "OP_UNKNOWN");
+        default : printf("%-18s", "OP_UNKNOWN");
     }
 
     // print immediate argument 
