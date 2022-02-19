@@ -360,8 +360,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %       .     !          |
-M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse};
+//            +     *      -       %           .     !          |        &
+M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where};
 
 static K flipDictOrTab(K x){
     K r;
@@ -613,4 +613,31 @@ K enlist(K x){
     K r = k(KK, 1);
     rk[0] = ref(x);
     return squeeze(r);
+}
+
+K where(K x){
+    if (KI != xt){
+        unref(x);
+        return Kerr("type error! &(where) arg must be int list");
+    }
+
+    // get return count
+    uint64_t n = 0;
+    for (uint64_t i = 0; i < xn; ++i)
+        if (0 < xi[i]) n += xi[i];
+
+    K r = k(KI, n);
+    uint64_t j = 0, h;
+    for (uint64_t i = 0; i < xn; ++i){
+        if (0 < xi[i]){
+            h = j + xi[i];
+            while (j < h){
+                ri[j] = i;
+                ++j;
+            }
+        }
+    }
+
+    unref(x);
+    return r;
 }

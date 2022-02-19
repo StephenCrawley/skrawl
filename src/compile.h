@@ -34,6 +34,7 @@ enum {
     OP_MONAD_VALUE,
     OP_MONAD_ENUMERATE,
     OP_MONAD_REVERSE,
+    OP_MONAD_WHERE,
     // put list literal into K object
     OP_ENLIST,
     // load literal value from constants array
