@@ -1,5 +1,5 @@
 // merge sort. returns sorted indices
-#include "a.h"
+#include "../a.h"
 
 // x    - data to sort
 // r    - the return vector containing sorted *indices*

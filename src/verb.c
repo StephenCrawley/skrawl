@@ -1,6 +1,6 @@
 #include "a.h"
 #include "verb.h"
-#include "mergesort.h"
+#include "util/mergesort.h"
 
 // dyadic arithmetic macros
 #define ADD(x, y)   ((x) + (y))
@@ -643,9 +643,7 @@ K where(K x){
     return r;
 }
 
-// <x (return sorted indices)
-// <2 1 7 -> 1 0 2
-K asc(K x){
+static K grade(K x, bool asc){
     if (KI != xt){
         unref(x);
         return Kerr("rank error! can only sort int vectors");
@@ -653,24 +651,20 @@ K asc(K x){
 
     K r = enumerate(Ki(xn));
     K t = k(KI, xn);
-    mergeSortIndex(x, r, t, 0, xn-1, true);
+    mergeSortIndex(x, r, t, 0, xn-1, asc);
 
     unref(x), unref(t);
     return r;
 }
 
 // <x (return sorted indices)
-// <2 1 7 -> 2 0 1
+// <2 1 7 -> 1 0 2
+K asc(K x){
+    return grade(x, true);
+}
+
+// >x (return sorted indices)
+// >2 1 7 -> 2 0 1
 K desc(K x){
-    if (KI != xt){
-        unref(x);
-        return Kerr("rank error! can only sort int vectors");
-    }
-
-    K r = enumerate(Ki(xn));
-    K t = k(KI, xn);
-    mergeSortIndex(x, r, t, 0, xn-1, false);
-
-    unref(x), unref(t);
-    return r;
+    return grade(x, false);
 }
