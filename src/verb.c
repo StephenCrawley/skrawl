@@ -1,5 +1,6 @@
 #include "a.h"
 #include "verb.h"
+#include "mergesort.h"
 
 // dyadic arithmetic macros
 #define ADD(x, y)   ((x) + (y))
@@ -360,8 +361,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %           .     !          |        &
-M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where};
+//            +     *      -       %           .     !          |        &      <    >
+M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc};
 
 static K flipDictOrTab(K x){
     K r;
@@ -639,5 +640,37 @@ K where(K x){
     }
 
     unref(x);
+    return r;
+}
+
+// <x (return sorted indices)
+// <2 1 7 -> 1 0 2
+K asc(K x){
+    if (KI != xt){
+        unref(x);
+        return Kerr("rank error! can only sort int vectors");
+    }
+
+    K r = enumerate(Ki(xn));
+    K t = k(KI, xn);
+    mergeSortIndex(x, r, t, 0, xn-1, true);
+
+    unref(x), unref(t);
+    return r;
+}
+
+// <x (return sorted indices)
+// <2 1 7 -> 2 0 1
+K desc(K x){
+    if (KI != xt){
+        unref(x);
+        return Kerr("rank error! can only sort int vectors");
+    }
+
+    K r = enumerate(Ki(xn));
+    K t = k(KI, xn);
+    mergeSortIndex(x, r, t, 0, xn-1, false);
+
+    unref(x), unref(t);
     return r;
 }

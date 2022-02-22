@@ -87,6 +87,8 @@ static void run(VM *vm){
             case OP_MONAD_ENUMERATE:
             case OP_MONAD_REVERSE:
             case OP_MONAD_WHERE:
+            case OP_DYAD_ASC:
+            case OP_DYAD_DESC:
                 f = monads[instruction - OP_MONAD_START];
                 if (NULL == f){
                     PUSH(Kerr("nyi"));
