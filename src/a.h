@@ -53,30 +53,36 @@ typedef K (*D)(K, K);  // dyadic  function. TODO : rename to V
 #define rn       COUNT(r)
 #define tn       COUNT(t)
 // object data pointer
-#define DATA(k)  ((k)->d)
+#define DATA(k)   ((k)->d)
 // char pointer
-#define CHAR(k)  ((C*)DATA(k))
-#define xc       CHAR(x)
-#define yc       CHAR(y)
-#define rc       CHAR(r)
-#define tc       CHAR(t)
+#define CHAR(k)   ((C*)DATA(k))
+#define xc        CHAR(x)
+#define yc        CHAR(y)
+#define rc        CHAR(r)
+#define tc        CHAR(t)
 // 64-bit signed int pointer
-#define INT(k)   ((I*)DATA(k))
-#define xi       INT(x)
-#define yi       INT(y)
-#define ri       INT(r)
-#define ti       INT(t)
+#define INT(k)    ((I*)DATA(k))
+#define xi        INT(x)
+#define yi        INT(y)
+#define ri        INT(r)
+#define ti        INT(t)
 // double precision float pointer
-#define FLOAT(k) ((F*)DATA(k))
-#define xf       FLOAT(x)
-#define yf       FLOAT(y)
-#define rf       FLOAT(r)
+#define FLOAT(k)  ((F*)DATA(k))
+#define xf        FLOAT(x)
+#define yf        FLOAT(y)
+#define rf        FLOAT(r)
 // general K pointer (for a K object containing K objects)
-#define KOBJ(k)  ((K*)DATA(k))
-#define xk       KOBJ(x)
-#define yk       KOBJ(y)
-#define rk       KOBJ(r)
-#define tk       KOBJ(t)
+#define KOBJ(k)   ((K*)DATA(k))
+#define xk        KOBJ(x)
+#define yk        KOBJ(y)
+#define rk        KOBJ(r)
+#define tk        KOBJ(t)
+// dictionary accessors
+#define DKEYS(k)  KOBJ(k)[0]
+#define DVALS(k)  KOBJ(k)[1]
+// table accessors
+#define TKEYS(k)  DKEYS(KOBJ(k)[0])
+#define TVALS(k)  DVALS(KOBJ(k)[0])
 
 // K types
 enum {

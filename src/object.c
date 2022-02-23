@@ -26,7 +26,7 @@ void unref(K x){
 // returns the count seen by the user with monadic #
 // when x is a table, returns the count of rows 
 uint64_t count(K x){
-    return (KT == xt) ? COUNT( KOBJ( KOBJ( xk[0] )[1])[0] ) : xn;
+    return (KT == xt) ? COUNT( KOBJ(TVALS(x))[0] ) : xn;
 }
 
 // malloc K object
@@ -87,10 +87,10 @@ static K squeezeDicts(K x){
         if(KS != TYPE( KOBJ(xk[i])[0] )) return x;
 
     // check all dict keys are the same
-    K key = KOBJ( xk[0] )[0];
+    K key = DKEYS( xk[0] );
     K tmp;
     for (uint64_t i = 1; i < xn; ++i){
-        tmp = KOBJ( xk[i] )[0];
+        tmp = DKEYS( xk[i] );
 
         // check keys have same count. if not, return x
         if (COUNT(key) != COUNT(tmp)) return x;
@@ -102,14 +102,14 @@ static K squeezeDicts(K x){
 
     // create column data
     K t = k(KK, xn);
-    for (uint64_t i = 0; i < xn; ++i) tk[i] = ref( KOBJ(xk[i])[1] );
+    for (uint64_t i = 0; i < xn; ++i) tk[i] = ref( DVALS(xk[i]) );
     K cols = flip(t);
 
     // create table
     // a table object contains a single element: a dict object
     K dict = k(KD, 2);
-    KOBJ(dict)[0] = ref(key);
-    KOBJ(dict)[1] = cols;
+    DKEYS(dict) = key;
+    DVALS(dict) = cols;
     K r = k(KT, 1);
     rk[0] = dict;
 
@@ -158,8 +158,8 @@ K expand(K x){
     else if (KS == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ks( xi[i] );
     else if (KD == ABS(xt)) rk[0] = ref(x);
     else if (KT == ABS(xt)) {
-        K keys = KOBJ(xk[0])[0];
-        K vals = KOBJ(xk[0])[1];
+        K keys = TKEYS(x);
+        K vals = TVALS(x);
         vals = flip(ref(vals));
         for (uint64_t i = 0; i < COUNT(vals); ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
         unref(vals);
