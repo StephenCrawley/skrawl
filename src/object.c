@@ -84,7 +84,7 @@ K Kerr(const char *error){
 static K squeezeDicts(K x){
     // first check all dict keys are symbols
     for (uint64_t i = 0; i < xn; ++i)
-        if(KS != TYPE( KOBJ(xk[i])[0] )) return x;
+        if(KS != TYPE( DKEYS(xk[i]) )) return x;
 
     // check all dict keys are the same
     K key = DKEYS( xk[0] );
