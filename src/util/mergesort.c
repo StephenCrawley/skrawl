@@ -46,7 +46,7 @@ void mergeSortIndex(K x, K r, K t, uint64_t low, uint64_t high, bool asc){
             else if (right_idx == high+1){
                 ti[i] = ri[left_idx++];
             }
-            else if (xi[ri[left_idx]] > xi[ri[right_idx]]){
+            else if (xi[ri[left_idx]] >= xi[ri[right_idx]]){
                 ti[i] = ri[left_idx++];
             }
             else {
