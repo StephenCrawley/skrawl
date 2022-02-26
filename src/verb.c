@@ -612,7 +612,7 @@ K reverse(K x){
 // ,1 -> ,1
 K enlist(K x){
     K r = k(KK, 1);
-    rk[0] = ref(x);
+    rk[0] = x;
     return squeeze(r);
 }
 
