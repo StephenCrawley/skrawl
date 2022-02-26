@@ -361,8 +361,8 @@ K find(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %           .     !          |        &      <    >
-M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc};
+//            +     *      -       %           .     !          |        &      <    >     =     ~
+M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc, NULL, not};
 
 static K flipDictOrTab(K x){
     K r;
@@ -667,4 +667,59 @@ K asc(K x){
 // >2 1 7 -> 2 0 1
 K desc(K x){
     return grade(x, false);
+}
+
+// =x not yet implemented
+
+// ~x
+// ~1 0 1 -> 0 1 0
+K not(K x){
+    K r, t;
+    if (KK == xt){
+        r = k(KK, xn);
+        for (uint64_t i = 0; i < xn; ++i){
+            t = not(ref(xk[i]));
+            if (KE == tt){
+                while (i--) unref(rk[i]);
+                unref(x), free(r);
+                return t;
+            }
+            rk[i] = t;
+        }
+    }
+    else if (KD == xt){
+        t = not( ref(DVALS(x)) );
+        if (KE == xt){
+            unref(x);
+            return t;
+        }
+        r = key(DKEYS(x), t);
+    }
+    else if (KT == xt){
+        t = not( ref(xk[0]) );
+        if (KE == tt){
+            unref(x);
+            return t;
+        }
+        r = k(KT, 1);
+        rk[0] = t;
+    }
+    else if (KI == ABS(xt) || KS == ABS(xt)){
+        r = k(KI * SGN(xt), xn);
+        for (uint64_t i = 0; i < xn; ++i) ri[i] = (0 == xi[i]);
+    }
+    else if (KC == ABS(xt)){
+        r = k(KI * SGN(xt), xn);
+        for (uint64_t i = 0; i < xn; ++i) ri[i] = (0 == xc[i]);
+    }
+    else if (KF == ABS(xt)){
+        r = k(KI * SGN(xt), xn);
+        for (uint64_t i = 0; i < xn; ++i) ri[i] = (0.0 == xf[i]);
+    }
+    else {
+        r = Kerr("type error! type not handled by ~");
+    }
+
+    unref(x);
+    return squeeze(r);
 }

@@ -37,6 +37,8 @@ enum {
     OP_MONAD_WHERE,
     OP_MONAD_ASC,
     OP_MONAD_DESC,
+    OP_MONAD_GROUP,
+    OP_MONAD_NOT,
     // put list literal into K object
     OP_ENLIST,
     // load literal value from constants array

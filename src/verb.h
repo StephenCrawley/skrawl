@@ -29,7 +29,8 @@ K reverse(K x);
 K where(K x);
 K asc(K x);
 K desc(K x);
+K not(K x);
 K enlist(K x); //not currently in monads[] array
-M monads[10];
+M monads[12];
 
 #endif
