@@ -103,8 +103,8 @@ enum {
 #define KOPS "+*-%.!|&<>=~?,@#^$_:/\\'\\/'";
 
 // utility macros
-#define MAX(x, y) ((x) > (y) ? (x) : (y))
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) __extension__({__typeof__(x) _x = (x);__typeof__(y) _y = (y); _x > _y ? _x : _y;})
+#define MIN(x, y) __extension__({__typeof__(x) _x = (x);__typeof__(y) _y = (y); _x < _y ? _x : _y;})
 #define ABS(x) MAX((x), -(x))
 
 #endif
