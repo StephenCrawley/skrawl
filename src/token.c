@@ -84,10 +84,12 @@ static Token dotToken(Scanner *scanner){
 // 2) - 3+1 (parsed as -(3+1), or "negate 3+1". evaluates to -4)
 static Token minusToken(Scanner *scanner){
     if (isNumber(*scanner->current)){
-        if (scanner->source == scanner->start)
-            return numberToken(scanner, 0);
-        else {
-            if (' ' == scanner->start[-1] || isOperator(scanner->start[-1]))
+        if (' ' == scanner->start[-1]      || 
+            '(' == scanner->start[-1]      || 
+            '[' == scanner->start[-1]      || 
+            '{' == scanner->start[-1]      ||
+            isOperator(scanner->start[-1]) ||
+            scanner->source == scanner->start){ 
                 return numberToken(scanner, 0);
         }
     }
