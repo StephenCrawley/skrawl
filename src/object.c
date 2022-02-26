@@ -247,7 +247,7 @@ static void printS(K x){
         // symbols less than 8 chars are '\0' padded.
         // print while not null char AND within the 8 bytes
         uint8_t j = 0;
-        while (ptr[j] && j != 8){
+        while (j != 8 && ptr[j]){
             putchar(ptr[j++]);
         }
     }
