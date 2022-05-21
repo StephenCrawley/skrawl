@@ -6,8 +6,8 @@
 #include "chunk.h"
 
 typedef struct {
-    Token previous;
     Token current;
+    K     prefix;
     bool  panic;
 } Parser;
 

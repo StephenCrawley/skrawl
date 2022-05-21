@@ -169,3 +169,10 @@ Token nextToken(Scanner *scanner){
         default  : return makeToken(scanner, TOKEN_UNKNOWN);
     }
 }
+
+Token peekToken(Scanner *scanner){
+    Scanner prev = *scanner;
+    Token t = nextToken(scanner);
+    *scanner = prev;
+    return t;
+}

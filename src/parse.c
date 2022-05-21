@@ -23,14 +23,15 @@
 static K expression(Scanner *scanner, Parser *parser);
 
 // get the next token
-static void advance(Parser *parser, Scanner *scanner){
-    parser->previous = parser->current;
+static void advance(Scanner *scanner, Parser *parser){
     parser->current = nextToken(scanner);
 }
 
-static K appendExpression(K x, K y){                                 
-    K r = k(KK, xn+1);
+static K appendExpression(K x, K y){
+    if (0 == xn) return y;
+
     // copy x
+    K r = k(KK, xn+1);
     for (uint64_t i = 0 ; i < xn; ++i) rk[i] = xk[i];
 
     // copy y
@@ -40,215 +41,164 @@ static K appendExpression(K x, K y){
     return r;
 }
 
-// TODO : this function is buggy
-// join/append logic in general needs to be improved. can probably do without it
-// join flat. eg join( (1 2;"ab"), (3.0; 8) ) 
-// returns a K object with count 4: (1 2;"ab";3.0;8)
-static K join(K x, K y){
-    K r;
-    if (KK == xt && KK == yt){
-        r = k(KK, xn+yn);
-        for (uint64_t i = 0 ; i < xn   ; ++i) rk[i] = xk[i];
-        for (uint64_t i = xn; i < xn+yn; ++i) rk[i+xn] = yk[i];
-    }
-    else if (KK == xt){
-        r = k(KK, xn+1);
-        for (uint64_t i = 0 ; i < xn   ; ++i) rk[i] = xk[i];
-        rk[rn-1] = y;
-    }
-    else if (KK == yt){
-        r = k(KK, yn+1);
-        rk[0] = x;
-        for (uint64_t i = 1, n = yn+1 ; i < n; ++i) rk[i] = yk[i];
-    }
-    else {
-        r = k(KK, 2);
-        rk[0] = x;
-        rk[1] = y;
-    }
-    return r;
-}
-
 static bool atExprEnd(TokenType type){
     return TOKEN_EOF == type || TOKEN_RPAREN == type || TOKEN_SEMICOLON == type;
 }
 
-static bool atNoun(TokenType type){
+static bool isNoun(TokenType type){
     return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || 
            TOKEN_FLOAT  == type || TOKEN_SYMBOL == type || TOKEN_ID     == type;
 }
 
-static bool atVerb(TokenType type){
+static bool isVerb(TokenType type){
     return  TOKEN_PLUS  <= type && TOKEN_COLON >= type;
 }
 
-static bool atAdverb(TokenType type){
+static bool isAdverb(TokenType type){
     return TOKEN_FSLASH <= type && TOKEN_EACHPRIOR >= type;
 }
 
-// to parse a list of numbers we do the following:
-//   store the first number as a K atom in temp array t
-//   while the next token is a number/float ->
-//     if we reached the capacity of t, grow t
-//     convert the next token into an atom and append to t
-//     check whether any of the tokens are floats
-//   then we copy the temp array into a compact K object (simple K list), int or float depending if there were any floats
-// TODO : consider different approach:
-// copy items into simple K array directly, casting as necessary
-// eg if parsing "1 2 3. 4" 
-//   1st elem is int so copy 1 into KI object, then 2 into the same object. when "3." is encountered, copy 1 2 into a new KF object
-//   then append 3. into the object, and any remaining elems, casting as necessary
-static K parseNumber(Parser *parser, Scanner *scanner){
-    uint64_t capacity = 8;
-    K *t = malloc( sizeof(K) * capacity );
-    t[0] = (TOKEN_NUMBER == parser->previous.type) ? Ki(strtol(parser->previous.start, NULL, 10)) : Kf(strtod(parser->previous.start, NULL));
-    bool anyFloats = (TOKEN_FLOAT == parser->previous.type);
+static K parseNumber(Scanner *scanner, Parser *parser){
+    K r, t;
+    bool isFloat = (TOKEN_FLOAT == parser->current.type);
+    uint16_t n = 0;
+    r = k(isFloat ? -KF : -KI, 1);
 
-    // j is the index to place the next token / count of the numbers parsed
-    uint64_t j = 1;
+    while (TOKEN_NUMBER == parser->current.type || TOKEN_FLOAT == parser->current.type) {
+        if (rn == n){
+            t = k(ABS(rt), GROW_CAPACITY(rn));
+            if (isFloat)
+                for (uint16_t i = 0; i < rn; ++i) tf[i] = rf[i];
+            else 
+                for (uint16_t i = 0; i < rn; ++i) ti[i] = ri[i];
 
-    // while the next token is a number, stick it into temp array t
-    while (TOKEN_NUMBER == parser->current.type || TOKEN_FLOAT == parser->current.type){
-        // if we reach capacity, expand the array
-        if (j == capacity){
-            capacity = GROW_CAPACITY(capacity);
-            t = realloc(t, sizeof(K) * capacity);
-            if (NULL == t){
-                printf("Failed to realloc during number literal parse");
-                exit(1);
+            unref(r);
+            r = t;
+        }
+        if (isFloat){
+            rf[n++] = strtod(parser->current.start, NULL);
+        }
+        else {
+            if (TOKEN_FLOAT == parser->current.type){
+                isFloat = true;
+                t = k(KF, rn);
+                for (uint16_t i = 0; i < rn; ++i) tf[i] = (F)ri[i];
+                unref(r);
+                r = t;
+                rf[n++] = strtod(parser->current.start, NULL);
+            }
+            else {
+                ri[n++] = strtol(parser->current.start, NULL, 10);
             }
         }
-        // append token to end of temp array
-        advance(parser, scanner);
-        t[j] = (TOKEN_NUMBER == parser->previous.type) ? Ki(strtol(parser->previous.start, NULL, 10)) : Kf(strtod(parser->previous.start, NULL));
-        anyFloats = MAX(anyFloats, TOKEN_FLOAT == parser->previous.type);
-        ++j;
+        advance(scanner, parser);
     }
 
-    // copy the temp array into a K object
-    int8_t rtype = anyFloats ? KF : KI;
-    rtype = (1 == j) ? -rtype : rtype; 
-    K r = k(rtype, j);
-    if (anyFloats)
-        for (uint64_t i = 0; i < j; ++i) rf[i] = (-KF == TYPE(t[i])) ? FLOAT(t[i])[0] : (F)INT(t[i])[0], unref(t[i]);
-    else {
-        for (uint64_t i = 0; i < j; ++i) ri[i] = INT(t[i])[0], unref(t[i]);
-    }
-
-    free(t);
+    rn = n;
     return r;
 }
 
-static K parseString(Parser *parser){
-    Token token = parser->previous;
+static K parseString(Scanner *scanner, Parser *parser){
+    Token token = parser->current;
     uint64_t n = token.length - 2; // -2 to ignore the ""
     K r = k(1 == n ? -KC : KC, n);
     const C *s = token.start + 1; // source
     C *d = rc; // dest
     while(n--) { *d++ = *s++ ;}
+    advance(scanner, parser);
     return r;
 }
 
-static K parseParens(Parser *parser, Scanner *scanner){
-    if (TOKEN_EOF == parser->current.type){
-        REPORT_ERROR("Parse error! Expected expression after '('\n");
-    }
+static K parseParens(Scanner *scanner, Parser *parser){
+    uint16_t n = 0;
 
-    uint64_t capacity = 8;
-    K *arr = malloc( capacity * sizeof(K) );
-    uint64_t n = 1;
-    arr[0] = expression(scanner, parser);
-    while (TOKEN_SEMICOLON == parser->current.type){
-        if (n == capacity){
-            capacity = GROW_CAPACITY(capacity);
-            arr = realloc(arr, capacity * sizeof(K) );
-            if (NULL == arr){
-                printf("Failed to realloc during general list parse");
-                exit(1);            
-            }
+    K r, t;
+    r = k(KK, 1);
+
+    do {
+        if (n == rn){
+            t = k(KK, GROW_CAPACITY(rn));
+            for (uint16_t i = 0; i < rn; ++i) tk[i] = ref(rk[i]);
+            unref(r);
+            r = t;
         }
-        advance(parser, scanner);
-        arr[n] = expression(scanner, parser);
-        ++n;
-    }
+        advance(scanner, parser);
+        rk[n++] = expression(scanner, parser);
+    } while (TOKEN_SEMICOLON == parser->current.type);
+
     if (TOKEN_RPAREN != parser->current.type){
-        while (n--) free(arr[n]);
-        free(arr);
         REPORT_ERROR("Parse error! Expected ')'\n");
-        if (TOKEN_EOF == parser->current.type){
-            return KNUL;
-        }
+        while (n--) unref(rk[n]);
+        free(r);
+        return KNUL;
     }
-    K r;
-    if (1 == n) {
-        r = arr[0];
+    rn = n;
+    if (1 == n){
+        t = rk[0];
+        free(r);
+        r = t;
     }
     else {
-        // if the parens were a general list - eg (1;`a) - we return list (,:;1;`a)
-        // where first elem is the enlist operator
-        r = k(KK, n+1);
-        for (uint64_t i = 0, j = 1; i < n; ++i,++j) rk[j] = arr[i];
-        K t = k(KU, 1);
-        tc[0] = (char) TOKEN_COMMA; //enlist op
-        rk[0] = t;
+        t = k(KK, rn+1);
+        tk[0] = k(KU, 1);
+        CHAR( tk[0] )[0] = (char) TOKEN_COMMA;
+        for (uint16_t i = 0; i < rn; ++i) tk[i+1] = rk[i];
+        free(r);
+        r = t;
     }
-    free(arr);
-    advance(parser, scanner);
+    advance(scanner, parser);
     return r;
 }
 
-static K parseSymbol(Parser *parser, Scanner *scanner){
+static K parseSymbol(Scanner *scanner, Parser *parser){
     K r, t;
-    uint64_t capacity = 1, j = 1;
-    r = k(-KS, capacity);
-    const char *str = &parser->previous.start[0];
-    str++;
-    MAKE_SYMBOL(ri[0], str, parser->previous.length-1);
+    uint64_t n = 0, j;
+    r = k(-KS, 1);
+    const char *str;
     while (TOKEN_SYMBOL == parser->current.type){
-        if (j == capacity){
-            capacity = GROW_CAPACITY(capacity);
-            t = k(KS, capacity);
+        if (n == rn){
+            t = k(KS, GROW_CAPACITY(rn));
             for (uint64_t i = 0; i < rn; ++i) ti[i] = ri[i];
             unref(r);
             r = t;
         }
-        advance(parser, scanner);
-        str = &parser->previous.start[0];
-        str++;
-        MAKE_SYMBOL(ri[j], str, parser->previous.length-1);
-        ++j;
+        str = &parser->current.start[1];
+        j = n++;
+        MAKE_SYMBOL(ri[j], str, parser->current.length-1);
+        advance(scanner, parser);
     }
-    rn = j;
+    rn = n;
     return enlist(r);
 }
 
-static K parseId(Parser *parser){
+static K parseId(Scanner *scanner, Parser *parser){
     K r = k(-KS, 1);
-    const char *str = &parser->previous.start[0];
-    MAKE_SYMBOL(ri[0], str, parser->previous.length);
+    const char *str = &parser->current.start[0];
+    MAKE_SYMBOL(ri[0], str, parser->current.length);
+    advance(scanner, parser);
     return r;
 }
 
-static K parseNoun(Parser *parser, Scanner *scanner){
+static K parseNoun(Scanner *scanner, Parser *parser){
     K r;
 
     // if number. eg 123 or 4.56
-    if (TOKEN_NUMBER == parser->previous.type || TOKEN_FLOAT == parser->previous.type){
-        r = parseNumber(parser, scanner);
+    if (TOKEN_NUMBER == parser->current.type || TOKEN_FLOAT == parser->current.type){
+        r = parseNumber(scanner, parser);
     }
     // if string. eg "foobar"
-    else if (TOKEN_STRING == parser->previous.type){
-        r = parseString(parser);
+    else if (TOKEN_STRING == parser->current.type){
+        r = parseString(scanner, parser);
     }
     // if parens. eg (1+2)%3 
-    else if (TOKEN_LPAREN == parser->previous.type){
-        r = parseParens(parser, scanner);
+    else if (TOKEN_LPAREN == parser->current.type){
+        r = parseParens(scanner, parser);
     }
-    else if (TOKEN_SYMBOL == parser->previous.type){
-        r = parseSymbol(parser, scanner);
+    else if (TOKEN_SYMBOL == parser->current.type){
+        r = parseSymbol(scanner, parser);
     }
-    else if (TOKEN_ID == parser->previous.type){
-        r = parseId(parser);
+    else if (TOKEN_ID == parser->current.type){
+        r = parseId(scanner, parser);
     }
     else {
         REPORT_ERROR("Error! Noun not yet implemented.\n");
@@ -258,166 +208,142 @@ static K parseNoun(Parser *parser, Scanner *scanner){
     return r;
 }
 
-static K parseMonad(Parser *parser){
-    K r = k(KU, 1);
-    rc[0] = (char) parser->previous.type;
-    return r; 
-}
-
-static K parseDyad(Parser *parser){
-    K r = k(KV, 1);
-    rc[0] = (char) parser->previous.type;
-    return r; 
+static K parseVerb(Scanner *scanner, Parser *parser, int8_t type){
+    K r = k(type, 1);
+    rc[0] = (char) parser->current.type;
+    advance(scanner, parser);
+    return r;
 }
 
 // an arbitrary number of adverbs can be combined. eg:
 // x g\:/: y
-// f/''
-// we use a while loop to parse adverbs
-static K parseAdverb(Parser *parser, Scanner *scanner, K x){
-    K adverb = k(KA, 1), r = k(KK, 2), t;
-    CHAR(adverb)[0] = (char) parser->previous.type;
-    rk[0] = adverb;
-    rk[1] = x;
-    while (atAdverb(parser->current.type)){
-        advance(parser, scanner);
+static K parseAdverbIter(Scanner *scanner, Parser *parser, K x){
+    K adverb, t;
+    K r = x;
+    while (isAdverb(parser->current.type)){
         adverb = k(KA, 1);
-        CHAR(adverb)[0] = (char) parser->previous.type;
+        CHAR(adverb)[0] = (char) parser->current.type;
         t = k(KK, 2);
         tk[0] = adverb;
         tk[1] = r;
         r = t;
+        advance(scanner, parser);
     }
     return r; 
 }
 
 // <expression>   ::=  <noun> <verb> <expression>  |  <term> <expr>  |  empty
-// term is noun or verb
-// verb is monadic/dyadic primitives (eg +-*%) or noun adverb
-// adverb is a higher-order function that can be applied to verbs and nouns
-// noun is data (arrays, literals, variables, functions)
 static K expression(Scanner *scanner, Parser *parser){
-    // this should only be true from a call from Expressions (for an expression ending with ;)
+    // error!
     if (TOKEN_EOF == parser->current.type){
-        return KNUL;
+        return Kerr("error! EOF");
     }
-    advance(parser, scanner);
-    K r;
 
-    if (atNoun(parser->previous.type)){
-        // expression - noun Adverb expersion  (noun Adverb == verb in k's grammar)
-        //            | noun verb expression
-        //            | noun expression
-        //            | noun
-        K prefix = parseNoun(parser, scanner);
-        if (atExprEnd(parser->current.type))
-            r = prefix;
-        else if (atAdverb(parser->current.type)){
-            advance(parser, scanner);
-            prefix = parseAdverb(parser, scanner, prefix);
-            if (TOKEN_EOF == parser->current.type) 
-                return prefix;
-            else {
+    K prefix, infix, r;
+    bool prefixIsAdverb = false;
+    if (NULL == parser->prefix){
+        prefix = 
+            isNoun(parser->current.type) ? parseNoun(scanner, parser) :
+            isVerb(parser->current.type) && isAdverb(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
+            isVerb(parser->current.type) && atExprEnd(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
+            isAdverb(parser->current.type) ? parseVerb(scanner, parser, KA) :
+            parseVerb(scanner, parser, KU) ;
+    }
+    else {
+        prefix = parser->prefix;
+        parser->prefix = NULL;
+    }
+
+    if (isAdverb(parser->current.type)){
+        prefix = parseAdverbIter(scanner, parser, prefix);
+        prefixIsAdverb = true;
+    }
+
+    if (atExprEnd(parser->current.type)){
+        r = prefix;
+    }
+    else if (prefixIsAdverb || KU == TYPE(prefix)){
+        r = k(KK, 2);
+        rk[0] = prefix;
+        rk[1] = expression(scanner, parser);
+    }
+    else if (isNoun(parser->current.type)){
+        infix = parseNoun(scanner, parser);
+        if (isAdverb(parser->current.type)){
+            infix = parseAdverbIter(scanner, parser, infix);
+            if (atExprEnd(parser->current.type)){
                 r = k(KK, 2);
                 rk[0] = prefix;
-                rk[1] = expression(scanner, parser);
-            } 
-        }
-        else if (atVerb(parser->current.type)){
-            advance(parser, scanner);
-            K infix = parseDyad(parser);
-            if (TOKEN_EOF == parser->current.type) // 1+
-                r = join(infix, prefix);
-            else if (atAdverb(parser->current.type)){
-                advance(parser, scanner);
-                infix = parseAdverb(parser, scanner, infix);
-                if (TOKEN_EOF == parser->current.type) {
-                    r = k(KK, 2);
-                    rk[0] = infix;
-                    rk[1] = prefix;
-                    return r;
-                }
-                else {
-                    r = k(KK, 3);
-                    rk[0] = infix;
-                    rk[1] = prefix;
-                    rk[2] = expression(scanner, parser);
-                } 
+                rk[1] = infix;
             }
-            else { // 1+2
+            else {
                 r = k(KK, 3);
                 rk[0] = infix;
                 rk[1] = prefix;
                 rk[2] = expression(scanner, parser);
             }
         }
-        else { // noun expression
-            r = k(KK, 2);
-            rk[0] = prefix;
-            rk[1] = expression(scanner, parser);
-        }
-    }
-    else if (atVerb(parser->previous.type)){
-        // expression - verb adverb expression 
-        //            | verb expression
-        //            | verb
-        K prefix;
-        if (atAdverb(parser->current.type)){
-            prefix = parseDyad(parser);
-            advance(parser, scanner);
-            prefix = parseAdverb(parser, scanner, prefix);
-            if (TOKEN_EOF == parser->current.type)
-                r = prefix;
+        else {
+            if (atExprEnd(parser->current.type)){
+                r = k(KK, 2);
+                rk[0] = prefix;
+                rk[1] = infix;
+            }
             else {
                 r = k(KK, 2);
                 rk[0] = prefix;
+                parser->prefix = infix;
                 rk[1] = expression(scanner, parser);
             }
-
+        }
+    }
+    else {
+        infix = parseVerb(scanner, parser, KV);
+        if (isAdverb(parser->current.type))
+            infix = parseAdverbIter(scanner, parser, infix);
+        if (atExprEnd(parser->current.type)){
+            r = k(KK, 2);
+            rk[0] = infix;
+            rk[1] = prefix;
         }
         else {
-            prefix = parseMonad(parser);
-        }
-        if (atExprEnd(parser->current.type)) 
-            return r;
-        else { // verb expression
-            r = k(KK, 2);
-            rk[0] = prefix;
-            rk[1] = expression(scanner, parser);
+            r = k(KK, 3);
+            rk[0] = infix;
+            rk[1] = prefix;
+            rk[2] = expression(scanner, parser);
         }
     }
-    else { // error. report and return generic null
-        parser->panic = true;
-
-        REPORT_ERROR("Unexpected token '%.*s'\n.",parser->current.length,parser->current.start);
-        return KNUL;
-    }
-
+    
     return r;
 }
 
 // <Expressions>  ::=  <Exprs> ";" <expression>  |  <expression>
 static K Expressions(Scanner *scanner, Parser *parser){
-    // parse an expression
-    K r = expression(scanner, parser);
-    
-    // parse semicolon-delimited expressions
-    if (TOKEN_SEMICOLON == parser->current.type){
-        K t = k(KK, 2);
-        tk[0] = Kc(';');
-        tk[1] = r;
-        r = t;
-        while (TOKEN_SEMICOLON == parser->current.type){
-            advance(parser, scanner);
-            t = expression(scanner, parser);
+    K t, r = k(KK, 0);
+
+    // parse expressions
+    do {
+        advance(scanner, parser);
+        t = TOKEN_EOF == parser->current.type ? KNUL : expression(scanner, parser);
+        
+        if (TOKEN_SEMICOLON == parser->current.type){
+            if (0 == rn){
+                r = k(KK, 2);
+                rk[0] = Kc(';');
+                rk[1] = t;
+            }
+            else {
+                r = appendExpression(r, t);
+            }
+        }
+        else {
             r = appendExpression(r, t);
         }
-    }
-    else if (TOKEN_EOF  == parser->current.type)
-        ; // do nothing
-    else {
+    } while (TOKEN_SEMICOLON == parser->current.type);
+    
+    if (TOKEN_EOF != parser->current.type){
         // error. we shouldn't reach this branch
-        REPORT_ERROR("Unexpected token '%.*s'\n.",parser->current.length,parser->current.start);
+        REPORT_ERROR("Unexpected token '%.*s'\n",parser->current.length,parser->current.start);
         unref(r);
         return k(KE, 0);
     }
@@ -430,14 +356,8 @@ bool parse(const char *source, Chunk *chunk){
     Scanner *scanner = initNewScanner(source);
     // init the parser. the parser is simple struct containing previous&current token and a panic flag
     Parser parser;
+    parser.prefix = NULL;
     parser.panic = false;
-
-    advance(&parser, scanner);
-    if (TOKEN_EOF == parser.current.type){
-        chunk->parseTree = KNUL;
-        free(scanner);
-        return true;
-    }
 
     K r = Expressions(scanner, &parser);
     chunk->parseTree = r;

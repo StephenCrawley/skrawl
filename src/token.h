@@ -35,6 +35,7 @@ typedef struct {
 
 // public function declarations
 Token nextToken(Scanner *scanner);
+Token peekToken(Scanner *scanner);
 Scanner* initNewScanner(const char *source);
 
 #endif

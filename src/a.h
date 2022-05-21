@@ -71,6 +71,7 @@ typedef K (*D)(K, K);  // dyadic  function. TODO : rename to V
 #define xf        FLOAT(x)
 #define yf        FLOAT(y)
 #define rf        FLOAT(r)
+#define tf        FLOAT(t)
 // general K pointer (for a K object containing K objects)
 #define KOBJ(k)   ((K*)DATA(k))
 #define xk        KOBJ(x)
