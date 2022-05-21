@@ -28,7 +28,8 @@ static void advance(Scanner *scanner, Parser *parser){
 }
 
 static K appendExpression(K x, K y){
-    if (0 == xn) return y;
+    if (0 == xn) 
+        return unref(x), y;
 
     // copy x
     K r = k(KK, xn+1);
