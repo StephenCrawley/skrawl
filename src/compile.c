@@ -37,17 +37,20 @@ static void compileMonad(Chunk *chunk, K x){
     addByte(chunk, opcode);
 }
 
+/* branch:
+ *         N       node
+ *       /   \
+ *      L1    L2   leaves
+ * 
+ * in K structure looks like:
+ * (N;L1;L2). eg (+;1;2)
+ */
+
 static void compileLeaf(Chunk *chunk, K x){
-    if (KV == xt){
-        compileDyad(chunk, x);
-    }
-    else if (KU == xt){
-        compileMonad(chunk, x);
-    }
     // note KS is positive only (no 'ABS')
     // this is because symbol literals are parsed to: ,`sym`literal (enlisted sym)
     // variable names are parsed to atomic symbols, and are handled separately 
-    else if (KS == xt){
+    if (KS == xt){
         // sym atom literal
         if (1 == xn){
             addConstant(chunk, Ks(xi[0]));
@@ -60,18 +63,31 @@ static void compileLeaf(Chunk *chunk, K x){
     // TODO : implement variables
     else if (-KS == xt){
         chunk->compileError = true;
-        printf("error! variables not yet implemented\n");
+        printf("Compile error! variables not yet implemented\n");
     }
-    else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KS == ABS(xt) || KN == ABS(xt)){
+    else if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KN == ABS(xt) || KU == ABS(xt) || KV == ABS(xt)){
         addConstant(chunk, x);
     }
     else {
-        printf("Compile error! Unrecognised op.\n");
-        return;
+        chunk->compileError = true;
+        printf("Compile error! Unrecognised type.\n");
     }
 }
 
 static void compileNode(Chunk *chunk, K x){
+    if (KV == xt){
+        compileDyad(chunk, x);
+    }
+    else if (KU == xt){
+        compileMonad(chunk, x);
+    }
+    else {
+        chunk->compileError = true;
+        printf("Compile error! noun node application not yet implemented\n");
+    }
+}
+
+static void compileBranch(Chunk *chunk, K x){
     // if the input is NOT a general list
     // i.e. it's a terminal value
     if (KK != xt){
@@ -81,15 +97,16 @@ static void compileNode(Chunk *chunk, K x){
     
     // else we're compiling an expression
     // loop over each element, right to left
-    for (int8_t i = xn-1; i >= 0; --i){
+    for (int8_t i = xn-1; i >= 1; --i){
         // if general list, recurse
         if (KK == TYPE(xk[i])){
-            compileNode(chunk, xk[i]);
+            compileBranch(chunk, xk[i]);
         }
         else {
             compileLeaf(chunk, xk[i]);
         }
     }
+    compileNode(chunk, xk[0]);
 
     // OP_ENLIST immediately encodes the number of elements to pop and enlist after the instruction
     if (OP_ENLIST == chunk->code[chunk->codeCount - 1]){
@@ -100,10 +117,10 @@ static void compileNode(Chunk *chunk, K x){
 static void compileExpressions(Chunk *chunk, K x){
     if(KK == xt && -KC == TYPE(xk[0]) && ';' == CHAR(xk[0])[0]){ // if ; separated expressions
         for(uint64_t i = 1; i < xn; ++i)
-            compileNode(chunk, xk[i]);
+            compileBranch(chunk, xk[i]);
     }
     else {
-        compileNode(chunk, x);
+        compileBranch(chunk, x);
     }
 }
 
