@@ -95,18 +95,24 @@ static void compileBranch(Chunk *chunk, K x){
         return;
     }
     
-    // else we're compiling an expression
-    // loop over each element, right to left
-    for (int8_t i = xn-1; i >= 1; --i){
-        // if general list, recurse
-        if (KK == TYPE(xk[i])){
-            compileBranch(chunk, xk[i]);
-        }
-        else {
-            compileLeaf(chunk, xk[i]);
-        }
+    
+    // if sym list literal
+    if (KK == xt && 1 == xn && KS == TYPE(xk[0])){
+        compileLeaf(chunk, xk[0]);
     }
-    compileNode(chunk, xk[0]);
+    // else we're compiling an expression. loop over each element, right to left
+    else {
+        for (int8_t i = xn-1; i >= 1; --i){
+            // if general list, recurse
+            if (KK == TYPE(xk[i])){
+                compileBranch(chunk, xk[i]);
+            }
+            else {
+                compileLeaf(chunk, xk[i]);
+            }
+        }
+        compileNode(chunk, xk[0]);
+    }
 
     // OP_ENLIST immediately encodes the number of elements to pop and enlist after the instruction
     if (OP_ENLIST == chunk->code[chunk->codeCount - 1]){
