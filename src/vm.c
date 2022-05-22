@@ -35,8 +35,8 @@ static void run(VM *vm){
     // declare variables used by VM
     K x, y;     // objects popped from stack
     K r;        // return object to be pushed on the stack
-    M f;        // monadic function 
-    D g;        // dyadic  function 
+    U f;        // monadic function 
+    V g;        // dyadic  function 
     uint64_t n; // count 
 
     for (;;){

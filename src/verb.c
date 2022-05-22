@@ -192,7 +192,7 @@
 // dyadic verb table
 // used for verb dispatch in the VM
 //           +    *         -         %       .     !    |    &    <     >     =      ~      ?
-D dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal, match, find};
+V dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal, match, find};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -362,7 +362,7 @@ K find(K x, K y){
 
 // monadic verb table
 //            +     *      -       %           .     !          |        &      <    >     =     ~
-M monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc, NULL, not};
+U monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc, NULL, not};
 
 static K flipDictOrTab(K x){
     K r;

@@ -17,7 +17,7 @@ K equal(K x,K y);
 K match(K x,K y);
 K key(K x,K y);
 K find(K x,K y);
-D dyads[13];
+V dyads[13];
 
 // monadic verbs
 K flip(K x);
@@ -31,6 +31,6 @@ K asc(K x);
 K desc(K x);
 K not(K x);
 K enlist(K x); //not currently in monads[] array
-M monads[12];
+U monads[12];
 
 #endif
