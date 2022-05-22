@@ -82,6 +82,10 @@ K Kerr(const char *error){
 
 // function to squeeze a general list of dictionaries into a table
 static K squeezeDicts(K x){
+    // check all entries are dicts
+    for (uint64_t i = 0; i < xn; ++i)
+        if (KD != TYPE(xk[i])) return x;
+        
     // first check all dict keys are symbols
     for (uint64_t i = 0; i < xn; ++i)
         if(KS != TYPE( DKEYS(xk[i]) )) return x;
