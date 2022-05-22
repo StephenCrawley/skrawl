@@ -32,6 +32,7 @@ void disassemble(VM *vm, uint8_t *instr){
         case OP_DYAD_EQUAL:
         case OP_DYAD_MATCH:
         case OP_DYAD_FIND:
+        case OP_DYAD_CAT:
             printf("OP_DYAD %-10c", ops[ instr[0] ]);
             break;
 

@@ -17,8 +17,9 @@ K equal(K x,K y);
 K match(K x,K y);
 K key(K x,K y);
 K find(K x,K y);
+K cat(K x, K y);
 K dotApply(K x,K y);
-V dyads[14];
+V dyads[15];
 
 // monadic verbs
 K flip(K x);

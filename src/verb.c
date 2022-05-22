@@ -191,8 +191,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .         !    |    &    <     >     =      ~      ?
-V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find};
+//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     #
+V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -358,6 +358,20 @@ K find(K x, K y){
 
     unref(x), unref(y);
     return r;
+}
+
+// x,y
+// 1,2 -> 1 2
+K cat(K x, K y){
+    x = expand(x);
+    y = expand(y);
+
+    K r = k(KK, xn+yn);
+    for (uint64_t i = 0; i < xn; ++i) rk[i] = ref( xk[i] );
+    for (uint64_t i = 0; i < yn; ++i) rk[i + xn] = ref( yk[i] );
+
+    unref(x), unref(y);
+    return squeeze(r);
 }
 
 K dotApply(K x, K y){
