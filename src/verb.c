@@ -191,8 +191,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .     !    |    &    <     >     =      ~      ?
-V dyads[] = {add, multiply, subtract, divide, NULL, key, max, min, less, more, equal, match, find};
+//           +    *         -         %       .         !    |    &    <     >     =      ~      ?
+V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -354,6 +354,35 @@ K find(K x, K y){
                 break;
             }
         }
+    }
+
+    unref(x), unref(y);
+    return r;
+}
+
+K dotApply(K x, K y){
+    K r;
+
+    if (KU == xt){
+        if (1 != yn){
+            unref(x), unref(y);
+            return Kerr("rank error! arg count not correct (expected 1)");
+        }
+        U f = monads[ (uint8_t)xc[0] ];
+        r = (*f)( ref(yk[0]) );
+    }
+    else if (KV == xt){
+        if (2 != yn){
+            unref(x), unref(y);
+            return Kerr("rank error! arg count not correct (expected 2)");
+        }
+        V f = dyads[ (uint8_t)xc[0] ];
+        y = expand(y);
+        r = (*f)(ref(yk[0]), ref(yk[1]));
+    }
+    else {
+        unref(x), unref(y);
+        return Kerr("error! applicable value type not recognised");
     }
 
     unref(x), unref(y);
