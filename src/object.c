@@ -292,12 +292,18 @@ static void printE(K x){
 // used to print child K objects in a general K list
 void printOneLineK(K x){
     if (KK == xt){
-        putchar('(');
-        for (uint64_t i = 0, last = xn-1; i < xn; ++i){
-            printOneLineK(xk[i]);
-            if (i != last) putchar(';');
+        if (1 == xn){
+            putchar(',');
+            printOneLineK(xk[0]);
         }
-        putchar(')');
+        else {
+            putchar('(');
+            for (uint64_t i = 0, last = xn-1; i < xn; ++i){
+                printOneLineK(xk[i]);
+                if (i != last) putchar(';');
+            }
+            putchar(')');
+        }
     }
     else if (KN ==     xt)  printf("::");
     else if (KC == ABS(xt)) printC(x);
