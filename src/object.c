@@ -91,7 +91,7 @@ static K squeezeDicts(K x){
         if(KS != TYPE( DKEYS(xk[i]) )) return x;
 
     // check all dict keys are the same
-    K key = DKEYS( xk[0] );
+    K key = ref( DKEYS( xk[0] ) );
     K tmp;
     for (uint64_t i = 1; i < xn; ++i){
         tmp = DKEYS( xk[i] );
