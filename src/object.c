@@ -5,7 +5,7 @@
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
-    if (KK == xt || KD ==xt){
+    if (KK == xt || KD == xt || KT == xt){
         for (uint64_t i = 0; i < xn; ++i) ref(xk[i]);
     }
 
