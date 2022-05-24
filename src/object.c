@@ -168,8 +168,11 @@ K expand(K x){
         for (uint64_t i = 0; i < COUNT(vals); ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
         unref(vals);
     }
+    else if (KU == xt || KV == xt){
+        rk[0] = ref(x);
+    }
     else {
-        unref(x), unref(r);
+        unref(x), free(r);
         return Kerr("type error! can't expand");
     }
     unref(x);
