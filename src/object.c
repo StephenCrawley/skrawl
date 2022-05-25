@@ -326,10 +326,13 @@ void printOneLineK(K x){
 void printK(K x){
     // if general K object, print each element on its own line
     if (KK == xt){
+        putchar('(');
         for (uint64_t i = 0, last = xn-1; i < xn; ++i){
+            if (i > 0) putchar(' ');
             printOneLineK(xk[i]);
             if (i != last) putchar('\n');
         }
+        putchar(')');
     }
     else if (KN == ABS(xt)) {unref(x);return;} // NULL and magic value
     else if (KC == ABS(xt)) printC(x);
