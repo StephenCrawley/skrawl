@@ -308,17 +308,18 @@ void printOneLineK(K x){
             putchar(')');
         }
     }
-    else if (KN ==     xt)  printf("::");
-    else if (KC == ABS(xt)) printC(x);
-    else if (KI == ABS(xt)) printI(x);
-    else if (KF == ABS(xt)) printF(x);
-    else if (KS == ABS(xt)) printS(x);
-    else if (KD ==     xt)  printD(x);
-    else if (KT ==     xt)  printT(x);
-    else if (KU ==     xt)  printO(x);
-    else if (KV ==     xt)  printO(x);
-    else if (KA ==     xt)  printO(x);
-    else if (KE ==     xt)  printE(x);
+    else if (-KN ==     xt)  return;
+    else if ( KN ==     xt)  printf("::");
+    else if ( KC == ABS(xt)) printC(x);
+    else if ( KI == ABS(xt)) printI(x);
+    else if ( KF == ABS(xt)) printF(x);
+    else if ( KS == ABS(xt)) printS(x);
+    else if ( KD ==     xt)  printD(x);
+    else if ( KT ==     xt)  printT(x);
+    else if ( KU ==     xt)  printO(x);
+    else if ( KV ==     xt)  printO(x);
+    else if ( KA ==     xt)  printO(x);
+    else if ( KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
 }
 
@@ -330,7 +331,7 @@ void printK(K x){
             if (i != last) putchar('\n');
         }
     }
-    else if (KN ==     xt)  {unref(x);return;}
+    else if (KN == ABS(xt)) {unref(x);return;} // NULL and magic value
     else if (KC == ABS(xt)) printC(x);
     else if (KI == ABS(xt)) printI(x);
     else if (KF == ABS(xt)) printF(x);

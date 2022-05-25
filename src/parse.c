@@ -302,17 +302,11 @@ static K expression(Scanner *scanner, Parser *parser){
         infix = parseVerb(scanner, parser, KV);
         if (isAdverb(parser->current.type))
             infix = parseAdverbIter(scanner, parser, infix);
-        if (atExprEnd(parser->current.type)){
-            r = k(KK, 2);
-            rk[0] = infix;
-            rk[1] = prefix;
-        }
-        else {
-            r = k(KK, 3);
-            rk[0] = infix;
-            rk[1] = prefix;
-            rk[2] = expression(scanner, parser);
-        }
+        
+        r = k(KK, 3);
+        rk[0] = infix;
+        rk[1] = prefix;
+        rk[2] = atExprEnd(parser->current.type) ? k(-KN, 0) : expression(scanner, parser);
     }
     
     return r;
