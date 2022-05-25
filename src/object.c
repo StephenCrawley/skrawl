@@ -328,9 +328,8 @@ void printK(K x){
     if (KK == xt){
         putchar('(');
         for (uint64_t i = 0, last = xn-1; i < xn; ++i){
-            if (i > 0) putchar(' ');
             printOneLineK(xk[i]);
-            if (i != last) putchar('\n');
+            if (i != last) printf("\n ");
         }
         putchar(')');
     }
