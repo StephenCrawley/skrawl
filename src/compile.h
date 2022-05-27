@@ -44,6 +44,10 @@ enum {
     OP_ENLIST,
     // load literal value from constants array
     OP_CONSTANT,
+    // pop func and apply to top n (immediately encoded) stack objects to the func
+    OP_APPLY,
+    // pop func and create projection with top n stack onjects
+    OP_PROJECT,
     // print top of stack and stop execution
     OP_RETURN
 };

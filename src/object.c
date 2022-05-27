@@ -72,6 +72,10 @@ K Ks(int64_t x){
     return r;
 }
 
+K Kp(){
+    return k(KP, 2);
+}
+
 K Kerr(const char *error){
     uint64_t n = strlen(error);
     K r = ma(sizeof(C), n);
@@ -285,6 +289,18 @@ static void printO(K x){
         putchar(':');
 }
 
+// print projection
+static void printP(K x){
+    K t = xk[1];
+    printO(tk[0]);
+    putchar('[');
+    for (uint8_t i = 1, last = tn-1; i < tn; ++i){
+        printOneLineK(tk[i]);
+        if (i != last) putchar(';');
+    }
+    putchar(']');
+}
+
 // print error
 static void printE(K x){
     putchar('\'');
@@ -319,6 +335,7 @@ void printOneLineK(K x){
     else if ( KU ==     xt)  printO(x);
     else if ( KV ==     xt)  printO(x);
     else if ( KA ==     xt)  printO(x);
+    else if ( KP ==     xt)  printP(x);
     else if ( KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
 }
@@ -349,6 +366,7 @@ void printK(K x){
     else if (KU ==     xt)  printO(x);
     else if (KV ==     xt)  printO(x);
     else if (KA ==     xt)  printO(x);
+    else if (KP ==     xt)  printP(x);
     else if (KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
     putchar('\n');

@@ -35,6 +35,7 @@ static void run(VM *vm){
     // declare variables used by VM
     K x, y;     // objects popped from stack
     K r;        // return object to be pushed on the stack
+    K t;        // temp object
     U f;        // monadic function 
     V g;        // dyadic  function 
     uint64_t n; // count 
@@ -107,6 +108,17 @@ static void run(VM *vm){
                 r = k(KK, n);
                 for (uint64_t i = 0; i < n; ++i) rk[i] = POP;
                 r = squeeze(r);
+                PUSH(r);
+                break;
+
+            // create projection
+            case OP_PROJECT:
+                n = *vm->ip++;
+                t = k(KK, n);
+                for (uint8_t i = 0; i < tn; ++i) tk[i] = POP;
+                r = Kp();
+                rk[0] = Ki( *vm->ip++ );
+                rk[1] = t;
                 PUSH(r);
                 break;
 

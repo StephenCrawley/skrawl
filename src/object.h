@@ -15,6 +15,7 @@ K Ki(int64_t x);
 K Kf(double x);
 K Kc(char x);
 K Ks(int64_t x);
+K Kp();
 K Kerr(const char *error);
 
 K squeeze(K x);

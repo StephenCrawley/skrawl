@@ -98,9 +98,10 @@ enum {
     KU,        // monadic function
     KV,        // dyadic function
     KA,        // adverb
+    KP,        // projection
     KN         // null
 };
-#define KWIDTHS 8,1,8,8,8,8,8,1,1,1,0 // in bytes
+#define KWIDTHS 8,1,8,8,8,8,8,1,1,1,8,0 // in bytes
 #define KOPS "+*-%.!|&<>=~?,@#^$_:/\\'\\/'";
 
 // utility macros
