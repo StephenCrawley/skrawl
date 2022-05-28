@@ -62,6 +62,7 @@ static void compileMonad(Chunk *chunk, K x, uint8_t n){
 	if (TOKEN_COMMA == xc[0]){
         addByte(chunk, OP_ENLIST);
 		addByte(chunk, n);
+        return;
     }
 
     if (1 == n){
