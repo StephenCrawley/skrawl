@@ -5,7 +5,7 @@
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt){
+    if (KK == xt || KD == xt || KT == xt || KP == xt){
         for (uint64_t i = 0; i < xn; ++i) ref(xk[i]);
     }
 
@@ -14,7 +14,7 @@ K ref(K x){
 
 void unref(K x){
     // if generic K type, call 'unref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt){
+    if (KK == xt || KD == xt || KT == xt || KP == xt){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
     }
 
