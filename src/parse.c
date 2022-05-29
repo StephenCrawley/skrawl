@@ -328,6 +328,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
         t = TOKEN_EOF == parser->current.type ? KNUL : expression(scanner, parser);
         
         if (TOKEN_SEMICOLON == parser->current.type && 0 == rn){
+            unref(r);
             r = k(KK, 2);
             rk[0] = Kc(';');
             rk[1] = t;
