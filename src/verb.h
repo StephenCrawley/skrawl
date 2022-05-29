@@ -33,6 +33,7 @@ K asc(K x);
 K desc(K x);
 K not(K x);
 K enlist(K x); //not currently in monads[] array
-U monads[12];
+K type(K x);
+U monads[15];
 
 #endif

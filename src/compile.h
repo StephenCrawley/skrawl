@@ -40,6 +40,9 @@ enum {
     OP_MONAD_DESC,
     OP_MONAD_GROUP,
     OP_MONAD_NOT,
+    OP_MONAD_DISTINCT,
+    OP_MONAD_ENLIST,
+    OP_MONAD_TYPE,
     // put list literal into K object
     OP_ENLIST,
     // load literal value from constants array
