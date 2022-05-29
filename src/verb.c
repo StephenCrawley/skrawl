@@ -35,6 +35,10 @@
 // it calls function f recursively if any of the arguments are general lists
 // or it initializes the return value if none of the args are general lists
 #define DYADIC_INIT(f, maxtype)                                                  \
+    if ((0 > xt || 0 > yt) && ((KK == xt && 0 == xn) || (KK == yt && 0 == yn))){ \
+        unref(x), unref(y);                                                      \
+        return k(KK, 0);                                                         \
+     }                                                                           \
     /* if operands are vectors of different lengths, return length error */      \
     if ((KK <= xt && KK <= yt) && xn != yn){                                     \
         unref(x), unref(y);                                                      \
@@ -531,7 +535,12 @@ K first(K x){
     }
     // general list
     else {
-        r = ref( xk[0] );
+        if (0 == xn){
+            r = ref(x);
+        }
+        else {
+            r = ref( xk[0] );
+        }
     }
     unref(x);
     return r;

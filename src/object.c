@@ -128,8 +128,8 @@ static K squeezeDicts(K x){
 // squeeze a general K list into a more compact simple list if possible
 // eg (1;2;3) -> 1 2 3 or ("a";"b";"c") -> "abc" 
 K squeeze(K x){
-    // can only squeeze general lists
-    if (KK != xt) return x;
+    // can only squeeze general lists with count > 0
+    if (KK != xt || 0 == xn) return x;
 
     int8_t type = TYPE( xk[0] );
 

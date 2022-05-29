@@ -111,8 +111,14 @@ static K parseString(Scanner *scanner, Parser *parser){
 }
 
 static K parseParens(Scanner *scanner, Parser *parser){
+    // check if empty generic list ()
+    if (TOKEN_RPAREN == peekToken(scanner).type){
+        advance(scanner, parser);
+        advance(scanner, parser);
+        return k(KK, 0);
+    }
+    
     uint16_t n = 0;
-
     K r, t;
     r = k(KK, 1);
 

@@ -86,6 +86,11 @@ static void compileBranch(Chunk *chunk, K x){
 	}
 	// else branch (func; arg1; ... ; argn)
 	else {
+        // compile empty generic list ()
+        if (0 == xn){
+            addConstant(chunk, x);
+            return;
+        }
         // compile sym list literal
         if (1 == xn && KS == TYPE(xk[0])){
             compileLeaf(chunk, xk[0]);
@@ -124,7 +129,7 @@ static void compileBranch(Chunk *chunk, K x){
 }
 
 static void compileExpressions(Chunk *chunk, K x){
-    if(KK == xt && -KC == TYPE(xk[0]) && ';' == CHAR(xk[0])[0]){ // if ; separated expressions
+    if(KK == xt && 0 < xn && -KC == TYPE(xk[0]) && ';' == CHAR(xk[0])[0]){ // if ; separated expressions
         for(uint64_t i = 1; i < xn; ++i)
             compileBranch(chunk, xk[i]);
     }
