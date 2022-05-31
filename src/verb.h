@@ -34,6 +34,7 @@ K desc(K x);
 K not(K x);
 K enlist(K x); //not currently in monads[] array
 K type(K x);
-U monads[15];
+K count(K x);
+U monads[16];
 
 #endif

@@ -408,8 +408,8 @@ K dotApply(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %           .     !          |        &      <    >     =     ~    ?     ,     @
-U monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc, NULL, not, NULL, NULL, type};
+//            +     *      -       %           .     !          |        &      <    >     =     ~    ?     ,     @     #
+U monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc, NULL, not, NULL, NULL, type, count};
 
 static K flipDictOrTab(K x){
     K r;
@@ -778,6 +778,12 @@ K not(K x){
 
 K type(K x){
     K r = Ki(xt);
+    unref(x);
+    return r;
+}
+
+K count(K x){
+    K r = Ki( K_COUNT(x) );
     unref(x);
     return r;
 }
