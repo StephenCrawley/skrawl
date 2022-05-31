@@ -110,4 +110,7 @@ enum {
 #define ABS(x) MAX((x), -(x))
 #define SGN(x) __extension__({__typeof__(x) _x = (x); (_x > 0) - (_x < 0);})
 
+// K object utilities
+#define K_COUNT(x) ((KD==TYPE(x)) ? COUNT(DKEYS(x)) : (KT==TYPE(x)) ? COUNT(KOBJ(TVALS(x))[0]) : COUNT(x))
+
 #endif

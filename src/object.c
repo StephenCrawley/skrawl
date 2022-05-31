@@ -23,12 +23,6 @@ void unref(K x){
     if (1 > xr) free(x);
 }
 
-// returns the count seen by the user with monadic #
-// when x is a table, returns the count of rows 
-uint64_t count(K x){
-    return (KT == xt) ? COUNT( KOBJ(TVALS(x))[0] ) : xn;
-}
-
 // malloc K object
 static K ma(size_t size, uint64_t count){
     K r = malloc((size*count) + offsetof(struct k, d));
@@ -158,7 +152,7 @@ K squeeze(K x){
 // eg 1 2 3 -> (1;2;3) or "abc" -> ("a";"b";"c")
 K expand(K x){
     if (KK == xt) return x;
-    uint64_t n = (KD == xt) ? 1 : count(x);
+    uint64_t n = (KD == xt) ? 1 : K_COUNT(x);
     K r = k(KK, n);
     if      (KI == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ki( xi[i] );
     else if (KF == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
