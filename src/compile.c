@@ -111,10 +111,7 @@ static void compileBranch(Chunk *chunk, K x){
 		
 		// then compile the func
 		t = xk[0];
-		if (KK == tt){
-			compileBranch(chunk, t);
-		}
-		else if (KU == tt){
+		if (KU == tt){
 			( project ) ? compileProject(chunk, t, xn, mval) : compileMonad(chunk, t, xn-1);
 		}
 		else if (KV == tt){
@@ -123,6 +120,7 @@ static void compileBranch(Chunk *chunk, K x){
 			              compileApply(chunk, t, xn-1);
 		}
 		else {
+			compileBranch(chunk, t);
 			compileApply(chunk, t, xn-1);
 		}
 	}

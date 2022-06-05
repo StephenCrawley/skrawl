@@ -152,7 +152,7 @@ K squeeze(K x){
 // eg 1 2 3 -> (1;2;3) or "abc" -> ("a";"b";"c")
 K expand(K x){
     if (KK == xt) return x;
-    uint64_t n = (KD == xt) ? 1 : K_COUNT(x);
+    uint64_t n = (KD == xt || KN == xt) ? 1 : K_COUNT(x);
     K r = k(KK, n);
     if      (KI == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ki( xi[i] );
     else if (KF == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
@@ -166,7 +166,7 @@ K expand(K x){
         for (uint64_t i = 0; i < COUNT(vals); ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
         unref(vals);
     }
-    else if (KU == xt || KV == xt){
+    else if (KU == xt || KV == xt || KN == xt){
         rk[0] = ref(x);
     }
     else {

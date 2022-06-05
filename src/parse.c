@@ -43,7 +43,7 @@ static K appendExpression(K x, K y){
 }
 
 static bool atExprEnd(TokenType type){
-    return TOKEN_EOF == type || TOKEN_RPAREN == type || TOKEN_SEMICOLON == type;
+    return TOKEN_EOF == type || TOKEN_RPAREN == type || TOKEN_RSQUARE == type || TOKEN_SEMICOLON == type;
 }
 
 static bool isNoun(TokenType type){
@@ -110,12 +110,19 @@ static K parseString(Scanner *scanner, Parser *parser){
     return r;
 }
 
-static K parseParens(Scanner *scanner, Parser *parser){
+static K parseParens(Scanner *scanner, Parser *parser, TokenType paren){
     // check if empty generic list ()
-    if (TOKEN_RPAREN == peekToken(scanner).type){
+    if (TOKEN_LPAREN == paren && TOKEN_RPAREN == peekToken(scanner).type){
         advance(scanner, parser);
         advance(scanner, parser);
         return k(KK, 0);
+    }
+
+    // check if [] 
+    if (TOKEN_LSQUARE == paren && TOKEN_RSQUARE == peekToken(scanner).type){
+        advance(scanner, parser);
+        advance(scanner, parser);
+        return KNUL;
     }
     
     uint16_t n = 0;
@@ -130,17 +137,32 @@ static K parseParens(Scanner *scanner, Parser *parser){
             r = t;
         }
         advance(scanner, parser);
-        rk[n++] = expression(scanner, parser);
+        rk[n++] = atExprEnd(parser->current.type) ? k(-KN, 0) : expression(scanner, parser);
     } while (TOKEN_SEMICOLON == parser->current.type);
 
-    if (TOKEN_RPAREN != parser->current.type){
-        REPORT_ERROR("Parse error! Expected ')'\n");
+    if ((TOKEN_LPAREN  == paren && TOKEN_RPAREN  != parser->current.type) || 
+        (TOKEN_LSQUARE == paren && TOKEN_RSQUARE != parser->current.type) ){
+        REPORT_ERROR("Parse error! Expected ')' or ']'\n");
         while (n--) unref(rk[n]);
         free(r);
         return KNUL;
     }
+
+    if (TOKEN_LSQUARE == paren && 8 < n){
+        REPORT_ERROR("Limit error! Too many arguments (max 8)\n");
+        while (n--) unref(rk[n]);
+        free(r);
+        return KNUL;
+    }
+    
     rn = n;
-    if (1 == n){
+    if (TOKEN_LSQUARE == paren){
+        t = k(KK, rn);
+        for (uint16_t i = 0; i < rn; ++i) tk[i] = rk[i];
+        free(r);
+        r = t;
+    }
+    else if (1 == n){
         t = rk[0];
         free(r);
         r = t;
@@ -155,6 +177,13 @@ static K parseParens(Scanner *scanner, Parser *parser){
     }
     advance(scanner, parser);
     return r;
+}
+
+// m-expression +[;] 
+static K parseMExpr(Scanner *scanner, Parser *parser, K x){
+    return TOKEN_LSQUARE == parser->current.type ? 
+           cat(x, parseParens(scanner, parser, TOKEN_LSQUARE)) : 
+           x;
 }
 
 static K parseSymbol(Scanner *scanner, Parser *parser){
@@ -199,7 +228,7 @@ static K parseNoun(Scanner *scanner, Parser *parser){
     }
     // if parens. eg (1+2)%3 
     else if (TOKEN_LPAREN == parser->current.type){
-        r = parseParens(scanner, parser);
+        r = parseParens(scanner, parser, TOKEN_LPAREN);
     }
     else if (TOKEN_SYMBOL == parser->current.type){
         r = parseSymbol(scanner, parser);
@@ -219,7 +248,7 @@ static K parseVerb(Scanner *scanner, Parser *parser, int8_t type){
     K r = k(type, 1);
     rc[0] = (char) parser->current.type;
     advance(scanner, parser);
-    return r;
+    return parseMExpr(scanner, parser, r);
 }
 
 // an arbitrary number of adverbs can be combined. eg:
@@ -253,6 +282,7 @@ static K expression(Scanner *scanner, Parser *parser){
             isNoun(parser->current.type) ? parseNoun(scanner, parser) :
             isVerb(parser->current.type) && isAdverb(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
             isVerb(parser->current.type) && atExprEnd(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
+            isVerb(parser->current.type) && TOKEN_LSQUARE == peekToken(scanner).type ? parseVerb(scanner, parser, KV) :
             isAdverb(parser->current.type) ? parseVerb(scanner, parser, KA) :
             parseVerb(scanner, parser, KU) ;
     }

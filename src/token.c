@@ -164,6 +164,8 @@ Token nextToken(Scanner *scanner){
         case '\'': return digraphToken(scanner);
         case '(' : return makeToken(scanner, TOKEN_LPAREN);
         case ')' : return makeToken(scanner, TOKEN_RPAREN);
+        case '[' : return makeToken(scanner, TOKEN_LSQUARE);
+        case ']' : return makeToken(scanner, TOKEN_RSQUARE);
         case ';' : return makeToken(scanner, TOKEN_SEMICOLON);
         case '\0': return makeToken(scanner, TOKEN_EOF);
         default  : return makeToken(scanner, TOKEN_UNKNOWN);
