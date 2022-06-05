@@ -103,6 +103,8 @@ enum {
 };
 #define KWIDTHS 8,1,8,8,8,8,8,1,1,1,8,0 // in bytes
 #define KOPS "+*-%.!|&<>=~?,@#^$_:/\\'\\/'";
+#define KLISTTYPES "KCIFSDTUVAPN"
+#define KATOMTYPES " cifs"
 
 // utility macros
 #define MAX(x, y) __extension__({__typeof__(x) _x = (x);__typeof__(y) _y = (y); _x > _y ? _x : _y;})

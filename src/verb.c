@@ -777,7 +777,7 @@ K not(K x){
 }
 
 K type(K x){
-    K r = Ki(xt);
+    K r = Ks( (I) 0 > xt ? KATOMTYPES[ABS(xt)] : KLISTTYPES[xt] );
     unref(x);
     return r;
 }
