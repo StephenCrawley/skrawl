@@ -47,8 +47,10 @@ static bool atExprEnd(TokenType type){
 }
 
 static bool isNoun(TokenType type){
-    return TOKEN_NUMBER == type || TOKEN_LPAREN == type || TOKEN_STRING == type || 
-           TOKEN_FLOAT  == type || TOKEN_SYMBOL == type || TOKEN_ID     == type;
+    return TOKEN_NUMBER == type  || TOKEN_LPAREN == type || TOKEN_STRING == type || 
+           TOKEN_FLOAT  == type  || TOKEN_SYMBOL == type || TOKEN_ID     == type ||
+           // or noun error
+           TOKEN_UNCLOSED_STRING == type;
 }
 
 static bool isVerb(TokenType type){
@@ -218,8 +220,14 @@ static K parseId(Scanner *scanner, Parser *parser){
 static K parseNoun(Scanner *scanner, Parser *parser){
     K r;
 
+    // if error
+    if (TOKEN_UNCLOSED_STRING == parser->current.type){
+        REPORT_ERROR("Parse error! Unclosed string.\n");
+        advance(scanner, parser);
+        r = KNUL;
+    }
     // if number. eg 123 or 4.56
-    if (TOKEN_NUMBER == parser->current.type || TOKEN_FLOAT == parser->current.type){
+    else if (TOKEN_NUMBER == parser->current.type || TOKEN_FLOAT == parser->current.type){
         r = parseNumber(scanner, parser);
     }
     // if string. eg "foobar"

@@ -17,7 +17,7 @@ typedef enum {
     // punctuation
     TOKEN_SEMICOLON, TOKEN_LPAREN, TOKEN_RPAREN, TOKEN_LSQUARE, TOKEN_RSQUARE,
     // end and errors
-    TOKEN_EOF, TOKEN_ERROR, TOKEN_UNKNOWN
+    TOKEN_UNCLOSED_STRING, TOKEN_EOF, TOKEN_ERROR, TOKEN_UNKNOWN
 } TokenType;
 
 // TODO: add line info

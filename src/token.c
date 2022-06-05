@@ -53,8 +53,13 @@ static Token identifierToken(Scanner *scanner){
 }
 
 static Token stringToken(Scanner *scanner){
-    while ('"' != *scanner->current++) 
-        ;
+    do { 
+        if ('\0' == *scanner->current){
+            --scanner->current;
+            return makeToken(scanner, TOKEN_UNCLOSED_STRING);
+        }
+    } while ('"' != *scanner->current++);
+
     return makeToken(scanner, TOKEN_STRING);
 }
 
