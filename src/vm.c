@@ -71,6 +71,7 @@ static void run(VM *vm){
             case OP_DYAD_CAT:
             case OP_DYAD_ATINDEX:
             case OP_DYAD_TAKE:
+            case OP_DYAD_DROP:
                 g = dyads[instruction];
                 if (NULL == g){
                     PUSH(Kerr("nyi"));

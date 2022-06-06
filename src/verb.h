@@ -21,7 +21,8 @@ K cat(K x, K y);
 K atIndex(K x, K y);
 K dotApply(K x,K y);
 K take(K x, K y);
-V dyads[16];
+K drop(K x, K y);
+V dyads[17];
 
 // monadic verbs
 K flip(K x);

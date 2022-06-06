@@ -195,8 +195,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     ,    @        #
-V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atIndex, take};
+//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     ,    @        #     _
+V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atIndex, take, drop};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -472,6 +472,34 @@ K take(K x, K y){
             for (uint64_t i = 0, last = yn-1; i < rn; ++i)
                 rk[i] = ref(yk[last - (i % yn)]);
         }
+        unref(x), unref(y);
+    }
+    return squeeze(r);
+}
+
+// x_y
+K drop(K x, K y){
+    if (-KI != xt){
+        unref(x), unref(y);
+        return Kerr("type error! _(drop) left operand must be type `i");
+    }
+
+    K r;
+    if (KD == yt){
+        K keys = drop(ref(x), DKEYS(y));
+        K vals = drop(x, DVALS(y));
+        r = key(keys, vals);
+        free(y);
+    }
+    else {
+        y = expand(y);
+        r = k(KK, MAX(0, (I)yn - ABS(xi[0])));
+
+        // if x is positive, drop items from left to right. else, drop items from right to left
+        uint64_t j = ( 0 < xi[0] ) ? xi[0] : 0;
+        for (uint64_t i = 0; i < rn; ++i, ++j)
+            rk[i] = ref(yk[j]);
+
         unref(x), unref(y);
     }
     return squeeze(r);

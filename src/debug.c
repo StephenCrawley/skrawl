@@ -35,6 +35,7 @@ void disassemble(VM *vm, uint8_t *instr){
         case OP_DYAD_CAT:
         case OP_DYAD_ATINDEX:
         case OP_DYAD_TAKE:
+        case OP_DYAD_DROP:
             printf("OP_DYAD %-10c", ops[ instr[0] ]);
             break;
 
