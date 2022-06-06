@@ -46,6 +46,7 @@ typedef K (*V)(K, K);  // dyadic  function
 #define xr       REFC(x)
 #define yr       REFC(y)
 #define rr       REFC(r)
+#define tr       REFC(t)
 // object count
 #define COUNT(k) ((k)->n)
 #define xn       COUNT(x)

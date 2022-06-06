@@ -26,8 +26,15 @@ static void compileLeaf(Chunk *chunk, K x){
         addConstant(chunk, x);
 	}
 	// sym literal
+    // NB: when object is created at compile time we need to make refcount=0  
+    // because addConstant ref's an object before it's added to the constant pool
+    // otherwise there's a memleak when the chunk is freed 
 	else if (KS == xt){
-        addConstant(chunk, 1 == xn ? Ks(xi[0]) : x);
+        K t;
+        addConstant(chunk, ( 1 == xn ) ? 
+                           ( t = Ks(xi[0]), tr = 0, t ) : 
+                           x
+                    );
     }
     // TODO : implement variables
     else if (-KS == xt){
