@@ -4,7 +4,7 @@
 #include "a.h"
 #include "chunk.h"
 
-#define OP_MONAD_START 0x10
+#define OP_MONAD_START 0x20
 
 // Bytecode Instructions
 enum {
@@ -25,6 +25,7 @@ enum {
     OP_DYAD_MATCH,
     OP_DYAD_FIND,
     OP_DYAD_CAT,
+    OP_DYAD_ATINDEX,
     // monadic (1 argument) operators
     // the opcode is used to index the monads[] array (defined in verbs.c)
     // eg monads[opcode - OP_MONAD_START]

@@ -195,8 +195,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     #
-V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat};
+//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     ,    @
+V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atIndex};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -376,6 +376,43 @@ K cat(K x, K y){
 
     unref(x), unref(y);
     return squeeze(r);
+}
+
+// called by atApply when indexing with ints or syms
+K atIndex(K x, K y){
+    if ((KK > xt || (KU <= xt && KP >= xt)) ||
+        (((KK <= xt && KS >= xt) || KT == xt) && (KK != yt && KI != ABS(yt))) || 
+         (KD == xt && KS != ABS(yt))){
+        unref(x), unref(y);
+        return Kerr("type error! left operand can't be indexed with right operand.");
+    }
+
+    K r, t;
+
+    // call recursively if y arg is general list
+    if (KK == yt){
+        r = k(KK, yn);
+        for (uint64_t i = 0; i < yn; ++i){
+            t = atIndex(ref(x), ref(yk[i]));
+            HANDLE_IF_ERROR;
+            rk[i] = t;
+        }
+    }
+    // index with int
+    else if (KI == ABS(yt)){
+        x = expand(x);
+        r = k(KK, yn);
+        for (uint64_t i = 0; i < yn; ++i)
+            rk[i] = ( yi[i] >= (I)xn ) ? KNUL : ref(xk[ yi[i] ]);
+    }
+    // index dict with sym
+    else {
+        t = find(ref(DKEYS(x)), ref(y));
+        r = atIndex(ref(DVALS(x)), t);
+    }
+    r = ( 0 > yt ) ? first(r) : squeeze(r);
+    unref(x), unref(y);
+    return r;
 }
 
 K dotApply(K x, K y){
