@@ -195,8 +195,8 @@
 
 // dyadic verb table
 // used for verb dispatch in the VM
-//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     ,    @
-V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atIndex};
+//           +    *         -         %       .         !    |    &    <     >     =      ~      ?     ,    @        #
+V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atIndex, take};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -442,6 +442,39 @@ K dotApply(K x, K y){
 
     unref(x), unref(y);
     return r;
+}
+
+// x#y
+K take(K x, K y){
+    if (-KI != xt){
+        unref(x), unref(y);
+        return Kerr("type error! #(take) left operand must be type `i");
+    }
+
+    K r;
+    if (KD == yt){
+        K keys = take(ref(x), DKEYS(y));
+        K vals = take(x, DVALS(y));
+        r = key(keys, vals);
+        free(y);
+    }
+    else {
+        y = expand(y);
+        r = k(KK, ABS(xi[0]));
+
+        // if x is postive, take arguments from left to right
+        if (0 < xi[0]){
+            for (uint64_t i = 0; i < rn; ++i)
+                rk[i] = ref(yk[i % yn]);
+        }
+        // else take args from right to left
+        else {
+            for (uint64_t i = 0, last = yn-1; i < rn; ++i)
+                rk[i] = ref(yk[last - (i % yn)]);
+        }
+        unref(x), unref(y);
+    }
+    return squeeze(r);
 }
 
 // monadic verb table

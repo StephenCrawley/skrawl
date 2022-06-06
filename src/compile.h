@@ -26,6 +26,7 @@ enum {
     OP_DYAD_FIND,
     OP_DYAD_CAT,
     OP_DYAD_ATINDEX,
+    OP_DYAD_TAKE,
     // monadic (1 argument) operators
     // the opcode is used to index the monads[] array (defined in verbs.c)
     // eg monads[opcode - OP_MONAD_START]
