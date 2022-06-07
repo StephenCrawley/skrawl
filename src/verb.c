@@ -380,9 +380,11 @@ K cat(K x, K y){
 
 // called by atApply when indexing with ints or syms
 K atApplyIndex(K x, K y){
+    // printf("DEBUG: ");debugPrintK(ref(x));debugPrintK(ref(y));
     if ((KK > xt || (KU <= xt && KP >= xt)) ||
-        (((KK <= xt && KS >= xt) || KT == xt) && (KK != yt && KI != ABS(yt))) || 
-         (KD == xt && KS != ABS(yt))){
+         ((KK <= xt && KS >= xt) && (KK != yt && KI != ABS(yt))) || 
+          (KD == xt && KS != ABS(yt)) ||
+          (KT == xt && (KS != ABS(yt) && KK != yt && KI != ABS(yt)))){
         unref(x), unref(y);
         return Kerr("type error! left operand can't be indexed with right operand.");
     }
@@ -405,12 +407,12 @@ K atApplyIndex(K x, K y){
         for (uint64_t i = 0; i < yn; ++i)
             rk[i] = ( yi[i] >= (I)xn ) ? KNUL : ref(xk[ yi[i] ]);
     }
-    // index dict with sym
+    // index dict/table with sym
     else {
-        t = find(ref(DKEYS(x)), ref(y));
-        r = atApplyIndex(ref(DVALS(x)), t);
+        t =         find(ref( (KD == xt) ? DKEYS(x) : TKEYS(x) ), ref(y));
+        r = atApplyIndex(ref( (KD == xt) ? DVALS(x) : TVALS(x) ), t);
     }
-    r = ( 0 > yt ) ? first(r) : squeeze(r);
+    r = ( 0 > yt && 1 == rn ) ? first(r) : squeeze(r);
     unref(x), unref(y);
     return r;
 }
