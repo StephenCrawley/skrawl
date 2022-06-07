@@ -116,6 +116,16 @@ static void run(VM *vm){
                 PUSH(r);
                 break;
 
+            // apply. f x
+            case OP_APPLY:
+                n = *vm->ip++; // number of objects to pop
+                x = POP;
+                y = k(KK, n);
+                for (uint8_t i = 0; i < yn; ++i) yk[i] = POP;
+                r = atApply(x, (1 == n) ? first(y) : squeeze(y));
+                PUSH(r);
+                break;
+
             // create projection
             case OP_PROJECT:
                 n = *vm->ip++;

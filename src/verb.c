@@ -196,7 +196,7 @@
 // dyadic verb table
 // used for verb dispatch in the VM
 //           +    *         -         %       .         !    |    &    <     >     =      ~      ?     ,    @        #     _
-V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atIndex, take, drop};
+V dyads[] = {add, multiply, subtract, divide, dotApply, key, max, min, less, more, equal, match, find, cat, atApply, take, drop};
 
 K add(K x, K y){
     DYADIC_INIT(add, KF); // declare return object r, type rtype, count rcount
@@ -379,7 +379,7 @@ K cat(K x, K y){
 }
 
 // called by atApply when indexing with ints or syms
-K atIndex(K x, K y){
+K atApplyIndex(K x, K y){
     if ((KK > xt || (KU <= xt && KP >= xt)) ||
         (((KK <= xt && KS >= xt) || KT == xt) && (KK != yt && KI != ABS(yt))) || 
          (KD == xt && KS != ABS(yt))){
@@ -393,7 +393,7 @@ K atIndex(K x, K y){
     if (KK == yt){
         r = k(KK, yn);
         for (uint64_t i = 0; i < yn; ++i){
-            t = atIndex(ref(x), ref(yk[i]));
+            t = atApplyIndex(ref(x), ref(yk[i]));
             HANDLE_IF_ERROR;
             rk[i] = t;
         }
@@ -408,16 +408,37 @@ K atIndex(K x, K y){
     // index dict with sym
     else {
         t = find(ref(DKEYS(x)), ref(y));
-        r = atIndex(ref(DVALS(x)), t);
+        r = atApplyIndex(ref(DVALS(x)), t);
     }
     r = ( 0 > yt ) ? first(r) : squeeze(r);
     unref(x), unref(y);
     return r;
 }
 
-K dotApply(K x, K y){
-    K r;
+// x@y
+// also called in OP_APPLY instruction (compiled for x y, synatactic sugar for x@y)
+K atApply(K x, K y){
+    // if a function or projection
+    if (KU <= xt && KP >= xt){
+        // (f@x) ~ (f .,x)
+        return dotApply(x, enlist(y));
+    }
+    // else an atom or vector
+    else {
+        return atApplyIndex(x, y);
+    }
+}
 
+K dotApply(K x, K y){
+    K r, t;
+
+    // dot apply only takes list as right arg
+    if (yt < 0){
+        unref(x), unref(y);
+        return Kerr("rank error! dyadic . (dot apply) must have list as right operand.");
+    }
+
+    // monad
     if (KU == xt){
         if (1 != yn){
             unref(x), unref(y);
@@ -426,15 +447,48 @@ K dotApply(K x, K y){
         U f = monads[ (uint8_t)xc[0] ];
         r = (*f)( ref(yk[0]) );
     }
+    // dyad
     else if (KV == xt){
-        if (2 != yn){
+        if (2 < yn){
             unref(x), unref(y);
             return Kerr("rank error! arg count not correct (expected 2)");
         }
-        V f = dyads[ (uint8_t)xc[0] ];
+        
         y = expand(y);
+        
+        if (1 == yn){ // project
+            r = Kp();
+            t = k(KK, 2);
+            tk[0] = first(y);
+            tk[1] = k(-KN, 0);
+            rk[0] = Ki(1);
+            rk[1] = cat(x, t);
+            return r;
+        }
+
+        V f = dyads[ (uint8_t)xc[0] ];
         r = (*f)(ref(yk[0]), ref(yk[1]));
     }
+    // projection
+    else if (KP == xt){
+        uint64_t rank = INT(xk[0])[0];
+        if (yn > rank){
+            unref(x), unref(y);
+            return Kerr("rank error! arg count not correct for projection");
+        }
+        else {
+            y = expand(y);
+            // func
+            K f = ref( KOBJ(xk[1])[0] );
+            // args
+            t = k(KK, COUNT(xk[1]) - 1);
+            for (uint64_t i = 0, j = 0; i < tn; ++i){
+                tk[i] = (j<yn && -KN == TYPE(KOBJ(xk[1])[i+1])) ? ref(yk[j++]) : ref(KOBJ(xk[1])[i+1]);
+            }
+            r = (rank == yn) ? dotApply(f, t) : (r=Kp(),rk[0]=Ki(rank-yn),rk[1]=cat(f,t),r);
+        }
+    }
+    // either wrong type or not yet implemented
     else {
         unref(x), unref(y);
         return Kerr("error! applicable value type not recognised");

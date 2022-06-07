@@ -4,6 +4,9 @@
 #include "object.h"
 #include "token.h"
 
+// forward declarations
+static void compileBranch(Chunk *chunk, K x);
+
 static void addByte(Chunk *chunk, uint8_t code){
     if(chunk->codeCount == chunk->codeCapacity){
         growArray(chunk, sizeof(*chunk->code));
@@ -22,7 +25,7 @@ static void addConstant(Chunk *chunk, K x){
 }
 
 static void compileLeaf(Chunk *chunk, K x){
-	if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KN == ABS(xt) || KU == ABS(xt) || KV == ABS(xt)){
+	if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KN == ABS(xt) || KU == xt || KV == xt || KP == xt){
         addConstant(chunk, x);
 	}
 	// sym literal
@@ -49,7 +52,7 @@ static void compileLeaf(Chunk *chunk, K x){
 
 // pop n objects from stack and apply to x
 static void compileApply(Chunk *chunk, K x, uint8_t n){
-	addConstant(chunk, x);
+	compileBranch(chunk, x);
 	addByte(chunk, OP_APPLY);
 	addByte(chunk, n);
 }
@@ -127,7 +130,6 @@ static void compileBranch(Chunk *chunk, K x){
 			              compileApply(chunk, t, xn-1);
 		}
 		else {
-			compileBranch(chunk, t);
 			compileApply(chunk, t, xn-1);
 		}
 	}
