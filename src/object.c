@@ -66,8 +66,11 @@ K Ks(int64_t x){
     return r;
 }
 
-K Kp(){
-    return k(KP, 2);
+K Kp(K x, K y){
+    K r = k(KP, 2);
+    rk[0] = x;
+    rk[1] = y;
+    return r;
 }
 
 K Kerr(const char *error){

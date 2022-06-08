@@ -131,9 +131,7 @@ static void run(VM *vm){
                 n = *vm->ip++;
                 t = k(KK, n);
                 for (uint8_t i = 0; i < tn; ++i) tk[i] = POP;
-                r = Kp();
-                rk[0] = Ki( *vm->ip++ );
-                rk[1] = t;
+                r = Kp( Ki(*vm->ip++), t );
                 PUSH(r);
                 break;
 

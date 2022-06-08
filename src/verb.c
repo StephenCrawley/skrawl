@@ -464,11 +464,10 @@ K dotApply(K x, K y){
         y = expand(y);
         
         if (1 == yn){ // project
-            r = Kp();
+            r = Kp(Ki(1), NULL);
             t = k(KK, 2);
             tk[0] = first(y);
             tk[1] = k(-KN, 0);
-            rk[0] = Ki(1);
             rk[1] = cat(x, t);
             return r;
         }
@@ -492,7 +491,7 @@ K dotApply(K x, K y){
             for (uint64_t i = 0, j = 0; i < tn; ++i){
                 tk[i] = (j<yn && -KN == TYPE(KOBJ(xk[1])[i+1])) ? ref(yk[j++]) : ref(KOBJ(xk[1])[i+1]);
             }
-            r = (rank == yn) ? dotApply(f, t) : (r=Kp(),rk[0]=Ki(rank-yn),rk[1]=cat(f,t),r);
+            r = (rank == yn) ? dotApply(f, t) : Kp( Ki(rank-yn), cat(f,t) );
         }
     }
     // either wrong type or not yet implemented
