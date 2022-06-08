@@ -1,5 +1,6 @@
 #include "a.h"
 #include "verb.h"
+#include "adverb.h"
 #include "util/mergesort.h"
 
 // dyadic arithmetic macros
