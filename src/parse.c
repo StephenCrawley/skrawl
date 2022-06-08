@@ -184,7 +184,7 @@ static K parseParens(Scanner *scanner, Parser *parser, TokenType paren){
 // m-expression +[;] 
 static K parseMExpr(Scanner *scanner, Parser *parser, K x){
     return TOKEN_LSQUARE == parser->current.type ? 
-           cat(x, parseParens(scanner, parser, TOKEN_LSQUARE)) : 
+           cat(enlist(x), parseParens(scanner, parser, TOKEN_LSQUARE)) : 
            x;
 }
 
@@ -249,7 +249,7 @@ static K parseNoun(Scanner *scanner, Parser *parser){
         r = KNUL;
     }
 
-    return r;
+    return parseMExpr(scanner, parser, r);
 }
 
 static K parseVerb(Scanner *scanner, Parser *parser, int8_t type){
@@ -273,7 +273,7 @@ static K parseAdverbIter(Scanner *scanner, Parser *parser, K x){
         r = t;
         advance(scanner, parser);
     }
-    return r; 
+    return parseMExpr(scanner, parser, r); 
 }
 
 // <expression>   ::=  <noun> <verb> <expression>  |  <term> <expr>  |  empty
