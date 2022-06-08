@@ -118,11 +118,11 @@ static void run(VM *vm){
 
             // apply. f x
             case OP_APPLY:
-                n = *vm->ip++; // number of objects to pop
                 x = POP;
+                n = *vm->ip++; // number of objects to pop
                 y = k(KK, n);
                 for (uint8_t i = 0; i < yn; ++i) yk[i] = POP;
-                r = atApply(x, (1 == n) ? first(y) : squeeze(y));
+                r = dotApply(x, squeeze(y));
                 PUSH(r);
                 break;
 
