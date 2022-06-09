@@ -262,15 +262,12 @@ static K parseVerb(Scanner *scanner, Parser *parser, int8_t type){
 // an arbitrary number of adverbs can be combined. eg:
 // x g\:/: y
 static K parseAdverbIter(Scanner *scanner, Parser *parser, K x){
-    K adverb, t;
+    K adverb;
     K r = x;
     while (isAdverb(parser->current.type)){
         adverb = k(KA, 1);
         CHAR(adverb)[0] = (char) parser->current.type;
-        t = k(KK, 2);
-        tk[0] = adverb;
-        tk[1] = r;
-        r = t;
+        r = cat(adverb, r);
         advance(scanner, parser);
     }
     return parseMExpr(scanner, parser, r); 
