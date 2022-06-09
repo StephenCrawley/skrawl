@@ -183,9 +183,10 @@ static K parseParens(Scanner *scanner, Parser *parser, TokenType paren){
 
 // m-expression +[;] 
 static K parseMExpr(Scanner *scanner, Parser *parser, K x){
-    return TOKEN_LSQUARE == parser->current.type ? 
-           cat(enlist(x), parseParens(scanner, parser, TOKEN_LSQUARE)) : 
-           x;
+    while (TOKEN_LSQUARE == parser->current.type){
+        x = cat(enlist(x), parseParens(scanner, parser, TOKEN_LSQUARE));
+    }
+    return x;
 }
 
 static K parseSymbol(Scanner *scanner, Parser *parser){
