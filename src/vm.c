@@ -158,10 +158,11 @@ InterpretResult interpret(VM *vm, const char *source){
     // init new Chunk
     Chunk *chunk = initNewChunk();
 
-    // parse source. parse tree is saved in chunk->parseTree
-    // the tree is a K object
-    bool parseSuccess = parse(source, chunk);
-    if (!parseSuccess){
+    // parse source and save in chunk->parseTree. the tree is a K object
+    chunk->parseTree = parse(source);
+
+    if (NULL == chunk->parseTree){
+        freeChunk(chunk);
         return INTERPRET_PARSE_ERROR;
     }
 

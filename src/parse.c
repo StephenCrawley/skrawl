@@ -384,7 +384,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
     return r;
 }
 
-bool parse(const char *source, Chunk *chunk){ 
+K parse(const char *source){ 
     // init a new scanner instance
     Scanner *scanner = initNewScanner(source);
     // init the parser. the parser is simple struct containing previous&current token and a panic flag
@@ -393,15 +393,13 @@ bool parse(const char *source, Chunk *chunk){
     parser.panic = false;
 
     K r = Expressions(scanner, &parser);
-    chunk->parseTree = r;
 
     if (parser.panic){
-        freeChunk(chunk);
+        unref(r);
         free(scanner);
-        chunk = NULL;
-        return false;
+        return NULL;
     }
 
     free(scanner);
-    return true;
+    return r;
 }

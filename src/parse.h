@@ -11,6 +11,6 @@ typedef struct {
     bool  panic;
 } Parser;
 
-bool parse(const char *source, Chunk *chunk);
+K parse(const char *source);
 
 #endif
