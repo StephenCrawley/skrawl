@@ -436,7 +436,7 @@ K dotApply(K x, K y){
     K r, t;
 
     if (KK <= xt && KT >= xt){
-        return over(atApply, x, y);
+        return over(Kv(KV, '@'), x, y);
     }
 
     // dot apply only takes list as right arg

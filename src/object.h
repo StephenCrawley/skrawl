@@ -15,6 +15,7 @@ K Ki(int64_t x);
 K Kf(double x);
 K Kc(char x);
 K Ks(int64_t x);
+K Kv(int8_t type, char c);
 K Kp(K x,K y);
 K Kerr(const char *error);
 

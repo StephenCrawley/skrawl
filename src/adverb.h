@@ -4,6 +4,6 @@
 #include "a.h"
 #include "object.h"
 
-K over(V f, K x, K y);
+K over(K f, K x, K y);
 
 #endif

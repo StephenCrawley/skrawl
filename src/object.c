@@ -66,6 +66,16 @@ K Ks(int64_t x){
     return r;
 }
 
+K Kv(int8_t type, char c){
+    K r = k(type, 1);
+    uint8_t i = 0, n = sizeof(KOPS) - 1;
+    while (i < n){
+        if (c == KOPS[i++]) break;
+    }
+    rc[0] = i-1;
+    return r;
+}
+
 K Kp(K x, K y){
     K r = k(KP, 2);
     rk[0] = x;
