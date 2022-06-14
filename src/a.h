@@ -111,7 +111,7 @@ enum {
 // utility macros
 #define MAX(x, y) __extension__({__typeof__(x) _x = (x);__typeof__(y) _y = (y); _x > _y ? _x : _y;})
 #define MIN(x, y) __extension__({__typeof__(x) _x = (x);__typeof__(y) _y = (y); _x < _y ? _x : _y;})
-#define ABS(x) MAX((x), -(x))
+#define ABS(x) __extension__({__typeof__(x) _m = (x); MAX((_m), -(_m));})
 #define SGN(x) __extension__({__typeof__(x) _x = (x); (_x > 0) - (_x < 0);})
 
 // K object utilities
