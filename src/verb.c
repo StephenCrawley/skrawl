@@ -435,8 +435,33 @@ K atApply(K x, K y){
 K dotApply(K x, K y){
     K r, t;
 
+    // index
     if (KK <= xt && KT >= xt){
         return over(Kv(KV, '@'), x, y);
+    }
+
+    // create adverb-modified object
+    if (KA == xt){
+        r = Ka(xc[0], first(y));
+        unref(x);
+        return r;
+    }
+
+    // apply adverb-modified object
+    if (KOVER <= xt && KEACHPRIOR >= xt){
+        if (2 != yn){
+            unref(x), unref(y);
+            return Kerr("rank error! can't apply adverb");
+        }
+        W f = adverbs[xt - KOVER];
+        if (NULL == f){
+            unref(x), unref(y);
+            return Kerr("error! adverb NYI.");
+        }
+        y = expand(y);
+        r = (*f)(first(x), yk[0], yk[1]);
+        free(y);
+        return r;
     }
 
     // dot apply only takes list as right arg
@@ -681,6 +706,10 @@ K first(K x){
     else if (KT == xt){
         x = expand(x);
         r = ref( xk[0] );
+    }
+    // adverb-modified object (f/ f' ...)
+    else if (KOVER <= xt && KEACHPRIOR >= xt){
+        r = ref(xk[0]);
     }
     // simple vector
     else if (0 < xt){

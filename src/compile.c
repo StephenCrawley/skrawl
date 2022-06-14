@@ -25,7 +25,7 @@ static void addConstant(Chunk *chunk, K x){
 }
 
 static void compileLeaf(Chunk *chunk, K x){
-	if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KN == ABS(xt) || KU == xt || KV == xt || KP == xt){
+	if (KI == ABS(xt) || KF == ABS(xt) || KC == ABS(xt) || KN == ABS(xt) || KU == xt || KV == xt || KA == xt || KP == xt){
         addConstant(chunk, x);
 	}
 	// sym literal

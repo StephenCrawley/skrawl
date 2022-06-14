@@ -89,21 +89,27 @@ typedef K (*W)(K, K, K); // adverb
 
 // K types
 enum {
-    KE = -128, // error
-    KK = 0,    // general list
-    KC,        // char
-    KI,        // int
-    KF,        // float
-    KS,        // symbol
-    KD,        // dictionary
-    KT,        // table
-    KU,        // monadic function
-    KV,        // dyadic function
-    KA,        // adverb
-    KP,        // projection
-    KN         // null
+    KE = -128,  // error
+    KK = 0,     // general list
+    KC,         // char
+    KI,         // int
+    KF,         // float
+    KS,         // symbol
+    KD,         // dictionary
+    KT,         // table
+    KU,         // monadic function
+    KV,         // dyadic function
+    KA,         // adverb
+    KOVER,      // f/ 
+    KSCAN,      /* f\  */
+    KEACH,      // f'
+    KEACHLEFT,  // f\:
+    KEACHRIGHT, // f/:
+    KEACHPRIOR, // f':
+    KP,         // projection
+    KN          // null
 };
-#define KWIDTHS 8,1,8,8,8,8,8,1,1,1,8,0 // in bytes
+#define KWIDTHS 8,1,8,8,8,8,8,1,1,1,8,8,8,8,8,8,8,0 // in bytes
 #define KOPS "+*-%.!|&<>=~?,@#_^$:/\\'\\/'"
 #define KLISTTYPES "KCIFSDTUVAPN"
 #define KATOMTYPES " cifs"

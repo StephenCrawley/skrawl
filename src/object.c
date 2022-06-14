@@ -5,7 +5,7 @@
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt || KP == xt){
+    if (KK == xt || KD == xt || KT == xt || KP == xt || (KOVER <= xt && KEACHPRIOR >= xt)){
         for (uint64_t i = 0; i < xn; ++i) ref(xk[i]);
     }
 
@@ -14,7 +14,7 @@ K ref(K x){
 
 void unref(K x){
     // if generic K type, call 'unref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt || KP == xt){
+    if (KK == xt || KD == xt || KT == xt || KP == xt || (KOVER <= xt && KEACHPRIOR >= xt)){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
     }
 
@@ -73,6 +73,12 @@ K Kv(int8_t type, char c){
         if (c == KOPS[i++]) break;
     }
     rc[0] = i-1;
+    return r;
+}
+
+K Ka(I t, K x){
+    K r = k(t - ABS(TOKEN_FSLASH - KOVER), 1);
+    rk[0] = x;
     return r;
 }
 
@@ -296,6 +302,13 @@ static void printO(K x){
         putchar(':');
 }
 
+static void printA(K x){
+    printOneLineK(xk[0]);
+    putchar( KOPS[xt + KOVER] );
+    if (KEACHLEFT == xt || KEACHRIGHT == xt || KEACHPRIOR == xt)
+        putchar(':');
+}
+
 // print projection
 static void printP(K x){
     K t = xk[1];
@@ -312,6 +325,11 @@ static void printP(K x){
 static void printE(K x){
     putchar('\'');
     for (uint64_t i = 0; i < xn; ++i) putchar( xc[i] );
+}
+
+// type is adverb-modified object?
+static bool isAdvMod(uint8_t t){
+    return KOVER <= t && KEACHPRIOR >= t;
 }
 
 // prints a K object on one line
@@ -343,6 +361,7 @@ void printOneLineK(K x){
     else if ( KV ==     xt)  printO(x);
     else if ( KA ==     xt)  printO(x);
     else if ( KP ==     xt)  printP(x);
+    else if ( isAdvMod(xt))  printA(x);
     else if ( KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
 }

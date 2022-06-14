@@ -3,7 +3,7 @@
 #include "verb.h"
 
 // adverbs table
-W adverbs[] = {over};
+W adverbs[] = {over, NULL, NULL, NULL, NULL, NULL};
 
 // x f/ y
 K over(K f, K x, K y){
