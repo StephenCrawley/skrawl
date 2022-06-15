@@ -279,9 +279,9 @@ static void printS(K x){
 
 // print dictionary
 static void printD(K x){
-    printOneLineK(xk[0]);
+    printKObject(xk[0], true);
     putchar('!');
-    printOneLineK(xk[1]);
+    printKObject(xk[1], true);
 }
 
 // print table
@@ -303,7 +303,7 @@ static void printO(K x){
 }
 
 static void printA(K x){
-    printOneLineK(xk[0]);
+    printKObject(xk[0], true);
     putchar( KOPS[xt + KOVER] );
     if (KEACHLEFT == xt || KEACHRIGHT == xt || KEACHPRIOR == xt)
         putchar(':');
@@ -315,10 +315,18 @@ static void printP(K x){
     printO(tk[0]);
     putchar('[');
     for (uint8_t i = 1, last = tn-1; i < tn; ++i){
-        printOneLineK(tk[i]);
+        printKObject(tk[i], true);
         if (i != last) putchar(';');
     }
     putchar(']');
+}
+
+// print generic NULL (::)
+static void printN(bool print){
+    if (print)
+        printf("::");
+    else 
+        ;
 }
 
 // print error
@@ -334,23 +342,23 @@ static bool isAdvMod(uint8_t t){
 
 // prints a K object on one line
 // used to print child K objects in a general K list
-void printOneLineK(K x){
+K printKObject(K x, bool printFlat){
     if (KK == xt){
         if (1 == xn){
             putchar(',');
-            printOneLineK(xk[0]);
+            printKObject(xk[0], true);
         }
         else {
             putchar('(');
             for (uint64_t i = 0, last = xn-1; i < xn; ++i){
-                printOneLineK(xk[i]);
-                if (i != last) putchar(';');
+                printKObject(xk[i], true);
+                if (i != last) printf( printFlat ? ";" : "\n " );
             }
             putchar(')');
         }
     }
-    else if (-KN ==     xt)  return;
-    else if ( KN ==     xt)  printf("::");
+    else if (-KN ==     xt)  ;
+    else if ( KN ==     xt)  return printN(printFlat), x;
     else if ( KC == ABS(xt)) printC(x);
     else if ( KI == ABS(xt)) printI(x);
     else if ( KF == ABS(xt)) printF(x);
@@ -364,43 +372,18 @@ void printOneLineK(K x){
     else if ( isAdvMod(xt))  printA(x);
     else if ( KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
+
+    if (!printFlat) putchar('\n');
+    return x;
 }
 
-void printK(K x){
-    // if general K object, print each element on its own line
-    if (KK == xt){
-        if (1 == xn){
-            putchar(',');
-            printOneLineK(xk[0]);
-        }
-        else {
-            putchar('(');
-            for (uint64_t i = 0, last = xn-1; i < xn; ++i){
-                printOneLineK(xk[i]);
-                if (i != last) printf("\n ");
-            }
-            putchar(')');
-        }
-    }
-    else if (KN == ABS(xt)) {unref(x);return;} // NULL and magic value
-    else if (KC == ABS(xt)) printC(x);
-    else if (KI == ABS(xt)) printI(x);
-    else if (KF == ABS(xt)) printF(x);
-    else if (KS == ABS(xt)) printS(x);
-    else if (KD ==     xt)  printD(x);
-    else if (KT ==     xt)  printT(x);
-    else if (KU ==     xt)  printO(x);
-    else if (KV ==     xt)  printO(x);
-    else if (KA ==     xt)  printO(x);
-    else if (KP ==     xt)  printP(x);
-    else if (KE ==     xt)  printE(x);
-    else {printf("can't print type: %d",xt);}
-    putchar('\n');
-    unref(x);
+K printK(K x){
+    return printKObject(x, false);
 }
 
-void debugPrintK(K x){
+K debugPrintK(K x){
     printf("len: %ld, type: %d\n", xn, xt);
     printK(x);
     putchar('\n');
+    return x;
 }

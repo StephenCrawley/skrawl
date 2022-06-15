@@ -24,9 +24,9 @@ K squeeze(K x);
 K expand(K x);
 
 // print K object
-void printK(K x);
-void printOneLineK(K x);
-void debugPrintK(K x);
+K printK(K x);
+K printKObject(K x, bool printFlat);
+K debugPrintK(K x);
 
 // make a symbol from char array
 // the chars are encoded directly into a uint64_t, meaning symbols can only be 8 bytes long max

@@ -137,7 +137,7 @@ static void run(VM *vm){
 
             // print top of stack and stop execution
             case OP_RETURN:
-                printK( POP );
+                unref(printK(POP));
                 return;
 
             // unknown instruction. print error and stop execution
@@ -148,7 +148,7 @@ static void run(VM *vm){
 
         // short circuit if error
         if (KE == TYPE( *(vm->top - 1) )){
-            printK( POP );
+            unref(printK(POP));
             return;
         }
     }
@@ -168,7 +168,7 @@ InterpretResult interpret(VM *vm, const char *source){
 
 // if flag is set, parse input and print the parse tree only
 #ifdef DBG_PARSE
-    printK( ref(chunk->parseTree) );
+    printK(chunk->parseTree);
     freeChunk(chunk);
     return INTERPRET_OK;
 #endif

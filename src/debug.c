@@ -77,7 +77,7 @@ void disassemble(VM *vm, uint8_t *instr){
     // print stack
     K t = k(KK, (uint64_t)(vm->top - vm->stack));
     for (uint64_t i = 0; i < tn; ++i) tk[i] = vm->stack[i];
-    printOneLineK(t);
+    printKObject(t, true);
     free(t);
 
     putchar('\n');
