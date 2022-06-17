@@ -107,10 +107,16 @@ static Token minusToken(Scanner *scanner){
 static Token digraphToken(Scanner *scanner){
     if (':' == *scanner->current){
         scanner->current++;
-        return makeToken(scanner, ('/' == *scanner->start) ? TOKEN_EACHR : ('\\' == *scanner->start) ? TOKEN_EACHL : TOKEN_EACHPRIOR);
+        return makeToken(scanner, ('/'  == *scanner->start) ? TOKEN_EACHR     :
+                                  ('\\' == *scanner->start) ? TOKEN_EACHL     :
+                                  ('\'' == *scanner->start) ? TOKEN_EACHPRIOR :
+                                                              TOKEN_DOUBLECOLON);
     }
 
-    return makeToken(scanner, ('/' == *scanner->start) ? TOKEN_FSLASH : ('\\' == *scanner->start) ? TOKEN_BSLASH : TOKEN_APOSTROPHE);
+    return makeToken(scanner, ('/'  == *scanner->start) ? TOKEN_FSLASH : 
+                              ('\\' == *scanner->start) ? TOKEN_BSLASH : 
+                              ('\'' == *scanner->start) ? TOKEN_APOSTROPHE :
+                                                          TOKEN_COLON);
 }
 
 // forward slash(fs) can be part of adverb or start a comment
@@ -163,7 +169,7 @@ Token nextToken(Scanner *scanner){
         case '>' : return makeToken(scanner, TOKEN_RANGLE);
         case '?' : return makeToken(scanner, TOKEN_QMARK);
         case '_' : return makeToken(scanner, TOKEN_USCORE);
-        case ':' : return makeToken(scanner, TOKEN_COLON);
+        case ':' : return digraphToken(scanner);
         case '/' : return forwardSlash(scanner);
         case '\\': return digraphToken(scanner);
         case '\'': return digraphToken(scanner);

@@ -139,7 +139,10 @@ static K parseParens(Scanner *scanner, Parser *parser, TokenType paren){
             r = t;
         }
         advance(scanner, parser);
-        rk[n++] = atExprEnd(parser->current.type) ? k(-KN, 0) : expression(scanner, parser);
+        rk[n++] = atExprEnd(parser->current.type) ? k(-KN, 0) : 
+                  TOKEN_DOUBLECOLON == parser->current.type ? ( advance(scanner, parser), KNUL ) :
+                  expression(scanner, parser);
+                  
     } while (TOKEN_SEMICOLON == parser->current.type);
 
     if ((TOKEN_LPAREN  == paren && TOKEN_RPAREN  != parser->current.type) || 
