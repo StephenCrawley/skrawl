@@ -383,7 +383,7 @@ K cat(K x, K y){
 K atApplyIndex(K x, K y){
     // printf("DEBUG: ");debugPrintK(ref(x));debugPrintK(ref(y));
     if ((KK > xt || (KU <= xt && KP >= xt)) ||
-         ((KK <= xt && KS >= xt) && (KK != yt && KI != ABS(yt))) || 
+         ((KK <= xt && KS >= xt) && (KK != yt && KI != ABS(yt) && KN != yt)) || 
           (KD == xt && KS != ABS(yt)) ||
           (KT == xt && (KS != ABS(yt) && KK != yt && KI != ABS(yt)))){
         unref(x), unref(y);
@@ -400,6 +400,10 @@ K atApplyIndex(K x, K y){
             HANDLE_IF_ERROR;
             rk[i] = t;
         }
+    }
+    // index with (::) -> identity
+    else if (KN == yt){
+        return unref(y), x;
     }
     // index with int
     else if (KI == ABS(yt)){
