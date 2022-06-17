@@ -2,6 +2,7 @@
 #include "verb.h"
 #include "adverb.h"
 #include "util/mergesort.h"
+#include "parse.h"
 
 // dyadic arithmetic macros
 #define ADD(x, y)   ((x) + (y))
@@ -425,8 +426,8 @@ K atApplyIndex(K x, K y){
 // x@y
 // also called in OP_APPLY instruction (compiled for x y, synatactic sugar for x@y)
 K atApply(K x, K y){
-    // if a function or projection
-    if (KU <= xt && KP >= xt){
+    // if a cast, function or projection
+    if (-KS == xt || (KU <= xt && KP >= xt)){
         // (f@x) ~ (f .,x)
         return dotApply(x, enlist(y));
     }
@@ -443,6 +444,39 @@ K dotApply(K x, K y){
     if (yt < 0){
         unref(x), unref(y);
         return Kerr("rank error! dyadic . (dot apply) must have list as right operand.");
+    }
+
+    // casting / parse
+    if (-KS == xt){
+        switch ((char) xi[0]){
+            // `p "x+y" -> returns parse tree 
+            case 'p' : {
+                // can't parse char atom (type is +ve because dotApply args are lists)
+                if (KC == yt){
+                    unref(x), unref(y);
+                    return Kerr("rank error! can't parse char");
+                }
+
+                y = first(y);
+
+                if (KC != ABS(yt)){
+                    unref(x), unref(y);
+                    return Kerr ("type error! can only parse strings.");
+                }
+
+                char *s = malloc(yn + 1);
+                for (uint64_t i = 0; i < yn; ++i) s[i] = yc[i];
+                s[yn] = '\0';
+                unref(x), unref(y);
+                r = parse(s);
+                free(s);
+                return r;
+            }
+            default : {
+                unref(x), unref(y);
+                return Kerr("error! sym application nyi.");
+            }
+        }
     }
 
     // index
@@ -469,7 +503,6 @@ K dotApply(K x, K y){
             return Kerr("error! adverb NYI.");
         }
 
-        //uint8_t a = xt;
         x = first(x);
 
         // if juxtaposed, add the @
