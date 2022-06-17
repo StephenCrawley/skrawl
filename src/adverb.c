@@ -9,7 +9,7 @@ W adverbs[] = {over, scan, NULL, NULL, NULL, NULL};
 K over(K f, K x, K y){
     y = expand(y);
     for (uint64_t i = 0; i < yn; ++i){
-        x = cat(enlist(x), enlist(yk[i]));
+        x = K_JOIN2(x, yk[i]);
         x = dotApply(ref(f), x);
     }
     unref(f), free(y);
@@ -20,7 +20,7 @@ K scan(K f, K x, K y){
     y = expand(y);
     K r = k(KK, yn);
     for (uint64_t i = 0; i < rn; ++i){
-        x = cat(enlist(x), enlist(yk[i]));
+        x = K_JOIN2(x, yk[i]);
         rk[i] = ref(dotApply(ref(f), x));
         x = rk[i];
     }

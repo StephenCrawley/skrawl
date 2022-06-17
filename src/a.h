@@ -122,5 +122,6 @@ enum {
 
 // K object utilities
 #define K_COUNT(x) ((KD==TYPE(x)) ? COUNT(DKEYS(x)) : (KT==TYPE(x)) ? COUNT(KOBJ(TVALS(x))[0]) : COUNT(x))
+#define K_JOIN2(x, y) __extension__({K _r = k(KK, 2);KOBJ(_r)[0] = (x); KOBJ(_r)[1] = (y); _r;})
 
 #endif
