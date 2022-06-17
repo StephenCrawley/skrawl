@@ -325,8 +325,6 @@ static void printP(K x){
 static void printN(bool print){
     if (print)
         printf("::");
-    else 
-        ;
 }
 
 // print error
