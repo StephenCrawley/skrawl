@@ -439,6 +439,12 @@ K atApply(K x, K y){
 K dotApply(K x, K y){
     K r, t;
 
+   // dot apply only takes list as right arg
+    if (yt < 0){
+        unref(x), unref(y);
+        return Kerr("rank error! dyadic . (dot apply) must have list as right operand.");
+    }
+
     // index
     if (KK <= xt && KT >= xt){
         return over(Kv(KV, '@'), x, y);
@@ -453,7 +459,7 @@ K dotApply(K x, K y){
 
     // apply adverb-modified object
     if (KOVER <= xt && KEACHPRIOR >= xt){
-        if (2 != yn){
+        if (2 < yn){
             unref(x), unref(y);
             return Kerr("rank error! can't apply adverb");
         }
@@ -462,16 +468,33 @@ K dotApply(K x, K y){
             unref(x), unref(y);
             return Kerr("error! adverb NYI.");
         }
+
+        //uint8_t a = xt;
+        x = first(x);
+
+        // if juxtaposed, add the @
+        if (KK <= xt && KT >= xt){
+            t = x;
+            x = Kv(KV, '@');
+            y = cat(enlist(t), y);
+        }
+
+        // if prefix (f/x) we need to determine the identity operator
+        if (1 == yn){
+            K identity = getIdentity(x);
+            // if the identity isn't known, exit
+            // TODO : implement nulls for unknown identities and remove error
+            if (KE == TYPE(identity)){
+                unref(x), unref(y);
+                return identity;
+            }
+            y = cat(enlist(identity), y);
+        }
+        
         y = expand(y);
-        r = (*f)(first(x), yk[0], yk[1]);
+        r = (*f)(x, yk[0], yk[1]);
         free(y);
         return r;
-    }
-
-    // dot apply only takes list as right arg
-    if (yt < 0){
-        unref(x), unref(y);
-        return Kerr("rank error! dyadic . (dot apply) must have list as right operand.");
     }
 
     // monad
