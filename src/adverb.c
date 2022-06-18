@@ -3,7 +3,7 @@
 #include "verb.h"
 
 // adverbs table
-W adverbs[] = {over, scan, NULL, NULL, NULL, NULL};
+W adverbs[] = {over, scan, NULL, eachLeft, eachRight, NULL};
 
 // x f/ y
 K over(K f, K x, K y){
@@ -26,6 +26,28 @@ K scan(K f, K x, K y){
     }
     unref(f), unref(rk[rn-1]), free(y);
     return squeeze(r);
+}
+
+K eachLeft(K f, K x, K y){
+    K r = k(KK, yn), t;
+    x = expand(x);
+    for (uint64_t i = 0; i < rn; ++i){
+        t = K_JOIN2(xk[i], ref(y));
+        rk[i] = dotApply(ref(f), t);
+    }
+    unref(f), free(x), unref(y);
+    return r;
+}
+
+K eachRight(K f, K x, K y){
+    K r = k(KK, yn), t;
+    y = expand(y);
+    for (uint64_t i = 0; i < rn; ++i){
+        t = K_JOIN2(ref(x), yk[i]);
+        rk[i] = dotApply(ref(f), t);
+    }
+    unref(f), unref(x), free(y);
+    return r;
 }
 
 // adverb helper function

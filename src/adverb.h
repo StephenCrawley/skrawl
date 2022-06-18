@@ -7,6 +7,8 @@
 W adverbs[6];
 K over(K f, K x, K y);
 K scan(K f, K x, K y);
+K eachLeft(K f, K x, K y);
+K eachRight(K f, K x, K y);
 
 K getIdentity(K x);
 
