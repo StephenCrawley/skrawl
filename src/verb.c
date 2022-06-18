@@ -652,7 +652,7 @@ K drop(K x, K y){
 
 // monadic verb table
 //            +     *      -       %           .     !          |        &      <    >     =     ~    ?     ,     @     #
-U monads[] = {flip, first, negate, squareRoot, NULL, enumerate, reverse, where, asc, desc, NULL, not, NULL, NULL, type, count};
+U monads[] = {flip, first, negate, squareRoot, NULL, bangMonad, reverse, where, asc, desc, NULL, not, NULL, NULL, type, count};
 
 static K flipDictOrTab(K x){
     K r;
@@ -882,6 +882,32 @@ K enumerate(K x){
     for (uint64_t i = 0; i < rn; ++i) ri[i] = i;
     unref(x);
     return r;
+}
+
+// !x
+// !`a`b!1 2 -> `a`b
+K getKey(K x){
+    if (KD != xt && KT != xt){
+        unref(x);
+        return Kerr("type error! can only get key of dict and table.");
+    }
+
+    K r = ( KD == xt ) ? ref(DKEYS(x)) : ref(TKEYS(x));
+    unref(x);
+    return r;
+}
+
+K bangMonad(K x){
+    if (-KI == xt){
+        return enumerate(x);
+    }
+    else if (KD == xt || KT == xt){
+        return getKey(x);
+    }
+    else {
+        unref(x);
+        return Kerr("type error! invalid opernd for monadic ! (key/enumerate).");
+    }
 }
 
 // |x

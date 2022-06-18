@@ -29,7 +29,7 @@ K flip(K x);
 K first(K x);
 K negate(K x);
 K squareRoot(K x);
-K enumerate(K x);
+K bangMonad(K x);
 K reverse(K x);
 K where(K x);
 K asc(K x);
