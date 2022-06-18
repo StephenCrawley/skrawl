@@ -366,9 +366,51 @@ K find(K x, K y){
     return r;
 }
 
+// TODO : create new script covering amend (@ and .) functionality
+// if joining 2 dicts, update on matching keys and insert new keys
+K upsertDicts(K x, K y){
+    // can only join dicts with sym keys
+    if (KS != TYPE(DKEYS(x)) || KS != TYPE(DKEYS(y))){
+        unref(x), unref(y);
+        return Kerr("type error! can only join dicts with sym keys.");
+    }
+    
+    K xkeys = ref(DKEYS(x));
+    K xvals = expand(ref(DVALS(x)));
+    K yvals = expand(ref(DVALS(y)));
+
+    // iterare y dict and upsert one by one
+    for (uint64_t i = 0; i < yn; ++i){
+        // get ykey to upsert, and index to upsert at
+        K ykey = Ks(INT(DKEYS(y))[i]);
+        K idx = find(ref(DKEYS(x)), ref(ykey));
+
+        // if new key, insert
+        if (xn == INT(idx)[0]){
+            xkeys = cat(xkeys, ykey);
+            xvals = cat(xvals, ref(KOBJ(yvals)[i]));
+        }
+        // else update existing
+        else {
+            unref(KOBJ(xvals)[INT(idx)[0]]);
+            KOBJ(xvals)[INT(idx)[0]] = ref(KOBJ(yvals)[i]);
+            unref(ykey);
+        }
+        unref(idx);
+    }
+
+    unref(x), unref(y), unref(yvals);
+    return key(xkeys, squeeze(xvals));
+}
+
 // x,y
 // 1,2 -> 1 2
 K cat(K x, K y){
+    // if joining 2 dicts, special upsert logic
+    if (KD == xt && KD == yt){
+        return upsertDicts(x, y);
+    }
+
     x = expand(x);
     y = expand(y);
 
