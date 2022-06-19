@@ -67,6 +67,10 @@ void disassemble(VM *vm, uint8_t *instr){
             printf("%-18s", "OP_RETURN");
             break;
 
+        case OP_TERMINATE:
+            printf("%-18s", "OP_TERMINATE");
+            break;
+
         default : printf("%-18s", "OP_UNKNOWN");
     }
 
