@@ -91,7 +91,7 @@ static void compileDyad(Chunk *chunk, K x){
 
 // check if x is (\;\). if so then generate OP_TERMINATE instruction
 static bool isDoubleBackslash(K x){
-    return 2 == xn && 
+    return KK == xt && 2 == xn && 
            KA == TYPE(xk[0]) && TOKEN_BSLASH == CHAR(xk[0])[0] &&
            KA == TYPE(xk[1]) && TOKEN_BSLASH == CHAR(xk[1])[0];
 }
