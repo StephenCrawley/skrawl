@@ -89,6 +89,13 @@ static void compileDyad(Chunk *chunk, K x){
     addByte(chunk, opcode);
 }
 
+// check if x is (\;\). if so then generate OP_TERMINATE instruction
+static bool isDoubleBackslash(K x){
+    return 2 == xn && 
+           KA == TYPE(xk[0]) && TOKEN_BSLASH == CHAR(xk[0])[0] &&
+           KA == TYPE(xk[1]) && TOKEN_BSLASH == CHAR(xk[1])[0];
+}
+
 static void compileBranch(Chunk *chunk, K x){
 	// if terminal value (literal or variable)
 	if (KK != xt){
@@ -96,6 +103,12 @@ static void compileBranch(Chunk *chunk, K x){
 	}
 	// else branch (func; arg1; ... ; argn)
 	else {
+        // check for \\ (terminate process)
+        if (isDoubleBackslash(x) || isDoubleBackslash(xk[0])){
+                addByte(chunk, OP_TERMINATE);
+                return;
+            }
+
         // compile empty generic list ()
         if (0 == xn){
             addConstant(chunk, x);

@@ -14,6 +14,7 @@ VM *initVM(){
     vm->chunk = NULL;
     vm->ip = NULL;
     vm->top = vm->stack;
+    vm->terminate = false;
     return vm;
 }
 
@@ -28,6 +29,10 @@ static void cleanup(VM *vm){
         unref( vm->stack[i] );
     // reset stackTop
     vm->top = vm->stack;
+}
+
+static void freeVM(VM *vm){
+    free(vm);
 }
 
 static void run(VM *vm){
@@ -140,6 +145,10 @@ static void run(VM *vm){
                 unref(printK(POP));
                 return;
 
+            case OP_TERMINATE:
+                vm->terminate = true;
+                return;
+
             // unknown instruction. print error and stop execution
             default:
                 printf("error! VM instruction not recognized: %03d\n", instruction);
@@ -182,8 +191,16 @@ InterpretResult interpret(VM *vm, const char *source){
     addChunkToVM(vm, chunk);
     run(vm);
 
-    // cleanup and return success
+    // cleanup
     freeChunk(chunk);
     cleanup(vm);
+
+    // if OP_TERMINATE called, free the VM and exit
+    if (vm->terminate){
+        freeVM(vm);
+        exit(0);
+    }
+
+    // return success
     return INTERPRET_OK;
 }

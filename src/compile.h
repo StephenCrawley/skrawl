@@ -56,7 +56,9 @@ enum {
     // pop func and create projection with top n stack onjects
     OP_PROJECT,
     // print top of stack and stop execution
-    OP_RETURN
+    OP_RETURN,
+    // kill the process
+    OP_TERMINATE
 };
 
 // forward declarations
