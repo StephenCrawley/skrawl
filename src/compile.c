@@ -18,6 +18,13 @@ static void addByte(Chunk *chunk, uint8_t code){
 // add a constant load instruction to the code
 // the instruction is followed by the constant's index in chunk->k
 static void addConstant(Chunk *chunk, K x){
+    if (MAX_K_CONSTS <= chunk->kCount){
+        if (!chunk->compileError){ // report only once
+            printf("Compile error! MAX_K_CONSTS (%d) reached.\n", MAX_K_CONSTS);
+        }
+        chunk->compileError = true;
+        return;
+    }
     addByte(chunk, OP_CONSTANT);
     chunk->k[chunk->kCount] = ref(x);
     addByte(chunk, (uint8_t)chunk->kCount);

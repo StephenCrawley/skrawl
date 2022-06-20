@@ -8,9 +8,9 @@ Chunk* initNewChunk(){
     chunk->code = NULL;
     chunk->codeCount = 0;
     chunk->codeCapacity = 0;
-    chunk->k = malloc(sizeof(K) * 8); // TODO : make this dynamic
+    chunk->k = malloc(sizeof(K) * MAX_K_CONSTS); // TODO : make this dynamic
     chunk->kCount = 0;
-    chunk->kSize = 8;
+    chunk->kSize = MAX_K_CONSTS;
     chunk->parseTree = NULL;
     chunk->compileError = false;
     return chunk;

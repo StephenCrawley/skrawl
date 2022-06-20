@@ -3,6 +3,8 @@
 
 #include "a.h"
 
+#define MAX_K_CONSTS UINT8_MAX // max constants allowed per chunk
+
 #define GROW_CAPACITY(x) (0 == (x) ? 8 : (x) * 2)
 
 typedef struct chunk {
@@ -13,8 +15,8 @@ typedef struct chunk {
 
     // literals that appear in the source code 
     K        *k;      // array of K object (literals)
-    uint16_t kSize;   // capacity of the K array
-    uint16_t kCount;  // number of K literals
+    uint8_t  kSize;   // capacity of the K array
+    uint8_t  kCount;  // number of K literals
     
     // parse
     K        parseTree;
