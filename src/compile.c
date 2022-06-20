@@ -46,10 +46,12 @@ static void compileLeaf(Chunk *chunk, K x){
                            x
                     );
     }
-    // TODO : implement variables
+    // get a global variable
     else if (-KS == xt){
-        chunk->compileError = true;
-        printf("Compile error! variables not yet implemented\n");
+        addByte(chunk, OP_GETGLOBAL);
+        chunk->k[chunk->kCount] = ref(x);
+        addByte(chunk, (uint8_t)chunk->kCount);
+        chunk->kCount++;
     }
     else {
         chunk->compileError = true;
@@ -92,6 +94,11 @@ static void compileMonad(Chunk *chunk, K x, uint8_t n){
 }
 
 static void compileDyad(Chunk *chunk, K x){
+    if (TOKEN_COLON == xc[0]){
+        addByte(chunk, OP_SETGLOBAL);
+        return;
+    }
+
 	uint8_t opcode = (uint8_t) xc[0];
     addByte(chunk, opcode);
 }
@@ -134,7 +141,23 @@ static void compileBranch(Chunk *chunk, K x){
 		// first compile the args
 		for (uint64_t i = xn-1; i >= 1; --i){
 			t = xk[i];
+            
+            // special case: sym atoms (variables)
+            if (-KS == tt){
+                // if (:;`sym;...) then we're assigning a variable
+                if (1 == i && (KV == TYPE(xk[0]) && TOKEN_COLON == CHAR(xk[0])[0])){
+                    addConstant(chunk, t);
+                    continue;
+                }
+                // else we're loading a variable
+                else {
+                    compileLeaf(chunk, t);
+                    continue;
+                }
+            }
+
 			( KK == tt ) ? compileBranch(chunk, t) : compileLeaf(chunk, t);
+
             // keep track of magic values
 			if (-KN == tt) { project = true; mval++; }
 		}
@@ -156,7 +179,7 @@ static void compileBranch(Chunk *chunk, K x){
 }
 
 static void compileExpressions(Chunk *chunk, K x){
-    if(KK == xt && 0 < xn && -KC == TYPE(xk[0]) && ';' == CHAR(xk[0])[0]){ // if ; separated expressions
+    if (KK == xt && 0 < xn && -KC == TYPE(xk[0]) && ';' == CHAR(xk[0])[0]){ // if ; separated expressions
         for(uint64_t i = 1; i < xn; ++i)
             compileBranch(chunk, xk[i]);
     }

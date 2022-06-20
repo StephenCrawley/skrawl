@@ -17,6 +17,7 @@ typedef struct vm {
     uint8_t *ip;               // instruction pointer
     K       stack[STACK_MAX];  // K stack
     K       *top;              // K stack top
+    K       globals;           // global variables dictionary
     bool    terminate;         // kill the process?
 } VM;
 

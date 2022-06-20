@@ -55,6 +55,10 @@ enum {
     OP_APPLY,
     // pop func and create projection with top n stack onjects
     OP_PROJECT,
+    // set global variable
+    OP_SETGLOBAL,
+    // get global variable
+    OP_GETGLOBAL,
     // print top of stack and stop execution
     OP_RETURN,
     // kill the process

@@ -14,6 +14,7 @@ VM *initVM(){
     vm->chunk = NULL;
     vm->ip = NULL;
     vm->top = vm->stack;
+    vm->globals = key(enlist(Ks((int64_t)'`')), enlist(KNUL));
     vm->terminate = false;
     return vm;
 }
@@ -32,6 +33,7 @@ static void cleanup(VM *vm){
 }
 
 static void freeVM(VM *vm){
+    unref(vm->globals);
     free(vm);
 }
 
@@ -138,6 +140,33 @@ static void run(VM *vm){
                 for (uint8_t i = 0; i < tn; ++i) tk[i] = POP;
                 r = Kp( Ki(*vm->ip++), t );
                 PUSH(r);
+                break;
+
+            // set global variable
+            case OP_SETGLOBAL:
+                x = POP;
+                y = POP;
+                if (NULL == vm->globals){
+                    vm->globals = key(enlist(x), enlist(y));
+                }
+                else {
+                    vm->globals = upsertDicts(vm->globals, key(enlist(x), enlist(y)));
+                }
+                PUSH(ref(y));
+                break;
+
+            // push a global variable onto the stack
+            case OP_GETGLOBAL:
+                x = vm->chunk->k[*vm->ip++];
+                t = find(ref(DKEYS(vm->globals)), ref(x));
+                if (ti[0] == K_COUNT(vm->globals)){
+                    PUSH(Kerr("var"));
+                }
+                else {
+                    r = ref(KOBJ(DVALS(vm->globals))[ti[0]]);
+                    PUSH(r);
+                }
+                unref(t);
                 break;
 
             // print top of stack and stop execution

@@ -40,4 +40,7 @@ K type(K x);
 K count(K x);
 U monads[16];
 
+// used by VM
+K upsertDicts(K x, K y);
+
 #endif

@@ -63,6 +63,14 @@ void disassemble(VM *vm, uint8_t *instr){
             printf("%-13s", "OP_APPLY");
             break;
 
+        case OP_SETGLOBAL:
+            printf("%-18s", "OP_SETGLOBAL");
+            break;
+
+        case OP_GETGLOBAL:
+            printf("%-18s", "OP_GETGLOBAL");
+            break;
+
         case OP_RETURN:
             printf("%-18s", "OP_RETURN");
             break;
