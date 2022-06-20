@@ -20,9 +20,9 @@ static void addByte(Chunk *chunk, uint8_t code){
 static void addConstant(Chunk *chunk, K x){
     if (MAX_K_CONSTS <= chunk->kCount){
         if (!chunk->compileError){ // report only once
+            chunk->compileError = true;
             printf("Compile error! MAX_K_CONSTS (%d) reached.\n", MAX_K_CONSTS);
         }
-        chunk->compileError = true;
         return;
     }
     addByte(chunk, OP_CONSTANT);
