@@ -379,16 +379,16 @@ K upsertDicts(K x, K y){
     K xvals = expand(ref(DVALS(x)));
     K yvals = expand(ref(DVALS(y)));
 
-    // iterare y dict and upsert one by one
-    for (uint64_t i = 0; i < yn; ++i){
+    // iterate y dict and upsert one by one
+    for (uint64_t i = 0; i < K_COUNT(y); ++i){
         // get ykey to upsert, and index to upsert at
         K ykey = Ks(INT(DKEYS(y))[i]);
         K idx = find(ref(DKEYS(x)), ref(ykey));
 
         // if new key, insert
-        if (xn == INT(idx)[0]){
+        if (K_COUNT(x) == INT(idx)[0]){
             xkeys = cat(xkeys, ykey);
-            xvals = cat(xvals, ref(KOBJ(yvals)[i]));
+            xvals = cat(xvals, enlist(ref(KOBJ(yvals)[i])));
         }
         // else update existing
         else {
