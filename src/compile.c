@@ -117,17 +117,18 @@ static void compileBranch(Chunk *chunk, K x){
 	}
 	// else branch (func; arg1; ... ; argn)
 	else {
-        // check for \\ (terminate process)
-        if (isDoubleBackslash(x) || isDoubleBackslash(xk[0])){
-                addByte(chunk, OP_TERMINATE);
-                return;
-            }
-
         // compile empty generic list ()
         if (0 == xn){
             addConstant(chunk, x);
             return;
         }
+
+        // check for \\ (terminate process)
+        if (isDoubleBackslash(x) || isDoubleBackslash(xk[0])){
+                addByte(chunk, OP_TERMINATE);
+                return;
+            }
+            
         // compile sym list literal
         if (1 == xn && KS == TYPE(xk[0])){
             compileLeaf(chunk, xk[0]);
