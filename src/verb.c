@@ -537,8 +537,13 @@ K dotApply(K x, K y){
     if (KOVER <= xt && KEACHPRIOR >= xt){
         if (2 < yn){
             unref(x), unref(y);
-            return Kerr("rank error! can't apply adverb");
+            return Kerr("rank error! derived verbs of rank >2 not yet implemented.");
         }
+        if (KOVER <= TYPE(xk[0]) && KEACHPRIOR >= TYPE(xk[0])){
+            unref(x), unref(y);
+            return Kerr("error! nested adverbs not yet implemented.");
+        }
+
         W f = adverbs[xt - KOVER];
         if (NULL == f){
             unref(x), unref(y);
