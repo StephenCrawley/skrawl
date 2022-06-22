@@ -791,8 +791,10 @@ K flip(K x){
 K first(K x){
     K r;
 
-    // return atoms unchanged
-    if(0 > xt) return x;
+    // return atoms and special types unchanged 
+    if (0 > xt || KU == xt || KV == xt || KP == xt || KN == xt){
+        return x;
+    }
     // dictionary
     else if (KD == xt){
         r = first( ref(xk[1]) );
