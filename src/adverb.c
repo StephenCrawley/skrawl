@@ -3,34 +3,107 @@
 #include "verb.h"
 
 // adverbs table
-W adverbs[] = {over, scan, NULL, eachLeft, eachRight, NULL};
+V adverbs[] = {over, scan, NULL, eachLeft, eachRight, NULL};
 
-// x f/ y
-K over(K f, K x, K y){
-    y = expand(y);
-    for (uint64_t i = 0; i < yn; ++i){
-        x = K_JOIN2(x, yk[i]);
-        x = dotApply(ref(f), x);
+K over(K f, K x){
+    K r, t;
+
+    // f/x
+    if (1 == xn){
+        // extract arg. if it's empty return empty.
+        x = ( KK == xt ) ? expand(first(x)) : expand(x);
+        if (0 == xn){
+            return unref(f), x;
+        }
+
+        r = xk[0];
+        for (uint64_t i = 1; i < xn; ++i){
+            r = dotApply(ref(f), K_JOIN2(r, xk[i]));
+        }
+        unref(f), free(x);
+        return r;
     }
-    unref(f), free(y);
-    return x;
+    // f/[x;y]
+    else if (2 == xn){
+        r = xk[0];
+        t = expand(xk[1]);
+        free(x);
+        x = t;
+
+        // if any empty, return empty
+        if (0 == xn || 0 == rn){
+            return unref(f), unref(x), unref(r), k(KK,0);
+        }
+
+        for (uint64_t i = 0; i < xn; ++i){
+            r = dotApply(ref(f), K_JOIN2(r, xk[i]));
+        }
+        unref(f), free(x);
+        return r;
+    }
+    // f/[x;y;...]
+    else {
+        unref(f), unref(x);
+        return Kerr("error! over for f with rank >2 nyi");
+    }
 }
 
-K scan(K f, K x, K y){
-    y = expand(y);
-    K r = k(KK, yn);
-    for (uint64_t i = 0; i < rn; ++i){
-        x = K_JOIN2(x, yk[i]);
-        rk[i] = ref(dotApply(ref(f), x));
-        x = rk[i];
+K scan(K f, K x){
+    K r, t;
+
+    // f\x
+    if (1 == xn){
+        // extract arg. if it's empty return empty.
+        x = ( KK == xt ) ? expand(first(x)) : expand(x);
+        if (0 == xn){
+            return unref(f), x;
+        }
+
+        r = k(KK, xn);
+        rk[0] = xk[0];
+        for (uint64_t i = 1; i < rn; ++i){
+            rk[i] = dotApply(ref(f), K_JOIN2(ref(rk[i-1]), xk[i]));
+        }
+        r = ( 1 == xn ) ? first(r) : squeeze(r);
+        unref(f), free(x);
+        return r;
     }
-    unref(f), unref(rk[rn-1]), free(y);
-    return squeeze(r);
+    else if (2 == xn){
+        // if any empty, return empty
+        if (0 == COUNT(xk[0]) || 0 == COUNT(xk[1])){
+            return unref(f), unref(x), k(KK,0);
+        }
+
+        t = expand(xk[1]);
+        r = k(KK, tn);
+        rk[0] = xk[0];
+        free(x), x = t;
+
+        t = rk[0];
+        tr--;
+        for (uint64_t i = 0; i < xn; ++i){
+            rk[i] = dotApply(ref(f), K_JOIN2(ref(t), xk[i]));
+            t = rk[i];
+        }
+        unref(f), free(x);
+        return squeeze(r);
+    }
+    else {
+        unref(f), unref(x);
+        return Kerr("error! scan for f with rank >2 nyi");
+    }
 }
 
-K eachLeft(K f, K x, K y){
-    K r = k(KK, yn), t;
+K eachLeft(K f, K x){
+    if (2 != xn){
+        unref(f), unref(x);
+        return Kerr("error! not enough args supplied to \\: (each-left).");
+    }
     x = expand(x);
+    K t = expand(xk[0]), y = xk[1];
+    free(x);
+    x = t;
+    K r = k(KK, xn);
     for (uint64_t i = 0; i < rn; ++i){
         t = K_JOIN2(xk[i], ref(y));
         rk[i] = dotApply(ref(f), t);
@@ -39,43 +112,20 @@ K eachLeft(K f, K x, K y){
     return r;
 }
 
-K eachRight(K f, K x, K y){
-    K r = k(KK, yn), t;
-    y = expand(y);
+K eachRight(K f, K x){
+    if (2 != xn){
+        unref(f), unref(x);
+        return Kerr("error! not enough args supplied to \\: (each-left).");
+    }
+    x = expand(x);
+    K t = xk[0], y = expand(xk[1]);
+    free(x);
+    x = t;
+    K r = k(KK, yn);
     for (uint64_t i = 0; i < rn; ++i){
         t = K_JOIN2(ref(x), yk[i]);
         rk[i] = dotApply(ref(f), t);
     }
     unref(f), unref(x), free(y);
     return r;
-}
-
-// adverb helper function
-// some adverb-modified dyads can be applied prefix and infix 
-// eg "+/ 1 2 3" and "10 +/ 1 2 3"
-// in the prefix case, a suitable identity is needed for the seed (left arg)
-// eg for dyadic + (plus) the prototype is 0 with type `i
-K getIdentity(K x){
-    // drill down to function
-    while (KOVER <= xt && KEACHPRIOR >= xt)
-        x = xk[0];
-
-    // return prototype
-    int8_t type = xt;
-    
-    if (KV == xt){
-        uint8_t type = xc[0];
-        return 
-            0  == type ? Ki(0)   : // +
-            1  == type ? Kf(1)   : // *
-            2  == type ? Ki(0)   : // -
-            13 == type ? k(KK,0) : // ,
-            Kerr("error! prototype NYI for verb");
-    }
-    else if (KK <= type && KT >= type){
-        return KNUL;
-    }
-    else {
-        return Kerr("error! prototype NYI");
-    }
 }

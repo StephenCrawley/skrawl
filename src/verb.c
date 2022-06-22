@@ -523,7 +523,7 @@ K dotApply(K x, K y){
 
     // index
     if (KK <= xt && KT >= xt){
-        return over(Kv(KV, '@'), x, y);
+        return over(Kv(KV, '@'), K_JOIN2(x,y));
     }
 
     // create adverb-modified object
@@ -544,36 +544,24 @@ K dotApply(K x, K y){
             return Kerr("error! nested adverbs not yet implemented.");
         }
 
-        W f = adverbs[xt - KOVER];
+        // get the adverb func pointer and check it exists (i.e. is implemented)
+        V f = adverbs[xt - KOVER];
         if (NULL == f){
             unref(x), unref(y);
             return Kerr("error! adverb NYI.");
         }
 
+        // grab the applicable value
         x = first(x);
 
-        // if juxtaposed, add the @
+        // if juxtaposed, add the @ (x/y converted to x@/y)
         if (KK <= xt && KT >= xt){
             t = x;
             x = Kv(KV, '@');
             y = cat(enlist(t), y);
         }
-
-        // if prefix (f/x) we need to determine the identity operator
-        if (1 == yn){
-            K identity = getIdentity(x);
-            // if the identity isn't known, exit
-            // TODO : implement nulls for unknown identities and remove error
-            if (KE == TYPE(identity)){
-                unref(x), unref(y);
-                return identity;
-            }
-            y = cat(enlist(identity), y);
-        }
         
-        y = expand(y);
-        r = (*f)(x, yk[0], yk[1]);
-        free(y);
+        r = (*f)(x, y);
         return r;
     }
 
