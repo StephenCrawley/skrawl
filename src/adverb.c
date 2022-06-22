@@ -115,7 +115,7 @@ K eachLeft(K f, K x){
 K eachRight(K f, K x){
     if (2 != xn){
         unref(f), unref(x);
-        return Kerr("error! not enough args supplied to \\: (each-left).");
+        return Kerr("error! not enough args supplied to /: (each-right).");
     }
     x = expand(x);
     K t = xk[0], y = expand(xk[1]);
