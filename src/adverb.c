@@ -18,11 +18,12 @@ K over(K f, K x){
             if (0 == xn){
                 return unref(f), x;
             }
-            r = xk[0];
+            r = ref(xk[0]);
             n = 1;
         }
         else {
             // extract args
+            x = expand(x);
             r = xk[0];
             t = expand(xk[1]);
             free(x);
@@ -35,9 +36,15 @@ K over(K f, K x){
         }
 
         for (uint64_t i = n; i < xn; ++i){
-            r = dotApply(ref(f), K_JOIN2(r, xk[i]));
+            t = dotApply(ref(f), K_JOIN2(r, ref(xk[i])));
+            if (KE == tt){            // if error was returned                   
+                unref(f), unref(x);   // unref the args     
+                return t;                                                                 
+            }
+            r = t;
         }
-        unref(f), free(x);
+        unref(f);
+        unref(x);
         return r;
     }
     // f/[x;y;...]
