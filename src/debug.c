@@ -63,6 +63,10 @@ void disassemble(VM *vm, uint8_t *instr){
             printf("%-13s", "OP_APPLY");
             break;
 
+        case OP_PROJECT:
+            printf("%-13s", "OP_PROJECT");
+            break;
+
         case OP_SETGLOBAL:
             printf("%-18s", "OP_SETGLOBAL");
             break;
@@ -83,7 +87,7 @@ void disassemble(VM *vm, uint8_t *instr){
     }
 
     // print immediate argument 
-    if (OP_CONSTANT == instr[0] || OP_ENLIST == instr[0] || OP_APPLY == instr[0]){
+    if (OP_CONSTANT == instr[0] || OP_ENLIST == instr[0] || OP_APPLY == instr[0] || OP_PROJECT == instr[0]){
         printf("%03d  ", instr[1]);
     }
 
