@@ -8,34 +8,33 @@ V adverbs[] = {over, scan, NULL, eachLeft, eachRight, NULL};
 K over(K f, K x){
     K r, t;
 
-    // f/x
-    if (1 == xn){
-        // extract arg. if it's empty return empty.
-        x = ( KK == xt ) ? expand(first(x)) : expand(x);
-        if (0 == xn){
-            return unref(f), x;
+    // f/x or x f/y
+    if (1 == xn || 2 == xn){
+        uint64_t n;
+        if (1 == xn){
+            // extract arg
+            x = ( KK == xt ) ? expand(first(x)) : expand(x);
+            // if it's empty return empty
+            if (0 == xn){
+                return unref(f), x;
+            }
+            r = xk[0];
+            n = 1;
+        }
+        else {
+            // extract args
+            r = xk[0];
+            t = expand(xk[1]);
+            free(x);
+            x = t;
+            // if any empty, return empty
+            if (0 == xn || 0 == rn){
+                return unref(f), unref(x), unref(r), k(KK,0);
+            }
+            n = 0;
         }
 
-        r = xk[0];
-        for (uint64_t i = 1; i < xn; ++i){
-            r = dotApply(ref(f), K_JOIN2(r, xk[i]));
-        }
-        unref(f), free(x);
-        return r;
-    }
-    // f/[x;y]
-    else if (2 == xn){
-        r = xk[0];
-        t = expand(xk[1]);
-        free(x);
-        x = t;
-
-        // if any empty, return empty
-        if (0 == xn || 0 == rn){
-            return unref(f), unref(x), unref(r), k(KK,0);
-        }
-
-        for (uint64_t i = 0; i < xn; ++i){
+        for (uint64_t i = n; i < xn; ++i){
             r = dotApply(ref(f), K_JOIN2(r, xk[i]));
         }
         unref(f), free(x);
