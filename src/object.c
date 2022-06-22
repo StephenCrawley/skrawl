@@ -312,7 +312,7 @@ static void printA(K x){
 // print projection
 static void printP(K x){
     K t = xk[1];
-    printO(tk[0]);
+    printKObject(tk[0], true);
     putchar('[');
     for (uint8_t i = 1, last = tn-1; i < tn; ++i){
         printKObject(tk[i], true);

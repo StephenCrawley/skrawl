@@ -70,8 +70,7 @@ static void compileApply(Chunk *chunk, K x, uint8_t n){
 // this is for when the parser creates -KN objects ("magic values"). eg parsing "1+" or "@[1;;2]"
 // m is the number of magic values present. this is the rank of the resultant projection
 // magic values are only created at compile time, so best to count+encode them now too
-static void compileProject(Chunk *chunk, K x, uint8_t n, uint8_t m){
-	addConstant(chunk, x);
+static void compileProject(Chunk *chunk, uint8_t n, uint8_t m){
 	addByte(chunk, OP_PROJECT);
 	addByte(chunk, n);
 	addByte(chunk, m);
@@ -162,16 +161,23 @@ static void compileBranch(Chunk *chunk, K x){
             // keep track of magic values
 			if (-KN == tt) { project = true; mval++; }
 		}
-		
-		// then compile the func
+
+		// then compile the applicable value
 		t = xk[0];
+
+        // compile projections
+        if (project){
+            compileBranch(chunk, t);
+            compileProject(chunk, xn, mval);
+            return;
+        }
+		
+        // or compile 
 		if (KU == tt){
-			( project ) ? compileProject(chunk, t, xn, mval) : compileMonad(chunk, t, xn-1);
+			compileMonad(chunk, t, xn-1);
 		}
 		else if (KV == tt){
-			( project ) ? compileProject(chunk, t, xn, mval) : 
-			( 3 == xn ) ? compileDyad(chunk, t) : 
-			              compileApply(chunk, t, xn-1);
+			( 3 == xn ) ? compileDyad(chunk, t) : compileApply(chunk, t, xn-1);
 		}
 		else {
 			compileApply(chunk, t, xn-1);
