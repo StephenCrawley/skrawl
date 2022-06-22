@@ -105,8 +105,15 @@ K eachLeft(K f, K x){
     x = t;
     K r = k(KK, xn);
     for (uint64_t i = 0; i < rn; ++i){
-        t = K_JOIN2(xk[i], ref(y));
-        rk[i] = dotApply(ref(f), t);
+        t = K_JOIN2(ref(xk[i]), ref(y));
+        t = dotApply(ref(f), t);
+        if (KE == tt){                     // if error was returned                   
+            unref(f), unref(x), unref(y);  // unref the args     
+            while (i--) unref(rk[i]);      // unref the child objects already assigned 
+            free(r);                                                                  
+            return t;                                                                 
+        }
+        rk[i] = t;
     }
     unref(f), free(x), unref(y);
     return r;
@@ -123,9 +130,16 @@ K eachRight(K f, K x){
     x = t;
     K r = k(KK, yn);
     for (uint64_t i = 0; i < rn; ++i){
-        t = K_JOIN2(ref(x), yk[i]);
-        rk[i] = dotApply(ref(f), t);
+        t = K_JOIN2(ref(x), ref(yk[i]));
+        t = dotApply(ref(f), t);
+        if (KE == tt){                     // if error was returned                   
+            unref(f), unref(x), unref(y);  // unref the args     
+            while (i--) unref(rk[i]);      // unref the child objects already assigned 
+            free(r);                                                                  
+            return t;                                                                 
+        }
+        rk[i] = t;
     }
-    unref(f), unref(x), free(y);
+    unref(f), unref(x), unref(y);
     return r;
 }
