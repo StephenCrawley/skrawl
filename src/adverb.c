@@ -60,6 +60,7 @@ K scan(K f, K x){
     // f\x
     if (1 == xn){
         // extract arg. if it's empty return empty.
+        int8_t type = xt;
         x = ( KK == xt ) ? expand(first(x)) : expand(x);
         if (0 == xn){
             return unref(f), x;
@@ -70,11 +71,13 @@ K scan(K f, K x){
         for (uint64_t i = 1; i < rn; ++i){
             rk[i] = dotApply(ref(f), K_JOIN2(ref(rk[i-1]), xk[i]));
         }
-        r = ( 1 == xn ) ? first(r) : squeeze(r);
+        // if type is a simple list, the arg was an atom, so return an atom
+        r = ( 0 < type ) ? first(r) : squeeze(r);
         unref(f), free(x);
         return r;
     }
     else if (2 == xn){
+        x = expand(x);
         // if any empty, return empty
         if (0 == COUNT(xk[0]) || 0 == COUNT(xk[1])){
             return unref(f), unref(x), k(KK,0);
