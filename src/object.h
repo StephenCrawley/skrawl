@@ -4,6 +4,7 @@
 #include "a.h"
 
 #define KNUL ( k(KN,0) )
+#define UNREFTOP(x) { --REFC(x); if (1 > REFC(x)){ free(x); } } 
 
 // increment/decrement refcount
 K      ref(K x);

@@ -1,5 +1,6 @@
 #include "a.h"
 #include "adverb.h"
+#include "object.h"
 #include "verb.h"
 
 // adverbs table
@@ -26,7 +27,7 @@ K over(K f, K x){
             x = expand(x);
             r = xk[0];
             t = expand(xk[1]);
-            free(x);
+            UNREFTOP(x);
             x = t;
             // if any empty, return empty
             if (0 == xn || 0 == rn){
@@ -73,7 +74,7 @@ K scan(K f, K x){
         }
         // if type is a simple list, the arg was an atom, so return an atom
         r = ( 0 < type ) ? first(r) : squeeze(r);
-        unref(f), free(x);
+        unref(f); UNREFTOP(x);
         return r;
     }
     else if (2 == xn){
@@ -86,7 +87,8 @@ K scan(K f, K x){
         t = expand(xk[1]);
         r = k(KK, tn);
         rk[0] = xk[0];
-        free(x), x = t;
+        UNREFTOP(x);
+        x = t;
 
         t = rk[0];
         tr--;
@@ -109,8 +111,9 @@ K eachLeft(K f, K x){
         return Kerr("error! not enough args supplied to \\: (each-left).");
     }
     x = expand(x);
+    bool returnAtom = (0 > TYPE(xk[0]) && 0 > TYPE(xk[1]));
     K t = expand(xk[0]), y = xk[1];
-    free(x);
+    UNREFTOP(x);
     x = t;
     K r = k(KK, xn);
     for (uint64_t i = 0; i < rn; ++i){
@@ -124,8 +127,8 @@ K eachLeft(K f, K x){
         }
         rk[i] = t;
     }
-    unref(f), free(x), unref(y);
-    return r;
+    unref(f), unref(x), unref(y);
+    return ( returnAtom ) ? first(r) : squeeze(r);
 }
 
 K eachRight(K f, K x){
@@ -134,8 +137,9 @@ K eachRight(K f, K x){
         return Kerr("error! not enough args supplied to /: (each-right).");
     }
     x = expand(x);
+    bool returnAtom = (0 > TYPE(xk[0]) && 0 > TYPE(xk[1]));
     K t = xk[0], y = expand(xk[1]);
-    free(x);
+    UNREFTOP(x);
     x = t;
     K r = k(KK, yn);
     for (uint64_t i = 0; i < rn; ++i){
@@ -150,5 +154,5 @@ K eachRight(K f, K x){
         rk[i] = t;
     }
     unref(f), unref(x), unref(y);
-    return r;
+    return ( returnAtom ) ? first(r) : squeeze(r);
 }
