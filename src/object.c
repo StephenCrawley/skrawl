@@ -170,23 +170,27 @@ K squeeze(K x){
 // expand a simple K list to a general list 
 // eg 1 2 3 -> (1;2;3) or "abc" -> ("a";"b";"c")
 K expand(K x){
+    // general lists unchanged
     if (KK == xt) return x;
-    uint64_t n = (KD == xt || KN == xt) ? 1 : K_COUNT(x);
+
+    // enlist and return certain types. TODO : rethink dict expansion
+    if (KD == xt || KU == xt || KV == xt || KA == xt || KP == xt || KN == xt){
+        return enlist(x);
+    }
+
+    // everything else
+    uint64_t n = K_COUNT(x);
     K r = k(KK, n);
     if      (KI == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ki( xi[i] );
     else if (KF == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
     else if (KC == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kc( xc[i] );
     else if (KS == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ks( xi[i] );
-    else if (KD == ABS(xt)) rk[0] = ref(x);
     else if (KT == ABS(xt)) {
         K keys = TKEYS(x);
         K vals = TVALS(x);
         vals = flip(ref(vals));
-        for (uint64_t i = 0; i < COUNT(vals); ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
+        for (uint64_t i = 0; i < n; ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
         unref(vals);
-    }
-    else if (KU == xt || KV == xt || KA == xt || KN == xt){
-        rk[0] = ref(x);
     }
     else {
         unref(x), free(r);
