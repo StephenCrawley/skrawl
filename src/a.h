@@ -27,7 +27,6 @@ typedef int64_t I;
 typedef double  F;
 typedef K (*U)(K);       // monadic function
 typedef K (*V)(K, K);    // dyadic  function
-typedef K (*W)(K, K, K); // adverb
 
 // K accessors
 // these provide shorthand access to K struct members, significantly cleaning up the code
