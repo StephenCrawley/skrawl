@@ -173,14 +173,15 @@ K expand(K x){
     // general lists unchanged
     if (KK == xt) return x;
 
+    K r;
+
     // enlist and return certain types. TODO : rethink dict expansion
     if (KD == xt || KU == xt || KV == xt || KA == xt || KP == xt || KN == xt){
-        return enlist(x);
+        return r = k(KK, 1), rk[0] = x, r;
     }
 
     // everything else
-    uint64_t n = K_COUNT(x);
-    K r = k(KK, n);
+    r = k(KK, K_COUNT(x));
     if      (KI == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Ki( xi[i] );
     else if (KF == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kf( xf[i] );
     else if (KC == ABS(xt)) for (uint64_t i = 0; i < rn; ++i) rk[i] = Kc( xc[i] );
@@ -189,7 +190,7 @@ K expand(K x){
         K keys = TKEYS(x);
         K vals = TVALS(x);
         vals = flip(ref(vals));
-        for (uint64_t i = 0; i < n; ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
+        for (uint64_t i = 0; i < rn; ++i) rk[i] = key(ref(keys) , ref(KOBJ(vals)[i]));
         unref(vals);
     }
     else {
