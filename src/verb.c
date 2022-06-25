@@ -339,7 +339,7 @@ K find(K x, K y){
         return Kerr("type error! x arg must be list");
     }
 
-    int8_t type = 0 > yt ? -KI : KI;
+    int8_t type = ( 0 > yt || KD == yt ) ? -KI : KI;
     K r, t;
     bool equal;
 
