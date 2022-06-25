@@ -120,6 +120,7 @@ enum {
 #define SGN(x) __extension__({__typeof__(x) _x = (x); (_x > 0) - (_x < 0);})
 
 // K object utilities
+#define IS_HIGHER_ORDER_FUNC(x) ( KOVER <= TYPE(x) && KEACHPRIOR >= TYPE(x) )
 #define K_COUNT(x) ((KD==TYPE(x)) ? COUNT(DKEYS(x)) : (KT==TYPE(x)) ? COUNT(KOBJ(TVALS(x))[0]) : (KN==TYPE(x)) ? 1 : COUNT(x))
 #define K_JOIN2(x, y) __extension__({K _r = k(KK, 2);KOBJ(_r)[0] = (x); KOBJ(_r)[1] = (y); _r;})
 

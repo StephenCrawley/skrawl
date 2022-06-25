@@ -5,7 +5,7 @@
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt || KP == xt || (KOVER <= xt && KEACHPRIOR >= xt)){
+    if (KK == xt || KD == xt || KT == xt || KP == xt || IS_HIGHER_ORDER_FUNC(x)){
         for (uint64_t i = 0; i < xn; ++i) ref(xk[i]);
     }
 
@@ -14,7 +14,7 @@ K ref(K x){
 
 void unref(K x){
     // if generic K type, call 'unref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt || KP == xt || (KOVER <= xt && KEACHPRIOR >= xt)){
+    if (KK == xt || KD == xt || KT == xt || KP == xt || IS_HIGHER_ORDER_FUNC(x)){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
     }
 
@@ -339,8 +339,8 @@ static void printE(K x){
 }
 
 // type is adverb-modified object?
-static bool isAdvMod(uint8_t t){
-    return KOVER <= t && KEACHPRIOR >= t;
+static bool isAdvMod(K x){
+    return IS_HIGHER_ORDER_FUNC(x);
 }
 
 // prints a K object on one line
@@ -372,7 +372,7 @@ K printKObject(K x, bool printFlat){
     else if ( KV ==     xt)  printO(x);
     else if ( KA ==     xt)  printO(x);
     else if ( KP ==     xt)  printP(x);
-    else if ( isAdvMod(xt))  printA(x);
+    else if ( isAdvMod(x) )  printA(x);
     else if ( KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}
 

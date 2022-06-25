@@ -534,12 +534,12 @@ K dotApply(K x, K y){
     }
 
     // apply adverb-modified object
-    if (KOVER <= xt && KEACHPRIOR >= xt){
+    if (IS_HIGHER_ORDER_FUNC(x)){
         if (2 < yn){
             unref(x), unref(y);
             return Kerr("rank error! derived verbs of rank >2 not yet implemented.");
         }
-        if (KOVER <= TYPE(xk[0]) && KEACHPRIOR >= TYPE(xk[0])){
+        if (IS_HIGHER_ORDER_FUNC(xk[0])){
             unref(x), unref(y);
             return Kerr("error! nested adverbs not yet implemented.");
         }
@@ -805,7 +805,7 @@ K first(K x){
         r = ref( xk[0] );
     }
     // adverb-modified object (f/ f' ...)
-    else if (KOVER <= xt && KEACHPRIOR >= xt){
+    else if (IS_HIGHER_ORDER_FUNC(x)){
         r = ref(xk[0]);
     }
     // simple vector
