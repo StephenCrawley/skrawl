@@ -176,7 +176,7 @@ K expand(K x){
     K r;
 
     // enlist and return certain types. TODO : rethink dict expansion
-    if (KD == xt || KU == xt || KV == xt || KA == xt || KP == xt || KN == xt){
+    if (KD == xt || KU == xt || KV == xt || KA == xt || KP == xt || KN == xt || IS_HIGHER_ORDER_FUNC(x)){
         return r = k(KK, 1), rk[0] = x, r;
     }
 
@@ -199,6 +199,27 @@ K expand(K x){
     }
     unref(x);
     return r;
+}
+
+// get rank of higher-order func (adverb-modified)
+// k has no rank 0
+// 0 is a flag meaning "rank 1 or 2" for when / or \ is applied to a dyad
+// eg +/x -> rank 1. x+/y -> rank 2
+static int8_t rankOfHigherOrderFunc(K x){
+    int8_t t, r; //type, rank
+    t = xt; 
+    r = rankOf(xk[0]);
+    return ((KOVER == t || KSCAN == t) && 2 == r) ? 0 : r;
+}
+
+// get rank of object
+int8_t rankOf(K x){
+    return
+        KU == xt ? 1 :
+        KV == xt ? 2 :
+        KP == xt ? INT(xk[0])[0] :
+        IS_HIGHER_ORDER_FUNC(x) ? rankOfHigherOrderFunc(x) :
+        0 ;
 }
 
 // print functionality

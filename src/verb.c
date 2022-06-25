@@ -533,6 +533,49 @@ K dotApply(K x, K y){
         return r;
     }
 
+    // check rank
+    // if rank > argcount -> project
+    // if rank = argcount -> apply
+    // is rank < argcount -> error!
+    uint8_t rank = rankOf(x);
+    if (0 == rank){
+        ;
+        // unref(x), unref(y);
+        // return Kerr("error! not yet implemented (rank=0)");
+    }
+    // too many args
+    else if (rank < yn){
+        unref(x), unref(y);
+        return Kerr("ranke error! too many args");
+    }
+    // return projection
+    else if (rank > yn){
+        y = expand(y);
+
+        // if x is a projection, fill in the magic values
+        if (KP == xt){
+            // func
+            K f = ref( KOBJ(xk[1])[0] );
+            // args
+            t = k(KK, COUNT(xk[1]) - 1);
+            for (uint64_t i = 0, j = 0; i < tn; ++i){
+                tk[i] = (j<yn && -KN == TYPE(KOBJ(xk[1])[i+1])) ? ref(yk[j++]) : ref(KOBJ(xk[1])[i+1]);
+            }
+            r = Kp( Ki(rank-yn), cat(f,t) );
+            unref(x), unref(y);
+            return r;
+        }
+        // everything else 
+        else {
+            t = k(KK, rank);
+            for (uint8_t i = 0; i < yn; ++i) tk[i] = ref(yk[i]);
+            for (uint8_t i = yn; i < rank; ++i) tk[i] = k(-KN, 0);
+            r = Kp(Ki(rank - yn), cat(x, t));
+            unref(y);
+            return r;
+        }
+    }
+
     // apply adverb-modified object
     if (IS_HIGHER_ORDER_FUNC(x)){
         if (2 < yn){
@@ -582,16 +625,6 @@ K dotApply(K x, K y){
         }
         
         y = expand(y);
-        
-        if (1 == yn){ // project
-            r = Kp(Ki(1), NULL);
-            t = k(KK, 2);
-            tk[0] = first(y);
-            tk[1] = k(-KN, 0);
-            rk[1] = cat(x, t);
-            return r;
-        }
-
         V f = dyads[ (uint8_t)xc[0] ];
         r = (*f)(ref(yk[0]), ref(yk[1]));
     }
@@ -611,7 +644,7 @@ K dotApply(K x, K y){
             for (uint64_t i = 0, j = 0; i < tn; ++i){
                 tk[i] = (j<yn && -KN == TYPE(KOBJ(xk[1])[i+1])) ? ref(yk[j++]) : ref(KOBJ(xk[1])[i+1]);
             }
-            r = (rank == yn) ? dotApply(f, t) : Kp( Ki(rank-yn), cat(f,t) );
+            r = dotApply(f, t);
         }
     }
     // either wrong type or not yet implemented
@@ -1087,7 +1120,7 @@ K not(K x){
 }
 
 K type(K x){
-    K r = Ks( (I) 0 > xt ? KATOMTYPES[ABS(xt)] : KLISTTYPES[xt] );
+    K r = Ks( (I) 0 > xt ? KATOMTYPES[-xt] : KLISTTYPES[xt] );
     unref(x);
     return r;
 }

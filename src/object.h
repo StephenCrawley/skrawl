@@ -24,6 +24,8 @@ K Kerr(const char *error);
 K squeeze(K x);
 K expand(K x);
 
+int8_t rankOf(K x);
+
 // print K object
 K printK(K x);
 K printKObject(K x, bool printFlat);
