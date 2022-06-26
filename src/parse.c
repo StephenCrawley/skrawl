@@ -270,9 +270,7 @@ static K parseAdverbIter(Scanner *scanner, Parser *parser, K x){
     while (isAdverb(parser->current.type)){
         adverb = k(KA, 1);
         CHAR(adverb)[0] = (char) parser->current.type;
-        t = k(KK, 2);
-        tk[0] = adverb;
-        tk[1] = x;
+        t = JOIN2(adverb, x);
         x = t;
         advance(scanner, parser);
     }
@@ -311,37 +309,26 @@ static K expression(Scanner *scanner, Parser *parser){
         r = prefix;
     }
     else if (prefixIsAdverb || KU == TYPE(prefix)){
-        r = k(KK, 2);
-        rk[0] = prefix;
-        rk[1] = expression(scanner, parser);
+        r = JOIN2(prefix, expression(scanner, parser));
     }
     else if (isNoun(parser->current.type)){
         infix = parseNoun(scanner, parser);
         if (isAdverb(parser->current.type)){
             infix = parseAdverbIter(scanner, parser, infix);
             if (atExprEnd(parser->current.type)){
-                r = k(KK, 2);
-                rk[0] = prefix;
-                rk[1] = infix;
+                r = JOIN2(prefix, infix);
             }
             else {
-                r = k(KK, 3);
-                rk[0] = infix;
-                rk[1] = prefix;
-                rk[2] = expression(scanner, parser);
+                r = JOIN3(infix, prefix, expression(scanner, parser));
             }
         }
         else {
             if (atExprEnd(parser->current.type)){
-                r = k(KK, 2);
-                rk[0] = prefix;
-                rk[1] = infix;
+                r = JOIN2(prefix, infix);
             }
             else {
-                r = k(KK, 2);
-                rk[0] = prefix;
                 parser->prefix = infix;
-                rk[1] = expression(scanner, parser);
+                r = JOIN2(prefix, expression(scanner, parser));
             }
         }
     }
@@ -350,10 +337,7 @@ static K expression(Scanner *scanner, Parser *parser){
         if (isAdverb(parser->current.type))
             infix = parseAdverbIter(scanner, parser, infix);
         
-        r = k(KK, 3);
-        rk[0] = infix;
-        rk[1] = prefix;
-        rk[2] = atExprEnd(parser->current.type) ? k(-KN, 0) : expression(scanner, parser);
+        r = JOIN3(infix, prefix, atExprEnd(parser->current.type) ? k(-KN, 0) : expression(scanner, parser));
     }
     
     return r;
@@ -370,9 +354,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
         
         if (TOKEN_SEMICOLON == parser->current.type && 0 == rn){
             unref(r);
-            r = k(KK, 2);
-            rk[0] = Kc(';');
-            rk[1] = t;
+            r = JOIN2(Kc(';'), t);
         }
         else {
             r = appendExpression(r, t);

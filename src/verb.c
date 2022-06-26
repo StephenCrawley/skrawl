@@ -523,7 +523,7 @@ K dotApply(K x, K y){
 
     // index
     if (KK <= xt && KT >= xt){
-        return over(Kv(KV, '@'), K_JOIN2(x,y));
+        return over(Kv(KV, '@'), JOIN2(x,y));
     }
 
     // create adverb-modified object

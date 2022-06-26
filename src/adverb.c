@@ -37,7 +37,7 @@ K over(K f, K x){
         }
 
         for (uint64_t i = n; i < xn; ++i){
-            t = dotApply(ref(f), K_JOIN2(r, ref(xk[i])));
+            t = dotApply(ref(f), JOIN2(r, ref(xk[i])));
             if (KE == tt){            // if error was returned                   
                 unref(f), unref(x);   // unref the args     
                 return t;                                                                 
@@ -70,7 +70,7 @@ K scan(K f, K x){
         r = k(KK, xn);
         rk[0] = xk[0];
         for (uint64_t i = 1; i < rn; ++i){
-            rk[i] = dotApply(ref(f), K_JOIN2(ref(rk[i-1]), xk[i]));
+            rk[i] = dotApply(ref(f), JOIN2(ref(rk[i-1]), xk[i]));
         }
         // if type is a simple list, the arg was an atom, so return an atom
         r = ( 0 < type ) ? first(r) : squeeze(r);
@@ -93,7 +93,7 @@ K scan(K f, K x){
         t = rk[0];
         tr--;
         for (uint64_t i = 0; i < xn; ++i){
-            rk[i] = dotApply(ref(f), K_JOIN2(ref(t), xk[i]));
+            rk[i] = dotApply(ref(f), JOIN2(ref(t), xk[i]));
             t = rk[i];
         }
         unref(f), free(x);
@@ -139,7 +139,7 @@ K each(K f, K x){
             xk[0] = expand(xk[0]);
             xk[1] = expand(xk[1]);
             for (uint64_t i = 0; i < rn; ++i){
-                rk[i] = dotApply(ref(f), K_JOIN2(ref(KOBJ(xk[0])[i]), ref(KOBJ(xk[1])[i])));
+                rk[i] = dotApply(ref(f), JOIN2(ref(KOBJ(xk[0])[i]), ref(KOBJ(xk[1])[i])));
             }
         }
     }
@@ -167,7 +167,7 @@ K eachLeft(K f, K x){
     x = t;
     K r = k(KK, xn);
     for (uint64_t i = 0; i < rn; ++i){
-        t = K_JOIN2(ref(xk[i]), ref(y));
+        t = JOIN2(ref(xk[i]), ref(y));
         t = dotApply(ref(f), t);
         if (KE == tt){                     // if error was returned                   
             unref(f), unref(x), unref(y);  // unref the args     
@@ -193,7 +193,7 @@ K eachRight(K f, K x){
     x = t;
     K r = k(KK, yn);
     for (uint64_t i = 0; i < rn; ++i){
-        t = K_JOIN2(ref(x), ref(yk[i]));
+        t = JOIN2(ref(x), ref(yk[i]));
         t = dotApply(ref(f), t);
         if (KE == tt){                     // if error was returned                   
             unref(f), unref(x), unref(y);  // unref the args     
