@@ -4,7 +4,7 @@
 #include "verb.h"
 
 // adverbs table
-V adverbs[] = {over, scan, NULL, eachLeft, eachRight, NULL};
+V adverbs[] = {over, scan, each, eachLeft, eachRight, NULL};
 
 K over(K f, K x){
     K r, t;
@@ -103,6 +103,56 @@ K scan(K f, K x){
         unref(f), unref(x);
         return Kerr("error! scan for f with rank >2 nyi");
     }
+}
+
+K each(K f, K x){
+    if (2 < xn){
+        unref(f), unref(x);
+        return Kerr("error! adverb ' (each) only implemented for functions with rank < 3.");
+    }
+
+    K r;
+
+    if (1 < xn){
+        r = k(KK, xn);
+
+        // check args conform when eaching multiple lists
+        uint64_t n, m;
+        bool compare = false;
+
+        for (uint64_t i = 0; i < xn; ++i){
+            n = K_COUNT(xk[i]);
+            if (compare && n != m){
+                unref(f), unref(x);
+                return Kerr("length error! args to ' (each) don't conform.");
+            }
+            else {
+                // only interested in comparing lists
+                if (!IS_SCALAR(xk[i])){
+                    m = n;
+                    compare = true;
+                }
+            }
+        }
+
+        if (2 == xn){
+            xk[0] = expand(xk[0]);
+            xk[1] = expand(xk[1]);
+            for (uint64_t i = 0; i < rn; ++i){
+                rk[i] = dotApply(ref(f), K_JOIN2(ref(KOBJ(xk[0])[i]), ref(KOBJ(xk[1])[i])));
+            }
+        }
+    }
+    else {
+        if (1 == xn) x = expand(first(x));
+        r = k(KK, xn);
+        for (uint64_t i = 0; i < rn; ++i){
+            rk[i] = dotApply(ref(f), ref(xk[i]));
+        }
+    }
+
+    unref(f), unref(x);
+    return squeeze(r);
 }
 
 K eachLeft(K f, K x){

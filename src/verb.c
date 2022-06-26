@@ -546,7 +546,7 @@ K dotApply(K x, K y){
     // too many args
     else if (rank < yn){
         unref(x), unref(y);
-        return Kerr("ranke error! too many args");
+        return Kerr("rank error! too many args.");
     }
     // return projection
     else if (rank > yn){
@@ -581,10 +581,6 @@ K dotApply(K x, K y){
         if (2 < yn){
             unref(x), unref(y);
             return Kerr("rank error! derived verbs of rank >2 not yet implemented.");
-        }
-        if (IS_HIGHER_ORDER_FUNC(xk[0])){
-            unref(x), unref(y);
-            return Kerr("error! nested adverbs not yet implemented.");
         }
 
         // get the adverb func pointer and check it exists (i.e. is implemented)
