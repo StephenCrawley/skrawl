@@ -160,7 +160,10 @@ static void run(VM *vm){
                 x = vm->chunk->k[*vm->ip++];
                 t = find(ref(DKEYS(vm->globals)), ref(x));
                 if (ti[0] == K_COUNT(vm->globals)){
-                    PUSH(Kerr("var"));
+                    char var[9]; // syms are max 8 bytes. +1 for \0
+                    for (uint8_t i = 0; i < 8; ++i) var[i] = xc[i];
+                    var[8] = '\0';
+                    PUSH(Kerr(var));
                 }
                 else {
                     r = ref(KOBJ(DVALS(vm->globals))[ti[0]]);
