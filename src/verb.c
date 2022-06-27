@@ -821,7 +821,7 @@ K first(K x){
     K r;
 
     // return atoms and special types unchanged 
-    if (0 > xt || KU == xt || KV == xt || KP == xt || KN == xt){
+    if (IS_SCALAR(x)){
         return x;
     }
     // dictionary
@@ -913,15 +913,16 @@ K squareRoot(K x){
             }
             rk[i] = t;
         }
+        r = squeeze(r);
     }
     else if (KD == xt){
-        t = squareRoot(ref(xk[1]));
-        r = (KE == tt) ? t : key(ref(xk[0]), t);
+        t = squareRoot(ref(DVALS(x)));
+        r = (KE == tt) ? t : key(ref(DKEYS(x)), t);
         unref(x);
         return r;
     }
     else if (KT == xt){
-        r = squareRoot( ref(xk[0]) );
+        r = flip(squareRoot(ref(xk[0])));
     }
     else if (KI == ABS(xt) || KF == ABS(xt)){
         r = k(0 > xt ? -KF : KF, xn);
