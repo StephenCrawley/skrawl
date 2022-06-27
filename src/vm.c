@@ -157,8 +157,10 @@ static void run(VM *vm){
 
             // push a global variable onto the stack
             case OP_GETGLOBAL:
+                // get the variable name from constants pool and search the globals dict
                 x = vm->chunk->k[*vm->ip++];
                 t = find(ref(DKEYS(vm->globals)), ref(x));
+                // if variable not defined, push error
                 if (ti[0] == K_COUNT(vm->globals)){
                     char var[9]; // syms are max 8 bytes. +1 for \0
                     for (uint8_t i = 0; i < 8; ++i) var[i] = xc[i];
