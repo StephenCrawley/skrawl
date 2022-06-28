@@ -5,7 +5,7 @@
 
 K ref(K x){
     // if generic K type, call 'ref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt || KP == xt || IS_HIGHER_ORDER_FUNC(x)){
+    if (KK == xt || KD == xt || KT == xt || KP == xt || IS_HIGHER_ORDER_FUNC(x) || KQ == xt){
         for (uint64_t i = 0; i < xn; ++i) ref(xk[i]);
     }
 
@@ -14,7 +14,7 @@ K ref(K x){
 
 void unref(K x){
     // if generic K type, call 'unref' on all child K objects
-    if (KK == xt || KD == xt || KT == xt || KP == xt || IS_HIGHER_ORDER_FUNC(x)){
+    if (KK == xt || KD == xt || KT == xt || KP == xt || IS_HIGHER_ORDER_FUNC(x) || KQ == xt){
         for (uint64_t i = 0; i < xn; ++i) unref(xk[i]);
     }
 
@@ -86,6 +86,12 @@ K Kp(K x, K y){
     K r = k(KP, 2);
     rk[0] = x;
     rk[1] = y;
+    return r;
+}
+
+K Kq(K x, K y){
+    K r = JOIN2(x, y);
+    rt = KQ;
     return r;
 }
 
@@ -212,6 +218,10 @@ static int8_t rankOfHigherOrderFunc(K x){
     return ((KOVER == t || KSCAN == t) && 2 == r) ? 0 : r;
 }
 
+static int8_t rankOfComposition(K x){
+    return rankOf(xk[1]);
+}
+
 // get rank of object
 int8_t rankOf(K x){
     return
@@ -219,6 +229,7 @@ int8_t rankOf(K x){
         KV == xt ? 2 :
         KP == xt ? INT(xk[0])[0] :
         IS_HIGHER_ORDER_FUNC(x) ? rankOfHigherOrderFunc(x) :
+        KQ == xt ? rankOfComposition(x) :
         0 ;
 }
 
@@ -347,6 +358,12 @@ static void printP(K x){
     putchar(']');
 }
 
+// print composition
+static void printQ(K x){
+    printKObject(xk[0], true);
+    printKObject(xk[1], true);
+}
+
 // print generic NULL (::)
 static void printN(bool print){
     if (print)
@@ -393,6 +410,7 @@ K printKObject(K x, bool printFlat){
     else if ( KV ==     xt)  printO(x);
     else if ( KA ==     xt)  printO(x);
     else if ( KP ==     xt)  printP(x);
+    else if ( KQ ==     xt)  printQ(x);
     else if ( isAdvMod(x) )  printA(x);
     else if ( KE ==     xt)  printE(x);
     else {printf("can't print type: %d",xt);}

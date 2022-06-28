@@ -59,6 +59,8 @@ enum {
     OP_SETGLOBAL,
     // get global variable
     OP_GETGLOBAL,
+    // make composition
+    OP_COMPOSE,
     // print top of stack and stop execution
     OP_RETURN,
     // kill the process

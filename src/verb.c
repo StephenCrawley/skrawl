@@ -604,6 +604,19 @@ K dotApply(K x, K y){
         return r;
     }
 
+    // apply composition
+    // TODO : any need to call atApply? can move this logic up, enlist t, let x=xk[0],y=t, and let it fall through
+    if (KQ == xt){
+        t = dotApply(ref(xk[1]), ref(y));
+        if (KE == tt){
+            unref(x), unref(y);
+            return t;
+        }
+        r = atApply(ref(xk[0]), t);
+        unref(x), unref(y);
+        return r;
+    }
+
     // monad
     if (KU == xt){
         if (1 != yn){

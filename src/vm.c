@@ -174,6 +174,13 @@ static void run(VM *vm){
                 unref(t);
                 break;
 
+            // push composition onto the stack
+            case OP_COMPOSE:
+                x = POP;
+                y = POP;
+                PUSH(Kq(x, y));
+                break;
+
             // print top of stack and stop execution
             case OP_RETURN:
                 unref(printK(POP));

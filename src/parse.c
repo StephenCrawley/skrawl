@@ -12,6 +12,8 @@
             parser->panic = true; \
         }
 
+#define COMPOSE(x, y) JOIN3(Kv(KA, '\''), x, y)
+
 // full grammar...
 //      <Exprs>  ::=  <Exprs> ";" <expr>  |  <expr>
 //      <expr>   ::=  <noun> <verb> <expr>  |  <term> <expr>  |  empty
@@ -284,7 +286,7 @@ static K expression(Scanner *scanner, Parser *parser){
         return Kerr("error! EOF");
     }
 
-    K prefix, infix, r;
+    K prefix, infix, r, t;
     bool prefixIsAdverb = false;
     if (NULL == parser->prefix){
         prefix = 
@@ -309,7 +311,8 @@ static K expression(Scanner *scanner, Parser *parser){
         r = prefix;
     }
     else if (prefixIsAdverb || KU == TYPE(prefix)){
-        r = JOIN2(prefix, expression(scanner, parser));
+        t = expression(scanner, parser);
+        r = ( parser->compose ) ? COMPOSE(prefix, t) : JOIN2(prefix, t);
     }
     else if (isNoun(parser->current.type)){
         infix = parseNoun(scanner, parser);
@@ -319,7 +322,8 @@ static K expression(Scanner *scanner, Parser *parser){
                 r = JOIN2(prefix, infix);
             }
             else {
-                r = JOIN3(infix, prefix, expression(scanner, parser));
+                t = expression(scanner, parser);
+                r = ( parser->compose ) ? COMPOSE(JOIN2(infix, prefix), t) : JOIN3(infix, prefix, t);
             }
         }
         else {
@@ -328,7 +332,8 @@ static K expression(Scanner *scanner, Parser *parser){
             }
             else {
                 parser->prefix = infix;
-                r = JOIN2(prefix, expression(scanner, parser));
+                t = expression(scanner, parser);
+                r = ( parser->compose ) ? COMPOSE(prefix, t) : JOIN2(prefix, t);
             }
         }
     }
@@ -336,8 +341,14 @@ static K expression(Scanner *scanner, Parser *parser){
         infix = parseVerb(scanner, parser, KV);
         if (isAdverb(parser->current.type))
             infix = parseAdverbIter(scanner, parser, infix);
-        
-        r = JOIN3(infix, prefix, atExprEnd(parser->current.type) ? k(-KN, 0) : expression(scanner, parser));
+        if (atExprEnd(parser->current.type)){
+            parser->compose = true;
+            r = JOIN3(infix, prefix, k(-KN, 0));
+        }
+        else {
+            t = expression(scanner, parser);
+            r = ( parser->compose ) ? COMPOSE(JOIN2(infix, prefix), t) : JOIN3(infix, prefix, t);
+        }
     }
     
     return r;
@@ -350,7 +361,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
     // parse expressions
     do {
         advance(scanner, parser);
-        t = TOKEN_EOF == parser->current.type ? KNUL : expression(scanner, parser);
+        t = ( TOKEN_EOF == parser->current.type ) ? KNUL : expression(scanner, parser);
         
         if (TOKEN_SEMICOLON == parser->current.type && 0 == rn){
             unref(r);
@@ -377,6 +388,7 @@ K parse(const char *source){
     // init the parser. the parser is simple struct containing previous&current token and a panic flag
     Parser parser;
     parser.prefix = NULL;
+    parser.compose = false;
     parser.panic = false;
 
     K r = Expressions(scanner, &parser);

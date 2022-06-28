@@ -179,6 +179,9 @@ static void compileBranch(Chunk *chunk, K x){
 		else if (KV == tt){
 			( 3 == xn ) ? compileDyad(chunk, t) : compileApply(chunk, t, xn-1);
 		}
+        else if (KA == tt && TOKEN_APOSTROPHE == tc[0] && 3 == xn){ // composition
+            addByte(chunk, OP_COMPOSE);
+        }
 		else {
 			compileApply(chunk, t, xn-1);
 		}

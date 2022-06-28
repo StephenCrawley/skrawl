@@ -106,11 +106,12 @@ enum {
     KEACHRIGHT, // f/:
     KEACHPRIOR, // f':
     KP,         // projection
+    KQ,         // composition
     KN          // null
 };
-#define KWIDTHS 8,1,8,8,8,8,8,1,1,1,8,8,8,8,8,8,8,0 // in bytes
+#define KWIDTHS 8,1,8,8,8,8,8,1,1,1,8,8,8,8,8,8,8,8,0 // in bytes
 #define KOPS "+*-%.!|&<>=~?,@#_^$:/\\'\\/'"
-#define KLISTTYPES "KCIFSDTUVAWWWWWWPN"
+#define KLISTTYPES "KCIFSDTUVAWWWWWWPQN"
 #define KATOMTYPES " cifs"
 
 // utility macros
