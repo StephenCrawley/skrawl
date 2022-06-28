@@ -591,7 +591,7 @@ K dotApply(K x, K y){
         }
 
         // grab the applicable value
-        x = first(x);
+        x = value(x);
 
         // if juxtaposed, add the @ (x/y converted to x@/y)
         if (KK <= xt && KT >= xt){
@@ -728,8 +728,8 @@ K drop(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %           .     !          |        &      <    >     =     ~    ?     ,     @     #
-U monads[] = {flip, first, negate, squareRoot, NULL, bangMonad, reverse, where, asc, desc, NULL, not, NULL, NULL, type, count};
+//            +     *      -       %           .      !          |        &      <    >     =     ~    ?     ,     @     #
+U monads[] = {flip, first, negate, squareRoot, value, bangMonad, reverse, where, asc, desc, NULL, not, NULL, NULL, type, count};
 
 static K flipDictOrTab(K x){
     K r;
@@ -846,10 +846,6 @@ K first(K x){
         x = expand(x);
         r = ref( xk[0] );
     }
-    // adverb-modified object (f/ f' ...)
-    else if (IS_HIGHER_ORDER_FUNC(x)){
-        r = ref(xk[0]);
-    }
     // simple vector
     else if (0 < xt){
         r = k(-xt, 1);
@@ -946,6 +942,18 @@ K squareRoot(K x){
         r = Kerr("type error! arg must be numeric type");
     }
 
+    unref(x);
+    return r;
+}
+
+K value(K x){
+    K r;
+    if(IS_HIGHER_ORDER_FUNC(x)){
+        r = ref(xk[0]);
+    }
+    else {
+        r = Kerr("type error! arg type to monadic . (value) not yet implemented.");
+    }
     unref(x);
     return r;
 }

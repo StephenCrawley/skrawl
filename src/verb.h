@@ -29,6 +29,7 @@ K flip(K x);
 K first(K x);
 K negate(K x);
 K squareRoot(K x);
+K value(K x);
 K bangMonad(K x);
 K reverse(K x);
 K where(K x);
@@ -38,7 +39,7 @@ K not(K x);
 K enlist(K x); //not currently in monads[] array
 K type(K x);
 K count(K x);
-U monads[16];
+U monads[17];
 
 // used by VM
 K upsertDicts(K x, K y);
