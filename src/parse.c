@@ -315,8 +315,21 @@ static K expression(Scanner *scanner, Parser *parser){
         t = expression(scanner, parser);
         r = ( parser->compose ) ? COMPOSE(prefix, t) : JOIN2(prefix, t);
     }
-    else if (isNoun(parser->current.type)){
-        infix = parseNoun(scanner, parser);
+    else if (isVerb(parser->current.type) && TOKEN_LSQUARE != peekToken(scanner).type){
+        infix = parseVerb(scanner, parser, KV);
+        if (isAdverb(parser->current.type))
+            infix = parseAdverbIter(scanner, parser, infix);
+        if (atExprEnd(parser->current.type)){
+            parser->compose = true;
+            r = JOIN3(infix, prefix, k(-KN, 0));
+        }
+        else {
+            t = expression(scanner, parser);
+            r = ( parser->compose ) ? COMPOSE(JOIN2(infix, prefix), t) : JOIN3(infix, prefix, t);
+        }
+    }
+    else /*if (isNoun(parser->current.type))*/{
+        infix = ( isVerb(parser->current.type) ) ? parseVerb(scanner, parser, KV) : parseNoun(scanner, parser);
         if (isAdverb(parser->current.type)){
             infix = parseAdverbIter(scanner, parser, infix);
             if (atExprEnd(parser->current.type)){
@@ -336,19 +349,6 @@ static K expression(Scanner *scanner, Parser *parser){
                 t = expression(scanner, parser);
                 r = ( parser->compose ) ? COMPOSE(prefix, t) : JOIN2(prefix, t);
             }
-        }
-    }
-    else {
-        infix = parseVerb(scanner, parser, KV);
-        if (isAdverb(parser->current.type))
-            infix = parseAdverbIter(scanner, parser, infix);
-        if (atExprEnd(parser->current.type)){
-            parser->compose = true;
-            r = JOIN3(infix, prefix, k(-KN, 0));
-        }
-        else {
-            t = expression(scanner, parser);
-            r = ( parser->compose ) ? COMPOSE(JOIN2(infix, prefix), t) : JOIN3(infix, prefix, t);
         }
     }
     
