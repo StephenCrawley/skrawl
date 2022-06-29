@@ -144,6 +144,7 @@ static K parseParens(Scanner *scanner, Parser *parser, TokenType paren){
         rk[n++] = atExprEnd(parser->current.type) ? k(-KN, 0) : 
                   TOKEN_DOUBLECOLON == parser->current.type ? ( advance(scanner, parser), KNUL ) :
                   expression(scanner, parser);
+        parser->compose = false;
                   
     } while (TOKEN_SEMICOLON == parser->current.type);
 
@@ -370,6 +371,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
         else {
             r = appendExpression(r, t);
         }
+        parser->compose = false;
     } while (TOKEN_SEMICOLON == parser->current.type);
     
     if (TOKEN_EOF != parser->current.type){
