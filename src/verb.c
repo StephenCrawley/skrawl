@@ -469,7 +469,7 @@ K atApplyIndex(K x, K y){
 // also called in OP_APPLY instruction (compiled for x y, synatactic sugar for x@y)
 K atApply(K x, K y){
     // if a cast, function or projection
-    if (-KS == xt || (KU <= xt && KP >= xt)){
+    if (-KS == xt || (KU <= xt && KQ >= xt)){
         // (f@x) ~ (f .,x)
         return dotApply(x, enlist(y));
     }
