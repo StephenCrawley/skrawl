@@ -18,11 +18,14 @@ typedef struct vm {
     K       stack[STACK_MAX];  // K stack
     K       *top;              // K stack top
     K       globals;           // global variables dictionary
+    K       retval;            // return value from Chunk execution
+    bool    silent;            // print value in OP_RETURN instruction?       
     bool    terminate;         // kill the process?
 } VM;
 
 // public function declarations
 InterpretResult interpret(VM *vm, const char *source);
 VM *initVM();
+void freeVM(VM *vm);
 
 #endif

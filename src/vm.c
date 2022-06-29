@@ -15,6 +15,8 @@ VM *initVM(){
     vm->ip = NULL;
     vm->top = vm->stack;
     vm->globals = key(enlist(Ks((int64_t)'`')), enlist(KNUL));
+    vm->retval = KNUL;
+    vm->silent = false;
     vm->terminate = false;
     return vm;
 }
@@ -32,8 +34,9 @@ static void cleanup(VM *vm){
     vm->top = vm->stack;
 }
 
-static void freeVM(VM *vm){
+void freeVM(VM *vm){
     unref(vm->globals);
+    unref(vm->retval);
     free(vm);
 }
 
@@ -183,7 +186,10 @@ static void run(VM *vm){
 
             // print top of stack and stop execution
             case OP_RETURN:
-                unref(printK(POP));
+                r = POP;
+                if (!vm->silent) printK(r);
+                unref(vm->retval);
+                vm->retval = r;
                 return;
 
             case OP_TERMINATE:
