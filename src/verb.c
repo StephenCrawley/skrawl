@@ -977,7 +977,10 @@ K squareRoot(K x){
 
 K value(K x){
     K r;
-    if(IS_HIGHER_ORDER_FUNC(x)){
+    if (KD == xt){
+        r = ref(DVALS(x));
+    }
+    else if (IS_HIGHER_ORDER_FUNC(x)){
         r = ref(xk[0]);
     }
     else {
