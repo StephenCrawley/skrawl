@@ -36,6 +36,7 @@ K where(K x);
 K asc(K x);
 K desc(K x);
 K not(K x);
+K distinct(K x);
 K enlist(K x); //not currently in monads[] array
 K type(K x);
 K count(K x);

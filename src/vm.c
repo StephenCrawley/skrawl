@@ -105,6 +105,7 @@ static void run(VM *vm){
             case OP_MONAD_ASC:
             case OP_MONAD_DESC:
             case OP_MONAD_NOT:
+            case OP_MONAD_DISTINCT:
             case OP_MONAD_TYPE:
             case OP_MONAD_COUNT:
                 f = monads[instruction - OP_MONAD_START];

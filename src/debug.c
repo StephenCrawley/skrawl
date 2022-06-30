@@ -50,6 +50,7 @@ void disassemble(VM *vm, uint8_t *instr){
         case OP_MONAD_ASC:
         case OP_MONAD_DESC:
         case OP_MONAD_NOT:
+        case OP_MONAD_DISTINCT:
         case OP_MONAD_TYPE:
         case OP_MONAD_COUNT:
             printf("OP_MONAD %-9c", ops[ instr[0] - OP_MONAD_START ]);

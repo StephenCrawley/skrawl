@@ -757,8 +757,8 @@ K drop(K x, K y){
 }
 
 // monadic verb table
-//            +     *      -       %           .      !          |        &      <    >     =     ~    ?     ,     @     #
-U monads[] = {flip, first, negate, squareRoot, value, bangMonad, reverse, where, asc, desc, NULL, not, NULL, NULL, type, count};
+//            +     *      -       %           .      !          |        &      <    >     =     ~    ?         ,     @     #
+U monads[] = {flip, first, negate, squareRoot, value, bangMonad, reverse, where, asc, desc, NULL, not, distinct, NULL, type, count};
 
 static K flipDictOrTab(K x){
     K r;
@@ -1163,6 +1163,29 @@ K not(K x){
     }
     else {
         r = Kerr("type error! type not handled by ~");
+    }
+
+    unref(x);
+    return squeeze(r);
+}
+
+// ?x
+// ?3 1 1 2 -> 3 1 2
+K distinct(K x){
+    if ((IS_SCALAR(x))){
+        unref(x);
+        return Kerr("type error! arg to ? (distinct) must be list.");
+    }
+    if (0 == K_COUNT(x) || 1 == K_COUNT(x)){
+        return x;
+    }
+
+    if (KD == xt) x = value(x);
+    x = expand(x);
+    K r = r = enlist(ref(xk[0]));
+
+    for (uint64_t i = 1; i < xn; ++i){
+        if (!IN(xk[i], r)) r = cat(r, ref(xk[i]));
     }
 
     unref(x);
