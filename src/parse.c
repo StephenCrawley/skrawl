@@ -325,7 +325,7 @@ static K expression(Scanner *scanner, Parser *parser){
         }
         else {
             t = expression(scanner, parser);
-            r = ( parser->compose ) ? COMPOSE(JOIN2(infix, prefix), t) : JOIN3(infix, prefix, t);
+            r = ( parser->compose && TOKEN_COLON != *CHAR(infix) ) ? COMPOSE(JOIN2(infix, prefix), t) : JOIN3(infix, prefix, t);
         }
     }
     else /*if (isNoun(parser->current.type))*/{
