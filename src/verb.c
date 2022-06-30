@@ -1182,7 +1182,7 @@ K distinct(K x){
 
     if (KD == xt) x = value(x);
     x = expand(x);
-    K r = r = enlist(ref(xk[0]));
+    K r = enlist(ref(xk[0]));
 
     for (uint64_t i = 1; i < xn; ++i){
         if (!IN(xk[i], r)) r = cat(r, ref(xk[i]));
