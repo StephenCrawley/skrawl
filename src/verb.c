@@ -411,7 +411,7 @@ K cat(K x, K y){
         return upsertDicts(x, y);
     }
     // dicts cat'd with non-dicts, cat the values
-    else if (KD == xt){
+    else if (KD == xt && KT != yt){
         K keys = DKEYS(x);
         K vals = DVALS(x);
         UNREFTOP(x);
@@ -425,7 +425,7 @@ K cat(K x, K y){
             return r;
         }
     }
-    else if (KD == yt){
+    else if (KD == yt && KT != xt){
         K keys = DKEYS(y);
         K vals = DVALS(y);
         UNREFTOP(y);
