@@ -410,6 +410,34 @@ K cat(K x, K y){
     if (KD == xt && KD == yt){
         return upsertDicts(x, y);
     }
+    else if (KD == xt){
+        K keys = DKEYS(x);
+        K vals = DVALS(x);
+        UNREFTOP(x);
+        K r = cat(vals, y);
+        if (COUNT(keys) == COUNT(r)){ //d,()
+            r = key(keys, r);
+            return r;
+        }
+        else {
+            unref(keys);
+            return r;
+        }
+    }
+    else if (KD == yt){
+        K keys = DKEYS(y);
+        K vals = DVALS(y);
+        UNREFTOP(y);
+        K r = cat(x, vals);
+        if (COUNT(keys) == COUNT(r)){ //(),d
+            r = key(keys, r);
+            return r;
+        }
+        else {
+            unref(keys);
+            return r;
+        }
+    }
 
     x = expand(x);
     y = expand(y);
