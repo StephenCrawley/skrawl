@@ -150,12 +150,12 @@ static void run(VM *vm){
                 x = POP;
                 y = POP;
                 if (NULL == vm->globals){
-                    vm->globals = key(enlist(x), enlist(y));
+                    vm->globals = key(enlist(x), enlist(ref(y)));
                 }
                 else {
-                    vm->globals = upsertDicts(vm->globals, key(enlist(x), enlist(y)));
+                    vm->globals = upsertDicts(vm->globals, key(enlist(x), enlist(ref(y))));
                 }
-                PUSH(ref(y));
+                PUSH(y);
                 break;
 
             // push a global variable onto the stack
