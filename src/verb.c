@@ -871,7 +871,7 @@ K first(K x){
 // -x
 // - 1 2 3 -> -1 -2 -3
 K negate(K x){
-    if (KS == ABS(xt)){
+    if (KS == ABS(xt) || (KU <= xt && KN >= xt)){
         unref(x);
         return Kerr("type error!");
     }
