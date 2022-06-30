@@ -410,6 +410,7 @@ K cat(K x, K y){
     if (KD == xt && KD == yt){
         return upsertDicts(x, y);
     }
+    // dicts cat'd with non-dicts, cat the values
     else if (KD == xt){
         K keys = DKEYS(x);
         K vals = DVALS(x);
