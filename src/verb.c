@@ -760,7 +760,7 @@ static K flipDictOrTab(K x){
         // dict values must have same count
         uint64_t n = COUNT( KOBJ(DVALS(x))[0] );
         for (uint64_t i = 1; i < xn; ++i){
-            if (n != COUNT( KOBJ(DVALS(x))[i] )){
+            if (n != K_COUNT( KOBJ(DVALS(x))[i] )){
                 unref(x);
                 return Kerr("length error! dict values must be equal length");
             }
