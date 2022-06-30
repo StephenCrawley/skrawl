@@ -273,8 +273,8 @@ K match(K x, K y){
         return Ki(false);
     }
 
-    // call match recursively on general lists
-    if (KK == xt || KD == xt || KT == xt){
+    // call match recursively on nested types
+    if (KK == xt || KD == xt || KT == xt || IS_HIGHER_ORDER_FUNC(x)|| KP == xt || KQ == xt){
         K r = Ki(true);
         K t;
         for (uint64_t i = 0; i < xn; ++i){
@@ -297,7 +297,7 @@ K match(K x, K y){
             }
         }
     }
-    else if (KC == ABS(xt)){
+    else if (KC == ABS(xt) || KU == xt || KV == xt || KA == xt){
         for (uint64_t i = 0; i < xn; ++i){
             if (xc[i] != yc[i]){
                 equal = false;
