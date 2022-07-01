@@ -22,7 +22,7 @@ K atApply(K x, K y);
 K dotApply(K x,K y);
 K take(K x, K y);
 K drop(K x, K y);
-V dyads[17];
+V dyads[20];
 
 // monadic verbs
 K flip(K x);
@@ -40,7 +40,7 @@ K distinct(K x);
 K enlist(K x); //not currently in monads[] array
 K type(K x);
 K count(K x);
-U monads[17];
+U monads[21];
 
 // used by VM
 K upsertDicts(K x, K y);
