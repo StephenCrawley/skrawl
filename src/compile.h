@@ -28,6 +28,8 @@ enum {
     OP_DYAD_ATINDEX,
     OP_DYAD_TAKE,
     OP_DYAD_DROP,
+    OP_DYAD_CUT,
+    OP_DYAD_CAST,
     // monadic (1 argument) operators
     // the opcode is used to index the monads[] array (defined in verbs.c)
     // eg monads[opcode - OP_MONAD_START]
@@ -47,6 +49,10 @@ enum {
     OP_MONAD_ENLIST,
     OP_MONAD_TYPE,
     OP_MONAD_COUNT,
+    OP_MONAD_FLOOR,
+    OP_MONAD_NULL,
+    OP_MONAD_STRING,
+    OP_MONAD_IDENTITY,
     // put list literal into K object
     OP_ENLIST,
     // load literal value from constants array
