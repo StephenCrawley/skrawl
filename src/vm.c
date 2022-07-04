@@ -6,7 +6,7 @@
 #include "compile.h"
 #include "debug.h"
 
-#define PUSH(k)  (*vm->top = (k), vm->top++)
+#define PUSH(k)  (r = (k), vm->error = (KE==TYPE(r)), *vm->top = r, vm->top++)
 #define POP      (*(--vm->top))
 
 VM *initVM(){
@@ -17,6 +17,7 @@ VM *initVM(){
     vm->globals = key(enlist(Ks((int64_t)'`')), enlist(KNUL));
     vm->retval = KNUL;
     vm->silent = false;
+    vm->error = false;
     vm->terminate = false;
     return vm;
 }
@@ -61,7 +62,8 @@ static void run(VM *vm){
 
             // push a constant (source code literal) onto the stack
             case OP_CONSTANT:
-                PUSH( ref(vm->chunk->k[*vm->ip++]) );
+                r = ref(vm->chunk->k[*vm->ip++]);
+                PUSH(r);
                 break;
 
             // dyadic operators
@@ -185,6 +187,21 @@ static void run(VM *vm){
                 PUSH(Kq(x, y));
                 break;
 
+            case OP_JUMP_IF_NOT_ERROR:
+                vm->error = false;
+                n = *vm->ip++; // # bytecodes to jump if not error
+                x = POP;
+                // if error, we fall through to the error code
+                if (KE == xt){
+                    unref(x);
+                }
+                // else jump over the error code
+                else {
+                    PUSH(x);
+                    vm->ip += n;
+                }
+                break;
+
             // print top of stack and stop execution
             case OP_RETURN:
                 r = POP;
@@ -204,8 +221,10 @@ static void run(VM *vm){
         }
 
         // short circuit if error
-        if (KE == TYPE( *(vm->top - 1) )){
+        if (vm->error && 
+            OP_JUMP_IF_NOT_ERROR != *vm->ip){
             unref(printK(POP));
+            vm->error = false;
             return;
         }
     }

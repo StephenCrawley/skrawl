@@ -102,6 +102,24 @@ static void compileDyad(Chunk *chunk, K x){
     addByte(chunk, opcode);
 }
 
+// protected eval is an error-trapping construct
+// .[f;a;e] -> apply f to a, if error evaluate e 
+static void compileProtectedEval(Chunk *chunk, K x){
+    // hacky but simple and works
+    // compile (.;f;args;err) as (.;f;args) then compile the jump+error code
+    xn--;
+    compileBranch(chunk, x);
+    xn++;
+    addByte(chunk, OP_JUMP_IF_NOT_ERROR);
+    // placeholder byte for # of bytecodes to jump over if error
+    addByte(chunk, 0xff);
+    uint16_t n = chunk->codeCount;
+    // compile the error branch
+    compileBranch(chunk, xk[xn-1]);
+    // overwrite the placeholder
+    chunk->code[n-1] = chunk->codeCount - n;
+}
+
 // check if x is (\;\). if so then generate OP_TERMINATE instruction
 static bool isDoubleBackslash(K x){
     return KK == xt && 2 == xn && 
@@ -131,6 +149,12 @@ static void compileBranch(Chunk *chunk, K x){
         // compile sym list literal
         if (1 == xn && KS == TYPE(xk[0])){
             compileLeaf(chunk, xk[0]);
+            return;
+        }
+
+        // compile protected eval
+        if (4 == xn && KV == TYPE(xk[0]) && TOKEN_DOT == CHAR(xk[0])[0]){
+            compileProtectedEval(chunk, x);
             return;
         }
 

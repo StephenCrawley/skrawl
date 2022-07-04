@@ -16,7 +16,7 @@ void disassemble(VM *vm, uint8_t *instr){
     // print opcode name
     switch(instr[0]){
         case OP_CONSTANT:
-            printf("%-13s", "OP_CONSTANT");
+            printf("%-22s", "OP_CONSTANT");
             break;
 
         case OP_DYAD_ADD:
@@ -36,7 +36,7 @@ void disassemble(VM *vm, uint8_t *instr){
         case OP_DYAD_ATINDEX:
         case OP_DYAD_TAKE:
         case OP_DYAD_DROP:
-            printf("OP_DYAD %-10c", ops[ instr[0] ]);
+            printf("OP_DYAD %-19c", ops[ instr[0] ]);
             break;
 
         case OP_MONAD_FLIP:
@@ -57,42 +57,46 @@ void disassemble(VM *vm, uint8_t *instr){
             break;
 
         case OP_ENLIST:
-            printf("%-13s", "OP_ENLIST");
+            printf("%-22s", "OP_ENLIST");
             break;
 
         case OP_APPLY:
-            printf("%-13s", "OP_APPLY");
+            printf("%-22s", "OP_APPLY");
             break;
 
         case OP_PROJECT:
-            printf("%-13s", "OP_PROJECT");
+            printf("%-22s", "OP_PROJECT");
             break;
 
         case OP_SETGLOBAL:
-            printf("%-18s", "OP_SETGLOBAL");
+            printf("%-27s", "OP_SETGLOBAL");
             break;
 
         case OP_GETGLOBAL:
-            printf("%-18s", "OP_GETGLOBAL");
+            printf("%-27s", "OP_GETGLOBAL");
             break;
 
         case OP_COMPOSE:
-            printf("%-18s", "OP_COMPOSE");
+            printf("%-27s", "OP_COMPOSE");
+            break;
+
+        case OP_JUMP_IF_NOT_ERROR:
+            printf("%-22s", "OP_JUMP_IF_NOT_ERROR");
             break;
 
         case OP_RETURN:
-            printf("%-18s", "OP_RETURN");
+            printf("%-27s", "OP_RETURN");
             break;
 
         case OP_TERMINATE:
-            printf("%-18s", "OP_TERMINATE");
+            printf("%-27s", "OP_TERMINATE");
             break;
 
-        default : printf("%-18s", "OP_UNKNOWN");
+        default : printf("%-21s", "OP_UNKNOWN");
     }
 
     // print immediate argument 
-    if (OP_CONSTANT == instr[0] || OP_ENLIST == instr[0] || OP_APPLY == instr[0] || OP_PROJECT == instr[0]){
+    if (OP_CONSTANT == instr[0] || OP_ENLIST == instr[0] || OP_APPLY == instr[0] || OP_PROJECT == instr[0] || OP_JUMP_IF_NOT_ERROR == instr[0]){
         printf("%03d  ", instr[1]);
     }
 

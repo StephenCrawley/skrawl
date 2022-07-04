@@ -67,6 +67,8 @@ enum {
     OP_GETGLOBAL,
     // make composition
     OP_COMPOSE,
+    // jump if no error (protected eval)
+    OP_JUMP_IF_NOT_ERROR,
     // print top of stack and stop execution
     OP_RETURN,
     // kill the process

@@ -19,7 +19,8 @@ typedef struct vm {
     K       *top;              // K stack top
     K       globals;           // global variables dictionary
     K       retval;            // return value from Chunk execution
-    bool    silent;            // print value in OP_RETURN instruction?       
+    bool    silent;            // print value in OP_RETURN instruction?
+    bool    error;             // error during execution
     bool    terminate;         // kill the process?
 } VM;
 
