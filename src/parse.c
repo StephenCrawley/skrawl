@@ -309,6 +309,9 @@ static K expression(Scanner *scanner, Parser *parser){
     }
 
     if (atExprEnd(parser->current.type)){
+        if (KU == TYPE(prefix) || KV == TYPE(prefix)){
+            parser->compose = true;
+        }
         r = prefix;
     }
     else if (prefixIsAdverb || KU == TYPE(prefix)){
