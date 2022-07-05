@@ -346,17 +346,34 @@ static void printA(K x){
         putchar(':');
 }
 
+// is expression that requires ( ) to be parsed correctly?
+// eg "(`a`b!1 2) + 1" differs from "`a`b!1 2 + 1" (although both evaluate to same value)
+#define NEEDS_FENCING(x) (KD<=TYPE(x)||(KK!=TYPE(x)&&0==COUNT(x))||(0<=TYPE(x)&&1==COUNT(x)))
+
 // print projection
 static void printP(K x){
     K t = xk[1];
-    printKObject(tk[0], true);
-    putchar('[');
-    for (uint8_t i = 1, last = tn-1; i < tn; ++i){
-        printKObject(tk[i], true);
-        if (i != last) putchar(';');
+    // if dyadic verb, print like "1+" or "2*"
+    if (KV == TYPE(tk[0]) && 3 >= tn && 1 == INT(xk[0])[0] && -KN != TYPE(tk[1])){
+        bool b = NEEDS_FENCING(tk[1]);
+        if (b) putchar('(');
+        printKObject(tk[1], true);
+        if (b) putchar(')');
+        printKObject(tk[0], true);
     }
-    putchar(']');
+    // else print as "f[1;]"
+    else {
+        printKObject(tk[0], true);
+        putchar('[');
+        for (uint8_t i = 1, last = tn-1; i < tn; ++i){
+            printKObject(tk[i], true);
+            if (i != last) putchar(';');
+        }
+        putchar(']');
+    }
 }
+
+#undef NEEDS_FENCING
 
 // print composition
 static void printQ(K x){
