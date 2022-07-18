@@ -652,6 +652,7 @@ K dotApply(K x, K y){
             unref(x), unref(y);
             return Kerr("rank error! arg count not correct (expected 1)");
         }
+        y = expand(y);
         U f = monads[ (uint8_t)xc[0] ];
         r = (*f)( ref(yk[0]) );
     }

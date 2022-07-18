@@ -292,6 +292,7 @@ static K expression(Scanner *scanner, Parser *parser){
     if (NULL == parser->prefix){
         prefix = 
             isNoun(parser->current.type) ? parseNoun(scanner, parser) :
+            isVerb(parser->current.type) && TOKEN_APOSTROPHE == peekToken(scanner).type ? parseVerb(scanner, parser, KU) :
             isVerb(parser->current.type) && isAdverb(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
             isVerb(parser->current.type) && atExprEnd(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
             isVerb(parser->current.type) && TOKEN_LSQUARE == peekToken(scanner).type ? parseVerb(scanner, parser, KV) :

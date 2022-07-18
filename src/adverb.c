@@ -147,7 +147,7 @@ K each(K f, K x){
         if (1 == xn) x = expand(first(x));
         r = k(KK, xn);
         for (uint64_t i = 0; i < rn; ++i){
-            rk[i] = dotApply(ref(f), ref(xk[i]));
+            rk[i] = dotApply(ref(f), enlist(ref(xk[i])));
         }
     }
 
