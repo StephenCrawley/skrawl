@@ -125,6 +125,7 @@ enum {
 #define IS_SCALAR(x) ( !(KK <= TYPE(x) && KT >= TYPE(x)) )
 #define K_COUNT(x) ((KD==TYPE(x)) ? COUNT(DKEYS(x)) : (KT==TYPE(x)) ? COUNT(KOBJ(TVALS(x))[0]) : (KN==TYPE(x)) ? 1 : COUNT(x))
 #define IN(x, y) __extension__({K _x=(x),_y=(y);I i,n=COUNT(_y);K r=find(ref(_y),ref(_x));i=ri[0];unref(r);i<n;})
+#define ENLIST(x)      __extension__({K _r = k(KK, 1);KOBJ(_r)[0] = (x); _r;})
 #define JOIN2(x, y)    __extension__({K _r = k(KK, 2);KOBJ(_r)[0] = (x); KOBJ(_r)[1] = (y); _r;})
 #define JOIN3(x, y, z) __extension__({K _r = k(KK, 3);KOBJ(_r)[0] = (x); KOBJ(_r)[1] = (y); KOBJ(_r)[2] = (z); _r;})
 

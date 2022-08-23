@@ -23,6 +23,7 @@
 
 // forward declarations
 static K expression(Scanner *scanner, Parser *parser);
+static K Expressions(K head, Scanner *scanner, Parser *parser);
 
 // get the next token
 static void advance(Scanner *scanner, Parser *parser){
@@ -115,74 +116,30 @@ static K parseString(Scanner *scanner, Parser *parser){
 }
 
 static K parseParens(Scanner *scanner, Parser *parser, TokenType paren){
-    // check if empty generic list ()
-    if (TOKEN_LPAREN == paren && TOKEN_RPAREN == peekToken(scanner).type){
+    // check if empty generic list () or if []
+    bool p;
+    if ((p = (TOKEN_LPAREN  == paren && TOKEN_RPAREN == peekToken(scanner).type)) || 
+             (TOKEN_LSQUARE == paren && TOKEN_RSQUARE == peekToken(scanner).type)){
         advance(scanner, parser);
         advance(scanner, parser);
-        return k(KK, 0);
-    }
-
-    // check if [] 
-    if (TOKEN_LSQUARE == paren && TOKEN_RSQUARE == peekToken(scanner).type){
-        advance(scanner, parser);
-        advance(scanner, parser);
-        return KNUL;
+        return p ? k(KK, 0) : KNUL;
     }
     
-    uint16_t n = 0;
-    K r, t;
-    r = k(KK, 1);
-
-    do {
-        if (n == rn){
-            t = k(KK, GROW_CAPACITY(rn));
-            for (uint16_t i = 0; i < rn; ++i) tk[i] = ref(rk[i]);
-            unref(r);
-            r = t;
-        }
-        advance(scanner, parser);
-        rk[n++] = atExprEnd(parser->current.type) ? k(-KN, 0) : 
-                  TOKEN_DOUBLECOLON == parser->current.type ? ( advance(scanner, parser), KNUL ) :
-                  expression(scanner, parser);
-        parser->compose = false;
-                  
-    } while (TOKEN_SEMICOLON == parser->current.type);
+    K r = Expressions( (TOKEN_LSQUARE == paren) ? NULL : Kv(KU, ','), scanner, parser);
 
     if ((TOKEN_LPAREN  == paren && TOKEN_RPAREN  != parser->current.type) || 
         (TOKEN_LSQUARE == paren && TOKEN_RSQUARE != parser->current.type) ){
         REPORT_ERROR("Parse error! Expected ')' or ']'\n");
-        while (n--) unref(rk[n]);
-        free(r);
+        unref(r);
         return KNUL;
     }
 
-    if (TOKEN_LSQUARE == paren && 8 < n){
+    if (TOKEN_LSQUARE == paren && 8 < rn){
         REPORT_ERROR("Limit error! Too many arguments (max 8)\n");
-        while (n--) unref(rk[n]);
-        free(r);
+        unref(r);
         return KNUL;
     }
     
-    rn = n;
-    if (TOKEN_LSQUARE == paren){
-        t = k(KK, rn);
-        for (uint16_t i = 0; i < rn; ++i) tk[i] = rk[i];
-        free(r);
-        r = t;
-    }
-    else if (1 == n){
-        t = rk[0];
-        free(r);
-        r = t;
-    }
-    else {
-        t = k(KK, rn+1);
-        tk[0] = k(KU, 1);
-        CHAR( tk[0] )[0] = (char) TOKEN_COMMA;
-        for (uint16_t i = 0; i < rn; ++i) tk[i+1] = rk[i];
-        free(r);
-        r = t;
-    }
     advance(scanner, parser);
     return r;
 }
@@ -360,8 +317,9 @@ static K expression(Scanner *scanner, Parser *parser){
 }
 
 // <Expressions>  ::=  <Exprs> ";" <expression>  |  <expression>
-static K Expressions(Scanner *scanner, Parser *parser){
+static K Expressions(K head, Scanner *scanner, Parser *parser){
     K t, r = k(KK, 0);
+    bool b = true;
 
     // parse expressions
     do {
@@ -370,7 +328,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
         
         if (TOKEN_SEMICOLON == parser->current.type && 0 == rn){
             unref(r);
-            r = JOIN2(Kc(';'), t);
+            r = ( NULL == head ) ? ENLIST(t) : (b = false, JOIN2(head, t)); // r = JOIN2(Kc(';'), t);
         }
         else {
             r = appendExpression(r, t);
@@ -378,13 +336,7 @@ static K Expressions(Scanner *scanner, Parser *parser){
         parser->compose = false;
     } while (TOKEN_SEMICOLON == parser->current.type);
     
-    if (TOKEN_EOF != parser->current.type){
-        // error. we shouldn't reach this branch
-        REPORT_ERROR("Unexpected token '%.*s'\n",parser->current.length,parser->current.start);
-        unref(r);
-        return k(KE, 0);
-    }
-
+    if (b && NULL!=head) unref(head);
     return r;
 }
 
@@ -397,7 +349,15 @@ K parse(const char *source){
     parser.compose = false;
     parser.panic = false;
 
-    K r = Expressions(scanner, &parser);
+    K r = Expressions(Kc(';'), scanner, &parser);
+
+    if (TOKEN_EOF != parser.current.type){
+        // error. we shouldn't reach this branch
+        if (!parser.panic) printf("Unexpected token '%.*s'\n",parser.current.length,parser.current.start);
+        parser.panic = true;
+        unref(r);
+        r = k(KE, 0);
+    }
 
     if (parser.panic){
         unref(r);
