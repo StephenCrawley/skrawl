@@ -181,39 +181,26 @@ static K parseId(Scanner *scanner, Parser *parser){
     return r;
 }
 
+static K parseNounSwitch(Scanner *scanner, Parser *parser){
+    switch(parser->current.type){
+        case TOKEN_NUMBER:
+        case TOKEN_FLOAT:  return parseNumber(scanner, parser); 
+        case TOKEN_STRING: return parseString(scanner, parser); 
+        case TOKEN_LPAREN: return parseParens(scanner, parser, TOKEN_LPAREN);
+        case TOKEN_SYMBOL: return parseSymbol(scanner, parser);
+        case TOKEN_ID:     return parseId(scanner, parser);
+        case TOKEN_UNCLOSED_STRING:{
+            REPORT_ERROR("Parse error! Unclosed string.\n"); 
+            advance(scanner, parser);
+            break;
+        }
+        default: REPORT_ERROR("Error! Noun not yet implemented.\n");
+    }
+    return KNUL;
+}
+
 static K parseNoun(Scanner *scanner, Parser *parser){
-    K r;
-
-    // if error
-    if (TOKEN_UNCLOSED_STRING == parser->current.type){
-        REPORT_ERROR("Parse error! Unclosed string.\n");
-        advance(scanner, parser);
-        r = KNUL;
-    }
-    // if number. eg 123 or 4.56
-    else if (TOKEN_NUMBER == parser->current.type || TOKEN_FLOAT == parser->current.type){
-        r = parseNumber(scanner, parser);
-    }
-    // if string. eg "foobar"
-    else if (TOKEN_STRING == parser->current.type){
-        r = parseString(scanner, parser);
-    }
-    // if parens. eg (1+2)%3 
-    else if (TOKEN_LPAREN == parser->current.type){
-        r = parseParens(scanner, parser, TOKEN_LPAREN);
-    }
-    else if (TOKEN_SYMBOL == parser->current.type){
-        r = parseSymbol(scanner, parser);
-    }
-    else if (TOKEN_ID == parser->current.type){
-        r = parseId(scanner, parser);
-    }
-    else {
-        REPORT_ERROR("Error! Noun not yet implemented.\n");
-        r = KNUL;
-    }
-
-    return parseMExpr(scanner, parser, r);
+    return parseMExpr(scanner, parser, parseNounSwitch(scanner, parser));
 }
 
 static K parseVerb(Scanner *scanner, Parser *parser, int8_t type){
@@ -239,27 +226,21 @@ static K parseAdverbIter(Scanner *scanner, Parser *parser, K x){
 
 // <expression>   ::=  <noun> <verb> <expression>  |  <term> <expr>  |  empty
 static K expression(Scanner *scanner, Parser *parser){
-    // error!
+    // error! (is this needed?)
     if (TOKEN_EOF == parser->current.type){
         return Kerr("error! EOF");
     }
 
     K prefix, infix, r, t;
     bool prefixIsAdverb = false;
-    if (NULL == parser->prefix){
-        prefix = 
-            isNoun(parser->current.type) ? parseNoun(scanner, parser) :
-            isVerb(parser->current.type) && TOKEN_APOSTROPHE == peekToken(scanner).type ? parseVerb(scanner, parser, KU) :
-            isVerb(parser->current.type) && isAdverb(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
-            isVerb(parser->current.type) && atExprEnd(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
-            isVerb(parser->current.type) && TOKEN_LSQUARE == peekToken(scanner).type ? parseVerb(scanner, parser, KV) :
-            isAdverb(parser->current.type) ? parseVerb(scanner, parser, KA) :
-            parseVerb(scanner, parser, KU) ;
-    }
-    else {
-        prefix = parser->prefix;
-        parser->prefix = NULL;
-    }
+    prefix = 
+        isNoun(parser->current.type) ? parseNoun(scanner, parser) :
+        isVerb(parser->current.type) && TOKEN_APOSTROPHE == peekToken(scanner).type ? parseVerb(scanner, parser, KU) :
+        isVerb(parser->current.type) && isAdverb(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
+        isVerb(parser->current.type) && atExprEnd(peekToken(scanner).type) ? parseVerb(scanner, parser, KV) :
+        isVerb(parser->current.type) && TOKEN_LSQUARE == peekToken(scanner).type ? parseVerb(scanner, parser, KV) :
+        isAdverb(parser->current.type) ? parseVerb(scanner, parser, KA) :
+        parseVerb(scanner, parser, KU) ;
 
     if (isAdverb(parser->current.type)){
         prefix = parseAdverbIter(scanner, parser, prefix);
@@ -290,6 +271,8 @@ static K expression(Scanner *scanner, Parser *parser){
         }
     }
     else /*if (isNoun(parser->current.type))*/{
+        Scanner stemp = *scanner;
+        Parser  ptemp = *parser;
         infix = ( isVerb(parser->current.type) ) ? parseVerb(scanner, parser, KV) : parseNoun(scanner, parser);
         if (isAdverb(parser->current.type)){
             infix = parseAdverbIter(scanner, parser, infix);
@@ -306,7 +289,9 @@ static K expression(Scanner *scanner, Parser *parser){
                 r = JOIN2(prefix, infix);
             }
             else {
-                parser->prefix = infix;
+                unref(infix);
+                *scanner = stemp;
+                *parser  = ptemp;
                 t = expression(scanner, parser);
                 r = ( parser->compose ) ? COMPOSE(prefix, t) : JOIN2(prefix, t);
             }
@@ -343,9 +328,8 @@ static K Expressions(K head, Scanner *scanner, Parser *parser){
 K parse(const char *source){ 
     // init a new scanner instance
     Scanner *scanner = initNewScanner(source);
-    // init the parser. the parser is simple struct containing previous&current token and a panic flag
+    // init the parser. the parser is simple struct containing current token, a compose flag, and a panic flag
     Parser parser;
-    parser.prefix = NULL;
     parser.compose = false;
     parser.panic = false;
 

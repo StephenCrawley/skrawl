@@ -7,7 +7,6 @@
 
 typedef struct {
     Token current;
-    K     prefix;
     bool  compose;
     bool  panic;
 } Parser;
