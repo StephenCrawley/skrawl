@@ -1,4 +1,5 @@
-#include <stdio.h>
+#include "skrawl.h"
+#include "parse.h"
 #define SRC_MAX 128
 
 int main(){
@@ -8,6 +9,6 @@ int main(){
     for (;;){
         putchar(' ');
         fgets(src, SRC_MAX, stdin);
-        fputs(src, stdout);
+        parse(src);
     }
 }
