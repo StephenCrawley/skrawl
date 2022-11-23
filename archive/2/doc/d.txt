@@ -1,0 +1,24 @@
+skrawl reference
+blanks by verbs means "not yet implemented"
+*are expressions, not literals
+
+verb                  noun                    adverb
++ plus   flip         
+- minus  neg          char    " ab"           f/  over
+* mult   first        name    ``ab            f\  scan
+% div    sqrt         list    (1;"foo")       f/: each-right
+& min    where        *dict   `a`b!1 1
+| max                 *table  +`c`d!(1 1;2 3)
+< less   asc
+> more   desc
+= equal
+~ match  not
+! key    range
+, join   enlist
+@ apply  type
+? find   distinct
+^ 
+# take   count
+_ drop   floor
+$ 
+
