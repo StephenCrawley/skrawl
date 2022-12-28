@@ -1,13 +1,19 @@
-#include "skrawl.h"
 #include "parse.h"
 
-#define AT_EXPR_END() sc(";)\n\0", *parser->current)
+#define AT_EXPR_END(c) sc(";)\n\0", (c))
+#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf(__VA_ARGS__);}; ku(':');})
 
 // foward declarations
-static void Exprs(Parser *parser);
+static K Exprs(char c, Parser *p);
 
 // consume whitepace
 static inline void ws(Parser *p){ while(' '==*p->current) ++p->current; }
+
+// next char. consume whitespace and consume & return next char
+static inline char next(Parser *p){ ws(p); return *p->current++; }
+
+// peek char. consume whitespace and peek next char (return but don't consume it)
+static inline char peek(Parser *p){ ws(p); return *p->current; }
 
 // return char class 
 static char class(char c){
@@ -15,52 +21,96 @@ static char class(char c){
     return (c > 126) ? 0 : " + ++++ ()+++++ 0000000000+ +++++                             ++                            + +"[c-32];
 }
 
-// parse number(s). eg "1" or "1 23"
-static void parseNum(Parser *parser){
-    char c;
+static i64 parseInt(char *s, i32 len){
+    i64 n = 0;
+    if ('-' == *s) return -parseInt(++s, len-1);
+    for (i64 i=0; i<len; i++) n = (n*10) + (s[i]-'0'); 
+    return n;
+}
+
+// parse number(s). "1","1 23"
+static K parseNum(Parser *p){
+    K r = tn(KI, 0);
+    i64 n;
+    char c, *s;
+
+    // parse number or numeric list 
     do {
-        if ('-'==*parser->current) ++parser->current;
-        while ('0'==class(*parser->current)) ++parser->current;
-        if (' '!=*parser->current) return;
-        ws(parser);
-        c = *parser->current;
-    } while ('0'==class(c) || ('-'==c&&'0'==class(parser->current[1])));
+        // consume the number. s is where it starts 
+        s = p->current;
+        if ('-'==*p->current) ++p->current;
+        while ('0'==class(*p->current)) ++p->current;
+
+        // create a number and join it 
+        n = parseInt(s, (i32)(p->current - s));
+        r = j2(r, ki(n));
+
+        // if not whitespace, then we're done parsing num literals
+        if (' '!=*p->current) break;
+
+        c = peek(p);
+    } while ('0'==class(c) || ('-'==c && '0'==class(p->current[1])));
+
+    return r;
 }
 
 // parse single expression
-static void expr(Parser *parser){
-    ws(parser);
-    char a = *parser->current++;
-    char c = class(a);
-    // if '-' followed by num, we're parsing a num, so reclassify
-    if ('-'==a && '0'==class(*parser->current)) c = '0';
+static K expr(Parser *p){
+    K x;
+    char a, c; //current char, char class
+    
+    a = next(p);
+    c = class(a);
 
+    // if '-' followed by digit, we're parsing a number, so reclassify
+    if ('-'==a && '0'==class(peek(p))) c = '0';
+
+    // parse classes
     switch (c){
-    case '0': --parser->current, parseNum(parser); break;
-    case '+': expr(parser); return;
-    case '(': Exprs(parser); if(')'==(a=*parser->current++)){ break; } //else fallthrough
-    default : printf('\n'==a ? "'parse! unexpected EOL\n" : "'parse! unexpected token: %c\n", a); return;
+    case '0': --p->current, x=parseNum(p); break;
+    case '+': return ( AT_EXPR_END(peek(p)) ) ? kv(a) : k2(ku(a), expr(p));
+    case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
+    //default : printf('\n'==a ? "'parse! unexpected EOL\n" : "'parse! unexpected token: %c\n", a); p->error=true; return ku(':');
+    default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
     }
 
-    ws(parser);
-    if (AT_EXPR_END()) return;
+    if ( AT_EXPR_END(peek(p)) ) return x;
     
-    if ('+'!=class(a=*parser->current++)){ printf("'parse! expected dyadic op\n"); return; }
-    expr(parser);
+    a = next(p);
+    if ('+' != class(a)){
+        printf("'parse! expected dyadic op\n");
+        p->error = true;
+        return x;
+    }
+
+    return k3(kv(a), x, expr(p));
 }
 
 // parse ;-delimited Expressions
-static void Exprs(Parser *parser){
-    do expr(parser); while(';'==*parser->current++);
-    --parser->current;
+static K Exprs(char c, Parser *p){
+    K r=tn(0,0), t;
+
+    do r=jk(r, expr(p)); while(';'==next(p));
+    --p->current;
+    
+    return 1==CNT(r) ? (t=ref(*OBJ(r)), unref(r), t) : j2(k1(ku(c)), r);
 }
 
-void parse(char *src){
+K parse(char *src){
+    K r;
+
     // init parser struct
-    Parser parser;
-    parser.src = src;
-    parser.current = src;
+    Parser p;
+    p.error = false;
+    p.src = src;
+    p.current = src;
+
+    // return if only whitespace in input
+    if (sc("\n\0", peek(&p))){
+        return (K)0;
+    }
 
     // parse Expressions
-    Exprs(&parser);
+    r = Exprs(';', &p);
+    return p.error ? unref(r),(K)0 : r;
 }

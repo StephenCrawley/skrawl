@@ -1,8 +1,11 @@
 #ifndef PARSE_H
 #define PARSE_H
 
-typedef struct {char *src,*current;} Parser;
+#include "skrawl.h"
+#include "object.h"
 
-void parse(char*);
+typedef struct {bool error; char *src,*current;} Parser;
+
+K parse(char*);
 
 #endif
