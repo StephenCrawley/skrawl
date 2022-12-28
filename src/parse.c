@@ -70,7 +70,6 @@ static K expr(Parser *p){
     case '0': --p->current, x=parseNum(p); break;
     case '+': return ( AT_EXPR_END(peek(p)) ) ? kv(a) : k2(ku(a), expr(p));
     case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
-    //default : printf('\n'==a ? "'parse! unexpected EOL\n" : "'parse! unexpected token: %c\n", a); p->error=true; return ku(':');
     default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
     }
 
@@ -78,9 +77,8 @@ static K expr(Parser *p){
     
     a = next(p);
     if ('+' != class(a)){
-        printf("'parse! expected dyadic op\n");
-        p->error = true;
-        return x;
+        unref(x);
+        return HANDLE_ERROR("'parse! expected dyadic op\n");
     }
 
     return k3(kv(a), x, expr(p));
