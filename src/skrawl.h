@@ -18,6 +18,7 @@ typedef uint64_t  u64;
 // K object types
 enum {
     KK,                        //generic list
+    KC,                        //char
     KI,                        //int64
     K_SIMPLE_LIST_END = KI,    //simple lists are composed of same-type atoms
 

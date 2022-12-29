@@ -87,8 +87,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KI  KU  KV  '   /   \   ':  /:  \:
-static i8 TYPE_SIZE[] = {8 , 8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
+// size of each type     KK  KC  KI  KU  KV  '   /   \   ':  /:  \:
+static i8 TYPE_SIZE[] = {8 , 1 , 8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -233,6 +233,7 @@ static void _printK(K x){
 
     switch(ABS(t)){
     case KK: putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } putchar(')'); break;
+    case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
     case KI: printInt(x); break;
     case KU: putchar(VERB_STR[*CHR(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[*CHR(x)]); break;
