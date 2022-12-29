@@ -17,14 +17,25 @@ typedef uint64_t  u64;
 
 // K object types
 enum {
-    KK,                 //generic list
-    KI,                 //int64
-    K_SIMPLE_LIST_END,  //simple lists are composed of same-type atoms
-    KU,                 //monad
-    KV                  //dyad
+    KK,                        //generic list
+    KI,                        //int64
+    K_SIMPLE_LIST_END = KI,    //simple lists are composed of same-type atoms
+
+    KU,                        //monad
+    KV,                        //dyad
+
+    K_ADVERB_START,            //start of adverb types
+    KEACH = K_ADVERB_START,    // '
+    KOVER,                     // /
+    KSCAN,                     /* \ */ 
+    KEP,                       // ':
+    KER,                       // /:
+    KEL,                       // \: 
+    K_ADVERB_END = KEL         //end of adverb types
 };
 
-#define K_VERB_STR ":+-*%,;"
+#define VERB_STR    ":+-*%,;"
+#define ADVERB_STR  "'/\\"
 
 // K object accessors
 #define OBJ(x) ((  K*) x)  //pointer to generic K object list
@@ -34,7 +45,9 @@ enum {
 // shared utility macros
 #define ABS(a)   __extension__({__typeof__(a)_a=(a); _a > 0 ? _a : -_a ;}) 
 #define MAX(a,b) __extension__({__typeof__(a)_a=(a);__typeof__(b)_b=(b);_a>_b?_a:_b;})
-#define IS_SIMPLE_LIST(x) __extension__({__typeof__(x)_x=(x); 0<TYP(_x) && TYP(_x)<K_SIMPLE_LIST_END;})
+#define IS_SIMPLE_LIST(x)  __extension__({__typeof__(x)_x=(x); 0<TYP(_x) && TYP(_x)<=K_SIMPLE_LIST_END;})
+#define IS_ADVERB_TYPE(a)  __extension__({__typeof__(a)_a=(a); i8 t=TYP(_a); K_ADVERB_START<=t && t<=K_ADVERB_END;})
+#define IS_GENERIC_TYPE(x) __extension__({__typeof__(x)_x=(x); i8 t=TYP(_x); KK==t || IS_ADVERB_TYPE(_x);})
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
 

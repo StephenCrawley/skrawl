@@ -18,7 +18,21 @@ static inline char peek(Parser *p){ ws(p); return *p->current; }
 // return char class 
 static char class(char c){
     //                       !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-    return (c > 126) ? 0 : " + ++++ ()+++++ 0000000000+ +++++                             ++                            + +"[c-32];
+    return (c > 126) ? 0 : " + ++++'()+++++'0000000000+ +++++                           ' ++                            + +"[c-32];
+}
+
+static K parseAdverb(Parser *p, K x){
+    char c, t; //class, type
+    char *s = ADVERB_STR;
+
+    while ( '\'' == class(peek(p)) ){
+        c = *p->current++;
+        t = K_ADVERB_START + sc(s, c) - s;
+        if (':'==peek(p)){ ++p->current; t+=3; }
+        x = kw(t, x);
+    }
+
+    return x;
 }
 
 static i64 parseInt(char *s, i32 len){
@@ -56,7 +70,7 @@ static K parseNum(Parser *p){
 
 // parse single expression
 static K expr(Parser *p){
-    K x;
+    K x, y;
     char a, c; //current char, char class
     
     a = next(p);
@@ -68,12 +82,17 @@ static K expr(Parser *p){
     // parse classes
     switch (c){
     case '0': --p->current, x=parseNum(p); break;
-    case '+': return ( AT_EXPR_END(peek(p)) ) ? kv(a) : k2(ku(a), expr(p));
+    case '+': x=parseAdverb(p,kv(a)); return ( AT_EXPR_END(peek(p)) ) ? x : k2(x, expr(p));
     case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
     default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
     }
 
     if ( AT_EXPR_END(peek(p)) ) return x;
+
+    if ( '\''==class(peek(p)) ){
+        x = parseAdverb(p, x);
+        return ( AT_EXPR_END(peek(p)) ) ? x : k2(x, expr(p));
+    }
     
     a = next(p);
     if ('+' != class(a)){
@@ -81,7 +100,8 @@ static K expr(Parser *p){
         return HANDLE_ERROR("'parse! expected dyadic op\n");
     }
 
-    return k3(kv(a), x, expr(p));
+    y = parseAdverb(p, kv(a));
+    return k3(y, x, expr(p));
 }
 
 // parse ;-delimited Expressions

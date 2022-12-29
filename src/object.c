@@ -23,6 +23,7 @@
 
 // forward declarations
 K k1(K x);
+static void _printK(K x);
 
 // mmap wrapper 
 static void *alloc_n(u64 n){
@@ -86,8 +87,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KI
-static i8 TYPE_SIZE[] = {8 , 8};
+// size of each type     KK  KI  KU  KV  '   /   \   ':  /:  \:
+static i8 TYPE_SIZE[] = {8 , 8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -102,7 +103,7 @@ static K xiy(K x, i64 i, K y){
     i8 s = SIZEOF(x);
     memcpy(CHR(x) + s*i, (void*)y, s*CNT(y));
     if (!TYP(y)){
-        for (i64 i=0; i<CNT(y); i++) ref( OBJ(y)[i] );
+        for (i64 i=0, n=CNT(y); i<n; i++) ref( OBJ(y)[i] );
     }
     return unref(y), x;
 }
@@ -164,7 +165,7 @@ K ki(i64 x){
 // create monadic verb
 K ku(char c){
     K r = tn(KU, 1);
-    char *s = K_VERB_STR;
+    char *s = VERB_STR;
     CHR(r)[0] = sc(s,c) - s;
     return r;
 }
@@ -172,8 +173,15 @@ K ku(char c){
 // create dyadic verb
 K kv(char c){
     K r = tn(KV, 1);
-    char *s = K_VERB_STR;
+    char *s = VERB_STR;
     CHR(r)[0] = sc(s,c) - s;
+    return r;
+}
+
+// create adverb
+K kw(i8 t, K x){
+    K r = tn(t, 1);
+    *OBJ(r) = x;
     return r;
 }
 
@@ -183,8 +191,8 @@ void unref(K x){
     if (REF(x)--) return;
     
     // if generic K object, unref child objects
-    if (!TYP(x))
-        for (i64 i=0; i<CNT(x); i++) unref( OBJ(x)[i] );
+    if (IS_GENERIC_TYPE(x))
+        for (i64 i=0, n=CNT(x); i<n; i++) unref( OBJ(x)[i] );
 
     // update used workspace, place object in the free list in M
     WS -= BUCKET_SIZE(x);
@@ -206,6 +214,17 @@ static void printInt(K x){
     }
 }
 
+static void printAdverb(K x){
+    i8 t = TYP(x);
+    bool b = ( t >= KEP );
+    if (b) t-=3;
+    printf("(%c", ADVERB_STR[t - K_ADVERB_START]);
+    if (b) putchar(':');
+    putchar(';');
+    _printK( *OBJ(x) );
+    putchar(')');
+}
+
 static void _printK(K x){
     i8  t = TYP(x);
     i64 n = CNT(x);
@@ -215,8 +234,9 @@ static void _printK(K x){
     switch(ABS(t)){
     case KK: putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } putchar(')'); break;
     case KI: printInt(x); break;
-    case KU: putchar(K_VERB_STR[*CHR(x)]); putchar(':'); break;
-    case KV: putchar(K_VERB_STR[*CHR(x)]); break;
+    case KU: putchar(VERB_STR[*CHR(x)]); putchar(':'); break;
+    case KV: putchar(VERB_STR[*CHR(x)]); break;
+    case K_ADVERB_START ... K_ADVERB_END: printAdverb(x); break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }
 }
