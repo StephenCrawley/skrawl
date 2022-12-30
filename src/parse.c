@@ -2,6 +2,8 @@
 
 #define AT_EXPR_END(c) sc(";)\n\0", (c))
 #define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf(__VA_ARGS__);}; ku(':');})
+#define COMPOSE_2(x,y) __extension__({K _x=(x),_y=(y); p->compose ? k3(kw(0),_x,_y) : k2(_x,_y);})
+#define COMPOSE_3(x,y,z) __extension__({K _x=(x),_y=(y),_z=(z); p->compose ? k3(kw(0),jk(k1(_x),_y),_z) : k3(_x,_y,_z);})
 
 // foward declarations
 static K Exprs(char c, Parser *p);
@@ -29,7 +31,7 @@ static K parseAdverb(Parser *p, K x){
         c = *p->current++;
         t = K_ADVERB_START + sc(s, c) - s;
         if (':'==peek(p)){ ++p->current; t+=3; }
-        x = kw(t, x);
+        x = kwx(t, x);
     }
 
     return x;
@@ -107,9 +109,9 @@ static K expr(Parser *p){
     // parse adverb if one exists
     x = parseAdverb(p, x);
 
-    if ( AT_EXPR_END(peek(p)) ) return x;
+    if ( AT_EXPR_END(peek(p)) ) return p->compose=true, x;
 
-    if ( IS_VERB(x) || IS_ADVERB(x) ) return k2(x, expr(p));
+    if ( IS_VERB(x) || IS_ADVERB(x) ) return COMPOSE_2(x, expr(p));
     
     a = next(p);
     if ('+' != class(a)){
@@ -118,7 +120,7 @@ static K expr(Parser *p){
     }
 
     y = parseAdverb(p, kv(a));
-    return k3(y, x, expr(p));
+    return AT_EXPR_END(peek(p)) ? p->compose=true, k2(y,x) : COMPOSE_3(y, x, expr(p));
 }
 
 // parse ;-delimited Expressions
@@ -137,6 +139,7 @@ K parse(char *src){
     // init parser struct
     Parser p;
     p.error = false;
+    p.compose = false;
     p.src = src;
     p.current = src;
 

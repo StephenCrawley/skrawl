@@ -24,7 +24,8 @@ K k3(K, K, K);
 K ki(i64);
 K ku(char);
 K kv(char);
-K kw(i8,K);
+K kw(i8);
+K kwx(i8, K);
 K printK(K);
 
 extern u64 WS;

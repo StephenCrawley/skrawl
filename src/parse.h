@@ -4,7 +4,7 @@
 #include "skrawl.h"
 #include "object.h"
 
-typedef struct {bool error; char *src,*current;} Parser;
+typedef struct {bool error,compose; char *src,*current;} Parser;
 
 K parse(char*);
 

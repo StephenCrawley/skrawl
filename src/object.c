@@ -87,8 +87,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KC  KI  KU  KV  '   /   \   ':  /:  \:
-static i8 TYPE_SIZE[] = {8 , 1 , 8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
+// size of each type     KK  KC  KI  KU  KV  KW  '   /   \   ':  /:  \:
+static i8 TYPE_SIZE[] = {8 , 1 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -179,7 +179,14 @@ K kv(char c){
 }
 
 // create adverb
-K kw(i8 t, K x){
+K kw(i8 t){
+    K r = tn(KW, 1);
+    *CHR(r) = t;
+    return r;
+}
+
+// create adverb-modified object 
+K kwx(i8 t, K x){
     K r = tn(t, 1);
     *OBJ(r) = x;
     return r;
@@ -216,10 +223,8 @@ static void printInt(K x){
 
 static void printAdverb(K x){
     i8 t = TYP(x);
-    bool b = ( t >= KEP );
-    if (b) t-=3;
     printf("(%c", ADVERB_STR[t - K_ADVERB_START]);
-    if (b) putchar(':');
+    if (t >= KEP) putchar(':');
     putchar(';');
     _printK( *OBJ(x) );
     putchar(')');
@@ -237,6 +242,7 @@ static void _printK(K x){
     case KI: printInt(x); break;
     case KU: putchar(VERB_STR[*CHR(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[*CHR(x)]); break;
+    case KW: putchar(ADVERB_STR[*CHR(x)]); if (2<*CHR(x)) putchar(':'); break;
     case K_ADVERB_START ... K_ADVERB_END: printAdverb(x); break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }

@@ -24,6 +24,7 @@ enum {
 
     KU,                        //monad
     KV,                        //dyad
+    KW,                        //adverb
 
     K_ADVERB_START,            //start of adverb types
     KEACH = K_ADVERB_START,    // '
@@ -36,7 +37,7 @@ enum {
 };
 
 #define VERB_STR    ":+-*%,;"
-#define ADVERB_STR  "'/\\"
+#define ADVERB_STR  "'/\\'/\\"
 
 // K object accessors
 #define OBJ(x) ((  K*) x)  //pointer to generic K object list
