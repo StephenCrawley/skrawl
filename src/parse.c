@@ -2,8 +2,7 @@
 
 #define AT_EXPR_END(c) sc(";)\n\0", (c))
 #define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf(__VA_ARGS__);}; ku(':');})
-#define COMPOSE_2(x,y) __extension__({K _x=(x),_y=(y); p->compose ? k3(kw(0),_x,_y) : k2(_x,_y);})
-#define COMPOSE_3(x,y,z) __extension__({K _x=(x),_y=(y),_z=(z); p->compose ? k3(kw(0),jk(k1(_x),_y),_z) : k3(_x,_y,_z);})
+#define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 
 // foward declarations
 static K Exprs(char c, Parser *p);
@@ -88,7 +87,7 @@ static K parseNum(Parser *p){
 
 // parse single expression
 static K expr(Parser *p){
-    K x, y;    //prefix, infix
+    K x, y, z;    //prefix, infix, right expression
     char a, c; //current char, char class
     
     a = next(p);
@@ -109,10 +108,17 @@ static K expr(Parser *p){
     // parse adverb if one exists
     x = parseAdverb(p, x);
 
-    if ( AT_EXPR_END(peek(p)) ) return p->compose=true, x;
+    bool va = IS_VERB(x) || IS_ADVERB(x);
 
-    if ( IS_VERB(x) || IS_ADVERB(x) ) return COMPOSE_2(x, expr(p));
+    // return x and set composition flag
+    if ( AT_EXPR_END(peek(p)) ) 
+        return p->compose |= va, x;
+
+    // parse +x
+    if (va) 
+        return p->compose ? COMPOSE(x, expr(p)) : k2(x, expr(p));
     
+    // infix nouns not yet implemented
     a = next(p);
     if ('+' != class(a)){
         unref(x);
@@ -120,14 +126,21 @@ static K expr(Parser *p){
     }
 
     y = parseAdverb(p, kv(a));
-    return AT_EXPR_END(peek(p)) ? p->compose=true, k2(y,x) : COMPOSE_3(y, x, expr(p));
+    
+    // parse x+
+    if ( AT_EXPR_END(peek(p)) ) 
+        return p->compose = true, k2(y, x);
+    
+    // parse x+y
+    z = expr(p);
+    return p->compose ? COMPOSE(k2(y, x), z) : k3(y, x, z);
 }
 
 // parse ;-delimited Expressions
 static K Exprs(char c, Parser *p){
     K r=tn(0,0), t;
 
-    do r=jk(r, expr(p)); while(';'==next(p));
+    do r=jk(r, expr(p)), p->compose=false; while(';'==next(p));
     --p->current;
     
     return 1==CNT(r) ? (t=ref(*OBJ(r)), unref(r), t) : j2(k1(ku(c)), r);
