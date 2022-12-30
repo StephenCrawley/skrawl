@@ -47,8 +47,9 @@ enum {
 #define ABS(a)   __extension__({__typeof__(a)_a=(a); _a > 0 ? _a : -_a ;}) 
 #define MAX(a,b) __extension__({__typeof__(a)_a=(a);__typeof__(b)_b=(b);_a>_b?_a:_b;})
 #define IS_SIMPLE_LIST(x)  __extension__({__typeof__(x)_x=(x); 0<TYP(_x) && TYP(_x)<=K_SIMPLE_LIST_END;})
-#define IS_ADVERB_TYPE(a)  __extension__({__typeof__(a)_a=(a); i8 t=TYP(_a); K_ADVERB_START<=t && t<=K_ADVERB_END;})
-#define IS_GENERIC_TYPE(x) __extension__({__typeof__(x)_x=(x); i8 t=TYP(_x); KK==t || IS_ADVERB_TYPE(_x);})
+#define IS_VERB(a)    __extension__({__typeof__(a)_a=(a); i8 t=TYP(_a); KU==t || KV==t;}) 
+#define IS_ADVERB(a)  __extension__({__typeof__(a)_a=(a); i8 t=TYP(_a); K_ADVERB_START<=t && t<=K_ADVERB_END;})
+#define IS_GENERIC(x) __extension__({__typeof__(x)_x=(x); i8 t=TYP(_x); KK==t || IS_ADVERB(_x);}) //has other K objects as children
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
 

@@ -191,7 +191,7 @@ void unref(K x){
     if (REF(x)--) return;
     
     // if generic K object, unref child objects
-    if (IS_GENERIC_TYPE(x))
+    if (IS_GENERIC(x))
         for (i64 i=0, n=CNT(x); i<n; i++) unref( OBJ(x)[i] );
 
     // update used workspace, place object in the free list in M

@@ -99,17 +99,17 @@ static K expr(Parser *p){
     switch (c){
     case '0': --p->current, x=parseNum(p); break;
     case '"': x=parseStr(p); break;
-    case '+': x=parseAdverb(p,kv(a)); return ( AT_EXPR_END(peek(p)) ) ? x : k2(x, expr(p));
+    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
     case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
     default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
     }
 
+    // parse adverb if one exists
+    x = parseAdverb(p, x);
+
     if ( AT_EXPR_END(peek(p)) ) return x;
 
-    if ( '\''==class(peek(p)) ){
-        x = parseAdverb(p, x);
-        return ( AT_EXPR_END(peek(p)) ) ? x : k2(x, expr(p));
-    }
+    if ( IS_VERB(x) || IS_ADVERB(x) ) return k2(x, expr(p));
     
     a = next(p);
     if ('+' != class(a)){
