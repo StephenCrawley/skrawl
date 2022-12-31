@@ -87,14 +87,14 @@ static K parseNum(Parser *p){
 
 // parse single expression
 static K expr(Parser *p){
-    K x, y, z;    //prefix, infix, right expression
+    K x, y, z; //prefix, infix, right expression
     char a, c; //current char, char class
     
     a = next(p);
     c = class(a);
 
     // if '-' followed by digit, we're parsing a number, so reclassify
-    if ('-'==a && '0'==class(peek(p))) c = '0';
+    if ('-'==a && '0'==class(*p->current)) c = '0';
 
     // parse classes
     switch (c){
