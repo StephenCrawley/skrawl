@@ -85,6 +85,20 @@ static K parseNum(Parser *p){
     return r;
 }
 
+static K classSwitch(Parser *p, char a, char c){
+    K x;
+
+    switch (c){
+    case '0': --p->current, x=parseNum(p); break;
+    case '"': x=parseStr(p); break;
+    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
+    case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
+    default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
+    }
+
+    return parseAdverb(p, x);
+}
+
 // parse single expression
 static K expr(Parser *p){
     K x, y, z; //prefix, infix, right expression
@@ -96,17 +110,9 @@ static K expr(Parser *p){
     // if '-' followed by digit, we're parsing a number, so reclassify
     if ('-'==a && '0'==class(*p->current)) c = '0';
 
-    // parse classes
-    switch (c){
-    case '0': --p->current, x=parseNum(p); break;
-    case '"': x=parseStr(p); break;
-    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
-    case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
-    default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
-    }
-
-    // parse adverb if one exists
-    x = parseAdverb(p, x);
+    // parse based on class of current character
+    x = classSwitch(p, a, c);
+    if (p->error) return x;
 
     bool va = IS_VERB(x) || IS_ADVERB(x);
 
@@ -118,15 +124,28 @@ static K expr(Parser *p){
     if (va) 
         return y=expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
     
-    // infix nouns not yet implemented
     a = next(p);
-    if ('+' != class(a)){
-        unref(x);
-        return HANDLE_ERROR("'parse! expected dyadic op\n");
+    c = class(a);
+    if ('+' == c){ //infix verb
+        y = parseAdverb(p, kv(a));
+    }
+    else { //infix noun
+        char *t = p->current; //temp to reset if infix noun is not followed by adverb
+
+        y = classSwitch(p, a, c);
+        if (p->error) return y;
+
+        if ( !IS_ADVERB(y) ){
+            if ( AT_EXPR_END(peek(p)) ){
+                return k2(x, y);
+            }
+            else {
+                p->current = t;
+                return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
+            }
+        }
     }
 
-    y = parseAdverb(p, kv(a));
-    
     // parse x+
     if ( AT_EXPR_END(peek(p)) ) 
         return p->compose = true, k2(y, x);
