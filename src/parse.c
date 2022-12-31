@@ -116,7 +116,7 @@ static K expr(Parser *p){
 
     // parse +x
     if (va) 
-        return p->compose ? COMPOSE(x, expr(p)) : k2(x, expr(p));
+        return y=expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
     
     // infix nouns not yet implemented
     a = next(p);
