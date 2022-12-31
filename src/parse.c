@@ -130,7 +130,8 @@ static K expr(Parser *p){
         y = parseAdverb(p, kv(a));
     }
     else { //infix noun
-        char *t = p->current; //temp to reset if infix noun is not followed by adverb
+        // need to handle 2 cases. x y z->(x;(y;z)) and x y/z->((/;y);x;z)
+        char *t = p->current-1; //temp to reset if infix noun is not followed by adverb
 
         y = classSwitch(p, a, c);
         if (p->error) return y;
@@ -140,6 +141,7 @@ static K expr(Parser *p){
                 return k2(x, y);
             }
             else {
+                unref(y);
                 p->current = t;
                 return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
             }
