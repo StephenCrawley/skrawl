@@ -1,6 +1,6 @@
 #include "parse.h"
 
-#define AT_EXPR_END(c) sc(";)\n\0", (c))
+#define AT_EXPR_END(c) sc(";)]\n\0", (c))
 #define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf(__VA_ARGS__);}; ku(':');})
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 
@@ -22,6 +22,7 @@ static char class(char c){
     return (c > 126) ? 0 : " +\"++++'()+++++'0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa ' ++`aaaaaaaaaaaaaaaaaaaaaaaaaa + +"[c-32];
 }
 
+// parse x'  
 static K parseAdverb(Parser *p, K x){
     char c, t; //class, type
     char *s = ADVERB_STR;
@@ -33,6 +34,34 @@ static K parseAdverb(Parser *p, K x){
         x = kwx(t, x);
     }
 
+    return x;
+}
+
+// parse x[y;z]
+static K parseMExpr(Parser *p, K x){
+    K r;
+    char c;
+    while ('[' == peek(p)){
+        ++p->current;
+        r = ']'==peek(p) ? k1(ku(':')) : Exprs(0, p);
+        if (']' != (c=next(p))){
+            unref(x), unref(r);
+            return HANDLE_ERROR("'parse! unexpected token: %c", c);
+        }
+
+        // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
+        if (IS_VERB(x) && CNT(r)>1) TYP(x)=KV; 
+
+        x = j2(k1(x), r);
+    }
+    return x;
+}
+
+// parse adverbs and m-expressions
+static K parsePostfix(Parser *p, K x){
+    x = parseMExpr(p, x);
+    x = parseAdverb(p, x);
+    if ('['==peek(p)) x=parsePostfix(p, x);
     return x;
 }
 
@@ -156,11 +185,11 @@ static K classSwitch(Parser *p, char a, char c){
     case '`': --p->current, x=parseSym(p); break;
     case '"': x=parseStr(p); break;
     case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
-    case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
+    case '(': x=')'==peek(p)?tn(0,0):Exprs(',',p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
     default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
     }
 
-    return parseAdverb(p, x);
+    return parsePostfix(p, x);
 }
 
 // parse single expression
@@ -190,8 +219,8 @@ static K expr(Parser *p){
     
     a = next(p);
     c = class(a);
-    if ('+' == c){ //infix verb
-        y = parseAdverb(p, kv(a));
+    if ('+'==c && '['!=peek(p)){ //infix verb
+        y = parsePostfix(p, kv(a));
     }
     else { //infix noun
         // need to handle 2 cases. x y z->(x;(y;z)) and x y/z->((/;y);x;z)
@@ -228,7 +257,7 @@ static K Exprs(char c, Parser *p){
     do r=jk(r, expr(p)), p->compose=false; while(';'==next(p));
     --p->current;
     
-    return 1==CNT(r) ? (t=ref(*OBJ(r)), unref(r), t) : j2(k1(ku(c)), r);
+    return !c ? r : 1==CNT(r) ? (t=ref(*OBJ(r)), unref(r), t) : j2(k1(ku(c)), r);
 }
 
 K parse(char *src){
