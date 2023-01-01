@@ -21,7 +21,8 @@ enum {
     KC,                        //char
     KI,                        //int64
     KF,                        //double
-    K_SIMPLE_LIST_END = KF,    //simple lists are composed of same-type atoms
+    KS,                        //symbol
+    K_SIMPLE_LIST_END = KS,    //simple lists are composed of same-type atoms
 
     KU,                        //monad
     KV,                        //dyad

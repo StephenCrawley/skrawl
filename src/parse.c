@@ -19,7 +19,7 @@ static inline char peek(Parser *p){ ws(p); return *p->current; }
 // return char class 
 static char class(char c){
     //                       ! "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-    return (c > 126) ? 0 : " +\"++++'()+++++'0000000000+ +++++                           ' ++                            + +"[c-32];
+    return (c > 126) ? 0 : " +\"++++'()+++++'0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa ' ++`aaaaaaaaaaaaaaaaaaaaaaaaaa + +"[c-32];
 }
 
 static K parseAdverb(Parser *p, K x){
@@ -108,7 +108,6 @@ static K parseNum(Parser *p){
             r = j2(r, KI==t ? ki(n) : kf( (double)n ));
         }
 
-
         // if not whitespace, then we're done parsing num literals
         if (' '!=*p->current) break;
 
@@ -118,11 +117,43 @@ static K parseNum(Parser *p){
     return r;
 }
 
+static i64 encodeSym(Parser *p){
+    i8 i = 0;
+    i64 n = 0;
+    char a = *p->current;
+    char c = class(a);
+
+    while ('a'==c || '0'==c){
+        // encode char in i64. max at chars per symbol
+        if (i<8){
+            CHR(&n)[i++] = a;
+        }
+        a = *++p->current;
+        c = class(a);
+    }
+
+    return n;
+}
+
+static K parseSym(Parser *p){
+    K r = tn(KS, 0);
+    char c;
+
+    do {
+        ++p->current;
+        r = j2(r, ks(encodeSym(p)));
+        c = peek(p);
+    } while('`'==c);
+
+    return r;
+}
+
 static K classSwitch(Parser *p, char a, char c){
     K x;
 
     switch (c){
     case '0': --p->current, x=parseNum(p); break;
+    case '`': --p->current, x=parseSym(p); break;
     case '"': x=parseStr(p); break;
     case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
     case '(': x=')'==peek(p)?tn(0,0):Exprs(',', p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 

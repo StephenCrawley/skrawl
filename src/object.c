@@ -87,8 +87,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KC  KI  KF  KU  KV  KW  '   /   \   ':  /:  \:
-static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
+// size of each type     KK  KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:
+static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -169,6 +169,13 @@ K kf(double x){
     return r;
 }
 
+// create int atom
+K ks(i64 x){
+    K r = tn(-KS, 1);
+    INT(r)[0] = x;
+    return r;
+}
+
 // create monadic verb
 K ku(char c){
     K r = tn(KU, 1);
@@ -235,6 +242,17 @@ static void printFlt(K x){
     }
 }
 
+static void printSym(K x){
+    i8 j;
+    i64 *m;
+    for (i64 i=0, n=CNT(x); i<n; i++){
+        putchar('`');
+        m = INT(x) + i;
+        j = 0;
+        while (j<8 && CHR(m)[j]) putchar(CHR(m)[j++]);
+    }
+}
+
 static void printAdverb(K x){
     i8 t = TYP(x);
     printf("(%c", ADVERB_STR[t - K_ADVERB_START]);
@@ -255,6 +273,7 @@ static void _printK(K x){
     case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
     case KI: printInt(x); break;
     case KF: printFlt(x); break;
+    case KS: printSym(x); break;
     case KU: putchar(VERB_STR[*CHR(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[*CHR(x)]); break;
     case KW: putchar(ADVERB_STR[*CHR(x)]); if (2<*CHR(x)) putchar(':'); break;
