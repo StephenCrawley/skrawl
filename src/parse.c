@@ -227,7 +227,7 @@ static K expr(Parser *p){
         char *t = p->current-1; //temp to reset if infix noun is not followed by adverb
 
         y = classSwitch(p, a, c);
-        if (p->error) return y;
+        if (p->error) return unref(x), y;
 
         if ( !IS_ADVERB(y) ){
             if ( AT_EXPR_END(peek(p)) ){
