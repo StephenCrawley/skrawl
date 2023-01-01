@@ -20,7 +20,8 @@ enum {
     KK,                        //generic list
     KC,                        //char
     KI,                        //int64
-    K_SIMPLE_LIST_END = KI,    //simple lists are composed of same-type atoms
+    KF,                        //double
+    K_SIMPLE_LIST_END = KF,    //simple lists are composed of same-type atoms
 
     KU,                        //monad
     KV,                        //dyad
@@ -40,9 +41,10 @@ enum {
 #define ADVERB_STR  "'/\\'/\\"
 
 // K object accessors
-#define OBJ(x) ((  K*) x)  //pointer to generic K object list
-#define CHR(x) (( i8*) x)  //pointer to  int8 list
-#define INT(x) ((i64*) x)  //pointer to int64 list
+#define OBJ(x) ((     K*) x)  //pointer to generic K object list
+#define CHR(x) ((    i8*) x)  //pointer to  int8 
+#define INT(x) ((   i64*) x)  //pointer to int64 
+#define FLT(x) ((double*) x)  //pointer to double 
 
 // shared utility macros
 #define ABS(a)   __extension__({__typeof__(a)_a=(a); _a > 0 ? _a : -_a ;}) 

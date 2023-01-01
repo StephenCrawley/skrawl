@@ -59,22 +59,55 @@ static i64 parseInt(char *s, i32 len){
     return n;
 }
 
+static double parseFlt(char *s, i32 len, i32 d){
+    double f;
+    i64 l, r; //left of dot, right of dot
+    if ('-' == *s) return -parseFlt(++s, len-1, d-1);
+    l = d<len   ? parseInt(s, d) : 0;
+    r = d<len-1 ? parseInt(s+d+1, len-d-1) : 0;
+    f = (double) r;
+    for (i32 i=0, n=len-d-1; i<n; i++) f/=10.0;
+    return (double)l + f;
+}
+
 // parse number(s). "1","1 23"
 static K parseNum(Parser *p){
     K r = tn(KI, 0);
-    i64 n;
-    char c, *s;
+    char c, *s, f, *d; //c:current char, s:start of num, f:count of dots seen, d:location of dot
+    i8 t;  //return type
+    i64 n; //int placeholder
 
     // parse number or numeric list 
     do {
+        f = 0; 
         // consume the number. s is where it starts 
-        s = p->current;
-        if ('-'==*p->current) ++p->current;
-        while ('0'==class(*p->current)) ++p->current;
+        s = p->current, d = s;
+        c = *s;
+        if ('-'==c) c = *++p->current;
+        while ('0'==class(c) || c=='.'){
+            if (c=='.') { f += 1; d = p->current; }
+            c = *++p->current;
+        }
+
+        // if more than one dot, error
+        if (f > 1)
+            return unref(r), HANDLE_ERROR("'parse! invalid number\n");
 
         // create a number and join it 
-        n = parseInt(s, (i32)(p->current - s));
-        r = j2(r, ki(n));
+        t = ABS(TYP(r));
+        if (f){
+            // if float parsed after ints, cast the return object to float
+            if (KI==t && CNT(r)){ 
+                for (i32 i=0; i<CNT(r); i++) FLT(r)[i] = (double) INT(r)[i];
+                TYP(r) = KF;
+            }
+            r = j2(r, kf(parseFlt(s, p->current-s, d-s)));
+        }
+        else {
+            n = parseInt(s, p->current-s);
+            r = j2(r, KI==t ? ki(n) : kf( (double)n ));
+        }
+
 
         // if not whitespace, then we're done parsing num literals
         if (' '!=*p->current) break;
@@ -122,7 +155,7 @@ static K expr(Parser *p){
 
     // parse +x
     if (va) 
-        return y=expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
+        return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
     
     a = next(p);
     c = class(a);

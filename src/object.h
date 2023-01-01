@@ -22,6 +22,7 @@ K k1(K);
 K k2(K, K);
 K k3(K, K, K);
 K ki(i64);
+K kf(double);
 K ku(char);
 K kv(char);
 K kw(i8);
