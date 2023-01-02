@@ -171,18 +171,16 @@ static i64 encodeSym(Parser *p){
     return n;
 }
 
+// parse `a`b`c
 static K parseSym(Parser *p){
     K r = tn(KS, 0);
-    char c, t;
 
     do {
         ++p->current;
         r = j2(r, ks(encodeSym(p)));
-        c = peek(p);
-    } while('`'==c);
+    } while('`'==peek(p));
 
-    t = TYP(r);
-    return t>0 ? k1(r) : (TYP(r)=KS, r);
+    return KS==TYP(r) ? k1(r) : (TYP(r)=KS, r);
 }
 
 static K parseVar(Parser *p){
