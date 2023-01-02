@@ -166,7 +166,7 @@ static i64 encodeSym(Parser *p){
 
 static K parseSym(Parser *p){
     K r = tn(KS, 0);
-    char c;
+    char c, t;
 
     do {
         ++p->current;
@@ -174,7 +174,8 @@ static K parseSym(Parser *p){
         c = peek(p);
     } while('`'==c);
 
-    return r;
+    t = TYP(r);
+    return t>0 ? k1(r) : (TYP(r)=KS, r);
 }
 
 static K classSwitch(Parser *p, char a, char c){
