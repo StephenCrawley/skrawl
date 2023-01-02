@@ -11,10 +11,10 @@ static K Exprs(char c, Parser *p);
 static inline void ws(Parser *p){ while(' '==*p->current) ++p->current; }
 
 // next char. consume whitespace and consume & return next char
-static inline char next(Parser *p){ ws(p); return *p->current++; }
+static inline char next(Parser *p){ ws(p); char a=*p->current++; return '/'==a&&' '==p->current[-1] ? 0 : a; }
 
 // peek char. consume whitespace and peek next char (return but don't consume it)
-static inline char peek(Parser *p){ ws(p); return *p->current; }
+static inline char peek(Parser *p){ ws(p); char a=*p->current; return '/'==a&&' '==p->current[-1] ? 0 : a; }
 
 // return char class 
 static char class(char c){
@@ -160,7 +160,7 @@ static i64 encodeSym(Parser *p){
     char c = class(a);
 
     while ('a'==c || '0'==c){
-        // encode char in i64. max at chars per symbol
+        // encode char in i64. max 8 chars per symbol
         if (i<8){
             CHR(&n)[i++] = a;
         }
@@ -281,8 +281,9 @@ K parse(char *src){
     p.src = src;
     p.current = src;
 
-    // return if only whitespace in input
-    if (sc("\n\0", peek(&p))){
+    // return if only whitespace or comment in input
+    char a=peek(&p);
+    if ('/'==a || sc("\n\0", a)){
         return (K)0;
     }
 
