@@ -178,12 +178,17 @@ static K parseSym(Parser *p){
     return t>0 ? k1(r) : (TYP(r)=KS, r);
 }
 
+static K parseVar(Parser *p){
+    return ks(encodeSym(p));
+}
+
 static K classSwitch(Parser *p, char a, char c){
     K x;
 
     switch (c){
     case '0': --p->current, x=parseNum(p); break;
     case '`': --p->current, x=parseSym(p); break;
+    case 'a': --p->current, x=parseVar(p); break;
     case '"': x=parseStr(p); break;
     case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
     case '(': x=')'==peek(p)?tn(0,0):Exprs(',',p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
