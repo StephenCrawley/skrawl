@@ -59,9 +59,16 @@ static K parseMExpr(Parser *p, K x){
 
 // parse adverbs and m-expressions
 static K parsePostfix(Parser *p, K x){
+    // parse m-expressions
     x = parseMExpr(p, x);
+    if(p->error) return x;
+
+    // parse adverbs
     x = parseAdverb(p, x);
+
+    // if followed by [, recurse
     if ('['==peek(p)) x=parsePostfix(p, x);
+
     return x;
 }
 
