@@ -269,7 +269,7 @@ static void _printK(K x){
     if (1==n && (!t || IS_SIMPLE_LIST(x))) putchar(',');
 
     switch(ABS(t)){
-    case KK: putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } putchar(')'); break;
+    case KK: if(1!=n)putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } if(1!=n)putchar(')'); break;
     case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
     case KI: printInt(x); break;
     case KF: printFlt(x); break;
