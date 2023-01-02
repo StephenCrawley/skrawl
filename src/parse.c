@@ -282,8 +282,7 @@ K parse(char *src){
     p.current = src;
 
     // return if only whitespace or comment in input
-    char a=peek(&p);
-    if ('/'==a || sc("\n\0", a)){
+    if ('/'==*src || sc("\n\0", peek(&p))){
         return (K)0;
     }
 
