@@ -3,15 +3,6 @@
 
 #include "skrawl.h"
 
-// K header accessors
-// the header is 16 bytes
-// --mtrrrrnnnnnnnn
-// - unused, m membucket, t type, r refcount, n count
-#define MEM(x)   (( i8*)x)[-14]
-#define TYP(x)   (( i8*)x)[-13]
-#define REF(x)   ((i32*)x)[-3]
-#define CNT(x)   ((i64*)x)[-1]
-
 // public object functions
 void unref(K);
 K ref(K);

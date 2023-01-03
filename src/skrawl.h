@@ -41,11 +41,20 @@ enum {
 #define VERB_STR    ":+-*%,;"
 #define ADVERB_STR  "'/\\'/\\"
 
+// K header accessors
+// the header is 16 bytes
+// --mtrrrrnnnnnnnn
+// - unused, m membucket, t type, r refcount, n count
+#define MEM(x)  (( i8*)x)[-14]
+#define TYP(x)  (( i8*)x)[-13]
+#define REF(x)  ((i32*)x)[-3]
+#define CNT(x)  ((i64*)x)[-1]
+
 // K object accessors
-#define OBJ(x) ((     K*) x)  //pointer to generic K object list
-#define CHR(x) ((    i8*) x)  //pointer to  int8 
-#define INT(x) ((   i64*) x)  //pointer to int64 
-#define FLT(x) ((double*) x)  //pointer to double 
+#define OBJ(x)  ((     K*) x)  //pointer to generic K object list
+#define CHR(x)  ((    i8*) x)  //pointer to int8 
+#define INT(x)  ((   i64*) x)  //pointer to int64 
+#define FLT(x)  ((double*) x)  //pointer to double 
 
 // shared utility macros
 #define ABS(a)   __extension__({__typeof__(a)_a=(a); _a > 0 ? _a : -_a ;}) 
