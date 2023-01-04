@@ -24,6 +24,7 @@ enum {
     KS,                        //symbol
     K_SIMPLE_LIST_END = KS,    //simple lists are composed of same-type atoms
 
+    KL,                        //lambda
     KU,                        //monad
     KV,                        //dyad
     KW,                        //adverb
@@ -45,10 +46,10 @@ enum {
 // the header is 16 bytes
 // --mtrrrrnnnnnnnn
 // - unused, m membucket, t type, r refcount, n count
-#define MEM(x)  (( i8*)x)[-14]
-#define TYP(x)  (( i8*)x)[-13]
-#define REF(x)  ((i32*)x)[-3]
-#define CNT(x)  ((i64*)x)[-1]
+#define MEM(x)  (( i8*)(x))[-14]
+#define TYP(x)  (( i8*)(x))[-13]
+#define REF(x)  ((i32*)(x))[-3]
+#define CNT(x)  ((i64*)(x))[-1]
 
 // K object accessors
 #define OBJ(x)  ((     K*) x)  //pointer to generic K object list
@@ -62,8 +63,9 @@ enum {
 #define IS_SIMPLE_LIST(x)  __extension__({__typeof__(x)_x=(x); 0<TYP(_x) && TYP(_x)<=K_SIMPLE_LIST_END;})
 #define IS_VERB(a)    __extension__({__typeof__(a)_a=(a); i8 t=TYP(_a); KU==t || KV==t;}) 
 #define IS_ADVERB(a)  __extension__({__typeof__(a)_a=(a); i8 t=TYP(_a); K_ADVERB_START<=t && t<=K_ADVERB_END;})
-#define IS_GENERIC(x) __extension__({__typeof__(x)_x=(x); i8 t=TYP(_x); KK==t || IS_ADVERB(_x);}) //has other K objects as children
+#define IS_GENERIC(x) __extension__({__typeof__(x)_x=(x); i8 t=TYP(_x); KK==t || KL==t || IS_ADVERB(_x);}) //has other K objects as children
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
+static inline K tx(i8 t,K x){ return TYP(x)=t, x; }
 
 #endif

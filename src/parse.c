@@ -1,7 +1,7 @@
 #include "parse.h"
 
-#define AT_EXPR_END(c) sc(";)]\n\0", (c))
-#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf(__VA_ARGS__);}; ku(':');})
+#define AT_EXPR_END(c) sc(";)]}\n\0", (c))
+#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf("'parse! "); printf(__VA_ARGS__);}; ku(':');})
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 
 // foward declarations
@@ -19,7 +19,7 @@ static inline char peek(Parser *p){ ws(p); char a=*p->current; return '/'==a&&' 
 // return char class 
 static char class(char c){
     //                       ! "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-    return (c > 126) ? 0 : " +\"++++'()+++++'0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa ' ++`aaaaaaaaaaaaaaaaaaaaaaaaaa + +"[c-32];
+    return (c > 126) ? 0 : " +\"++++'()+++++'0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa ' ++`aaaaaaaaaaaaaaaaaaaaaaaaaa{+}+"[c-32];
 }
 
 // parse x'  
@@ -46,7 +46,7 @@ static K parseMExpr(Parser *p, K x){
         r = ']'==peek(p) ? k1(ku(':')) : Exprs(0, p);
         if (']' != (c=next(p))){
             unref(x), unref(r);
-            return HANDLE_ERROR("'parse! unexpected token: %c", c);
+            return HANDLE_ERROR("unexpected token: %c", c);
         }
 
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
@@ -80,7 +80,7 @@ static K parseStr(Parser *p){
         ++n; 
         if (!a){ //if EOL
             --p->current;
-            return HANDLE_ERROR("'parse! unclosed string\n");
+            return HANDLE_ERROR("unclosed string\n");
         }
     }
     r = tn(1==n ? -KC : KC, n);
@@ -127,7 +127,7 @@ static K parseNum(Parser *p){
 
         // if more than one dot, error
         if (f > 1)
-            return unref(r), HANDLE_ERROR("'parse! invalid number\n");
+            return unref(r), HANDLE_ERROR("invalid number\n");
 
         // create a number and join it 
         t = ABS(TYP(r));
@@ -161,9 +161,7 @@ static i64 encodeSym(Parser *p){
 
     while ('a'==c || '0'==c){
         // encode char in i64. max 8 chars per symbol
-        if (i<8){
-            CHR(&n)[i++] = a;
-        }
+        if (i<8) CHR(&n)[i++] = a; 
         a = *++p->current;
         c = class(a);
     }
@@ -187,8 +185,23 @@ static K parseVar(Parser *p){
     return ks(encodeSym(p));
 }
 
+// parse ({[ Expressions... ]})
+static K parseFenced(Parser *p, char b){
+    char a=peek(p);
+    // parse Expressions
+    K r = ')'==a?tn(0,0):'}'==a?ku(':'):']'==a?k1(ks(0)):Exprs(')'==b?',':'}'==b?';':0, p);
+
+    // if not properly closed, return error
+    if (b != (a=peek(p)))
+        return unref(r), '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
+
+    return ++p->current, r;
+}
+
 static K classSwitch(Parser *p, char a, char c){
-    K x;
+    K x, y; //x:parsed object, y:lambda params
+    bool f=0; //is lambda function?
+    char *s; //s:start of object
 
     switch (c){
     case '0': --p->current, x=parseNum(p); break;
@@ -196,9 +209,14 @@ static K classSwitch(Parser *p, char a, char c){
     case 'a': --p->current, x=parseVar(p); break;
     case '"': x=parseStr(p); break;
     case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
-    case '(': x=')'==peek(p)?tn(0,0):Exprs(',',p); if (')'==(a=next(p))){ break; } --p->current; unref(x); /*FALLTHROUGH*/ 
-    default : return '\n'==a ? HANDLE_ERROR("'parse! unexpected EOL\n") : HANDLE_ERROR("'parse! unexpected token: %c\n", a);
+    case '[': x=parseFenced(p,']'); return KS!=TYP(x=squeeze(x))?(unref(x),HANDLE_ERROR("invalid function args\n")):x;
+    case '{': f=1,s=p->current-1,y='['!=next(p)?(--p->current,k1(ks(0))):classSwitch(p,'[','['); if (p->error) return y; //else FALLTHROUGH
+    case '(': x=parseFenced(p,")}"['{'==a]); if (p->error){ if('{'==a)unref(y); return x; } break;
+    default : return '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
     }
+
+    // create lambda object
+    if (f) x=k2(y,x), y=tn(KC,p->current-s), memcpy(CHR(y),s,p->current-s), x=tx(KL,j2(k1(y),x));
 
     return parsePostfix(p, x);
 }

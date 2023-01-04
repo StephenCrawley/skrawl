@@ -226,6 +226,37 @@ K ref(K x){
     return REF(x)++, x;
 }
 
+// squeeze into more compact form if possible
+// ("a";"b") -> "ab"
+K squeeze(K x){
+    K r;
+    i8 t, rt;
+    i64 n = CNT(x);
+
+    // if not a general list or count=0, return x
+    if (TYP(x) || !n) return x;
+
+    // if 1st element not atom, return x
+    t = TYP( *OBJ(x) );
+    if (0<=t) return x;
+
+    // if not all same type, return x
+    for (i64 i=1; i<n; i++) 
+        if (t!=TYP( OBJ(x)[i] )) return x;
+
+    rt = -t;
+    r = tn(rt, n);
+    switch(rt){
+    case KI:
+    case KS: for (i64 i=0; i<n; i++) INT(r)[i] = *INT(OBJ(x)[i]); break; 
+    case KC: for (i64 i=0; i<n; i++) CHR(r)[i] = *CHR(OBJ(x)[i]); break;
+    case KF: for (i64 i=0; i<n; i++) FLT(r)[i] = *FLT(OBJ(x)[i]); break;
+    default: printf("'squeeze! type %d unsupported\n",rt), exit(0);
+    }
+
+    return unref(x), r;
+}
+
 // printer functions //
 
 static void printInt(K x){
@@ -264,6 +295,7 @@ static void printAdverb(K x){
 
 static void _printK(K x){
     i8  t = TYP(x);
+    if (KL==t){ x=*OBJ(x); }
     i64 n = CNT(x);
     
     if (1==n && (!t || IS_SIMPLE_LIST(x))) putchar(',');
@@ -278,6 +310,7 @@ static void _printK(K x){
     case KV: putchar(VERB_STR[*CHR(x)]); break;
     case KW: putchar(ADVERB_STR[*CHR(x)]); if (2<*CHR(x)) putchar(':'); break;
     case K_ADVERB_START ... K_ADVERB_END: printAdverb(x); break;
+    case KL: for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }
 }
