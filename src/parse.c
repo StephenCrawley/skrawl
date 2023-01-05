@@ -30,7 +30,7 @@ static K parseAdverb(Parser *p, K x){
     while ( '\'' == class(peek(p)) ){
         c = *p->current++;
         t = K_ADVERB_START + sc(s, c) - s;
-        if (':'==peek(p)){ ++p->current; t+=3; }
+        if (':'==*p->current){ ++p->current; t+=3; }
         x = kwx(t, x);
     }
 
@@ -178,7 +178,7 @@ static K parseSym(Parser *p){
         r = j2(r, ks(encodeSym(p)));
     } while('`'==peek(p));
 
-    return KS==TYP(r) ? k1(r) : (TYP(r)=KS, r);
+    return KS==TYP(r) ? k1(r) : tx(KS,r); //TODO: replace with enlist
 }
 
 static K parseVar(Parser *p){
