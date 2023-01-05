@@ -29,9 +29,9 @@ static K parseAdverb(Parser *p, K x){
 
     while ( '\'' == class(peek(p)) ){
         c = *p->current++;
-        t = K_ADVERB_START + sc(s, c) - s;
+        t = sc(s, c) - s;
         if (':'==*p->current){ ++p->current; t+=3; }
-        x = kwx(t, x);
+        x = k2(kw(t), x);
     }
 
     return x;
