@@ -19,6 +19,7 @@ K ku(char);
 K kv(char);
 K kw(i8);
 K kwx(i8, K);
+K km();
 K squeeze(K);
 K printK(K);
 

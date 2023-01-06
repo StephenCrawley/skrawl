@@ -87,8 +87,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:
-static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 };
+// size of each type     KK  KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:  ::
+static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 1};
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -206,6 +206,11 @@ K kwx(i8 t, K x){
     return r;
 }
 
+// create magic value (elided list/function args)
+K km(){
+    return tn(KM, 0);
+}
+
 // decrement K object refcount and place it back in M if no longer referenced
 void unref(K x){
     // if ref not 0, decrement and return
@@ -311,6 +316,7 @@ static void _printK(K x){
     case KW: putchar(ADVERB_STR[*CHR(x)]); if (2<*CHR(x)) putchar(':'); break;
     case K_ADVERB_START ... K_ADVERB_END: printAdverb(x); break;
     case KL: for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } break;
+    case KM: printf("::"); break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }
 }

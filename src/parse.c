@@ -276,14 +276,14 @@ static K expr(Parser *p){
     
     // parse x+y
     z = expr(p);
-    return p->compose ? COMPOSE(k2(y, x), z) : k3(y, x, z);
+    return p->compose ? COMPOSE(k2(y,x), z) : k3(y, x, z);
 }
 
 // parse ;-delimited Expressions
 static K Exprs(char c, Parser *p){
     K r=tn(0,0), t;
 
-    do r=jk(r, expr(p)), p->compose=false; while(';'==next(p));
+    do r=jk(r, AT_EXPR_END(peek(p)) ? (';'==c ? ku(':') : km()) : expr(p)), p->compose=false; while(';'==next(p));
     --p->current;
     
     return !c ? r : 1==CNT(r) ? (t=ref(*OBJ(r)), unref(r), t) : j2(k1(ku(c)), r);
