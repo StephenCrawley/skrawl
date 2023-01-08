@@ -34,7 +34,10 @@ static void *alloc_n(u64 n){
         printf("'memory! mmap failed. exiting...\n"), exit(1);
 }
 
+#ifdef DBG_WS
 u64 WS=0;  // number of bytes allocated to objects (can be less than bytes requested from the OS)
+u64 WT=0;  // total number of bytes allocated on the heap
+#endif
 
 K M[31]; // array of free memory buckets
 
@@ -93,7 +96,12 @@ static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 ,
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
     K r = m1( MAX(1, n) * TYPE_SIZE[ABS(t)] );
+
+#ifdef DBG_WS
     WS += BUCKET_SIZE(r);
+    WT += BUCKET_SIZE(r);
+#endif
+
     TYP(r) = t, REF(r) = 0, CNT(r) = n;
     return r;
 }
@@ -220,8 +228,11 @@ void unref(K x){
     if (IS_GENERIC(x))
         for (i64 i=0, n=CNT(x); i<n; i++) unref( OBJ(x)[i] );
 
-    // update used workspace, place object in the free list in M
+#ifdef DBG_WS
     WS -= BUCKET_SIZE(x);
+#endif
+
+    // link top of free list, then set object as top of free list in M
     *OBJ(x) = M[MEM(x)];
     M[MEM(x)] = x;
 }

@@ -15,7 +15,7 @@ int main(){
         if ((r=parse(src))) unref(printK(r));
 
 #ifdef DBG_WS
-        printf("WS: %ld\n", WS);
+        printf("WS:%ld WT:%ld\n", WS, WT);
 #endif
     }
 }

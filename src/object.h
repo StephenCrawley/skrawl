@@ -23,6 +23,9 @@ K km();
 K squeeze(K);
 K printK(K);
 
+#ifdef DBG_WS
 extern u64 WS;
+extern u64 WT;
+#endif
 
 #endif
