@@ -12,6 +12,7 @@
 typedef uint64_t  K;
 typedef int8_t    i8;
 typedef int32_t   i32;
+typedef uint32_t  u32;
 typedef int64_t   i64;
 typedef uint64_t  u64;
 
@@ -47,7 +48,7 @@ enum {
 // - unused, m membucket, t type, r refcount, n count
 #define MEM(x)  (( i8*)(x))[-14]
 #define TYP(x)  (( i8*)(x))[-13]
-#define REF(x)  ((i32*)(x))[-3]
+#define REF(x)  ((u32*)(x))[-3]
 #define CNT(x)  ((i64*)(x))[-1]
 
 // K object accessors
