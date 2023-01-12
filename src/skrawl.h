@@ -23,12 +23,10 @@ enum {
     KF,                        //double
     KS,                        //symbol
     K_SIMPLE_LIST_END = KS,    //simple lists are composed of same-type atoms
-
     KL,                        //lambda
     KU,                        //monad
     KV,                        //dyad
     KW,                        //adverb
-
     K_ADVERB_START,            //start of adverb types
     KEACH = K_ADVERB_START,    // '
     KOVER,                     // /
@@ -37,7 +35,6 @@ enum {
     KER,                       // /:
     KEL,                       // \: 
     K_ADVERB_END = KEL,        //end of adverb types
-
     KM                         //magic value
 };
 

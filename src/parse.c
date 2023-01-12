@@ -31,7 +31,8 @@ static K parseAdverb(Parser *p, K x){
         c = *p->current++;
         t = sc(s, c) - s;
         if (':'==*p->current){ ++p->current; t+=3; }
-        x = k2(kw(t), x);
+        // special case: if x==0 we're parsing bare adverbs (eg "'/")
+        x = x ? k2(kw(t), x) : kw(t);
     }
 
     return x;
@@ -209,6 +210,7 @@ static K classSwitch(Parser *p, char a, char c){
     case 'a': --p->current, x=parseVar(p); break;
     case '"': x=parseStr(p); break;
     case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
+    case'\'': --p->current, x=parseAdverb(p,0); break;
     case '[': x=parseFenced(p,']'); return KS!=TYP(x=squeeze(x))?(unref(x),HANDLE_ERROR("invalid function args\n")):x;
     case '{': f=1,s=p->current-1,y='['!=next(p)?(--p->current,k1(ks(0))):classSwitch(p,'[','['); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"['{'==a]); if (p->error){ if('{'==a)unref(y); return x; } break;
