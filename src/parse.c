@@ -209,7 +209,7 @@ static K classSwitch(Parser *p, char a, char c){
     case '`': --p->current, x=parseSym(p); break;
     case 'a': --p->current, x=parseVar(p); break;
     case '"': x=parseStr(p); break;
-    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
+    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?(++p->current,ku(a)):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
     case'\'': --p->current, x=parseAdverb(p,0); break;
     case '[': x=parseFenced(p,']'); return KS!=TYP(x=squeeze(x))?(unref(x),HANDLE_ERROR("invalid function args\n")):x;
     case '{': f=1,s=p->current-1,y='['!=next(p)?(--p->current,k1(ks(0))):classSwitch(p,'[','['); if (p->error) return y; //else FALLTHROUGH
@@ -251,7 +251,7 @@ static K expr(Parser *p){
     a = next(p);
     c = class(a);
     if ('+'==c && '['!=peek(p)){ //infix verb
-        y = parsePostfix(p, kv(a));
+        y = parsePostfix(p, ':'==*p->current?(++p->current,ku(a)):kv(a));
     }
     else { //infix noun
         // need to handle 2 cases. x y z->(x;(y;z)) and x y/z->((/;y);x;z)
