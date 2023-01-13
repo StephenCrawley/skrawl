@@ -46,10 +46,15 @@ enum {
 // the header is 16 bytes
 // --mtrrrrnnnnnnnn
 // - unused, m membucket, t type, r refcount, n count
-#define MEM(x)  (( i8*)(x))[-14]
-#define TYP(x)  (( i8*)(x))[-13]
-#define REF(x)  ((u32*)(x))[-3]
-#define CNT(x)  ((i64*)(x))[-1]
+#define HDR_MEM(x)  (( i8*)(x))[-14]
+#define HDR_TYP(x)  (( i8*)(x))[-13]
+#define HDR_REF(x)  ((u32*)(x))[-3]
+#define HDR_CNT(x)  ((i64*)(x))[-1]
+// wrapper accessors
+#define MEM(x)      HDR_MEM(x)  
+#define TYP(x)      HDR_TYP(x)  
+#define REF(x)      HDR_REF(x)  
+#define CNT(x)      HDR_CNT(x)  
 
 // K object accessors
 #define OBJ(x)  ((     K*)(x))  //pointer to generic K object list
@@ -66,6 +71,6 @@ enum {
 #define IS_GENERIC(x) __extension__({__typeof__(x)_x=(x); i8 t=TYP(_x); KK==t || KL==t || IS_ADVERB(_x);}) //has other K objects as children
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
-static inline K tx(i8 t,K x){ return TYP(x)=t, x; }
+static inline K tx(i8 t,K x){ return HDR_TYP(x)=t, x; }
 
 #endif

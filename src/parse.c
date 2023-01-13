@@ -51,7 +51,7 @@ static K parseMExpr(Parser *p, K x){
         }
 
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
-        if (IS_VERB(x) && CNT(r)>1) TYP(x)=KV; 
+        if (IS_VERB(x) && CNT(r)>1) tx(KV,x); 
 
         x = j2(k1(x), r);
     }
@@ -121,8 +121,8 @@ static K parseNum(Parser *p){
         s = p->current, d = s;
         c = *s;
         if ('-'==c) c = *++p->current;
-        while ('0'==class(c) || c=='.'){
-            if (c=='.') { f += 1; d = p->current; }
+        while ('0'==class(c) || '.'==c){
+            if ('.'==c) { f += 1; d = p->current; }
             c = *++p->current;
         }
 
@@ -136,7 +136,7 @@ static K parseNum(Parser *p){
             // if float parsed after ints, cast the return object to float
             if (KI==t && CNT(r)){ 
                 for (i32 i=0; i<CNT(r); i++) FLT(r)[i] = (double) INT(r)[i];
-                TYP(r) = KF;
+                tx(KF,r);
             }
             r = j2(r, kf(parseFlt(s, p->current-s, d-s)));
         }

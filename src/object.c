@@ -102,7 +102,7 @@ K tn(i8 t, i64 n){
     WT += BUCKET_SIZE(r);
 #endif
 
-    TYP(r) = t, REF(r) = 0, CNT(r) = n;
+    HDR_TYP(r) = t, REF(r) = 0, HDR_CNT(r) = n;
     return r;
 }
 
@@ -132,7 +132,7 @@ K j2(K x, K y){
         x = xiy(tn(t,n), 0, x);
     }
     else {
-        CNT(x) = n, TYP(x) = t;
+        HDR_CNT(x) = n, HDR_TYP(x) = t;
     }
 
     return xiy(x, m, y);
