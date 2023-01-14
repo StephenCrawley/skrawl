@@ -1,5 +1,7 @@
 #include "object.h"
+#define __USE_MISC //for MAP_ANONYMOUS declaration
 #include <sys/mman.h>
+#undef __USE_MISC
 
 // memory (buddy) allocation //
 
