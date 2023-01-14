@@ -33,7 +33,7 @@ static void *alloc_n(u64 n){
     if (x != MAP_FAILED)
         return x;
     else 
-        printf("'memory! mmap failed. exiting...\n"), exit(1);
+        printf("'mmap failed! exiting...\n"), exit(1);
 }
 
 #ifdef DBG_WS
