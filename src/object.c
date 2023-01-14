@@ -310,7 +310,7 @@ static void printAdverb(K x){
 }
 
 static void _printK(K x){
-    i8  t = TYP(x);
+    i8  t = IS_ADVERB(x) ? K_ADVERB_START : TYP(x);
     if (KL==t){ x=*OBJ(x); }
     i64 n = CNT(x);
     
@@ -325,7 +325,7 @@ static void _printK(K x){
     case KU: putchar(VERB_STR[*CHR(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[*CHR(x)]); break;
     case KW: putchar(ADVERB_STR[*CHR(x)]); if (2<*CHR(x)) putchar(':'); break;
-    case K_ADVERB_START ... K_ADVERB_END: printAdverb(x); break;
+    case K_ADVERB_START: printAdverb(x); break;
     case KL: for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } break;
     case KM: printf("::"); break;
     default: printf("'nyi! print type %d\n", TYP(x));
