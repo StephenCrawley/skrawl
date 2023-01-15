@@ -179,7 +179,7 @@ static K parseSym(Parser *p){
         r = j2(r, ks(encodeSym(p)));
     } while('`'==peek(p));
 
-    return KS==TYP(r) ? k1(r) : tx(KS,r); //TODO: replace with enlist
+    return KS==TYP(r) ? k1(r) : va(r); //TODO: replace with enlist
 }
 
 static K parseVar(Parser *p){

@@ -144,6 +144,13 @@ K jk(K x, K y){
     return j2(x, k1(y));
 }
 
+// verb from atom. assumes atomic argument
+K va(K x){
+    K r = tn(ABS(TYP(x)), 1);
+    memcpy((void*)r, (void*)x, SIZEOF(x));
+    return unref(x), r;
+}
+
 // enlist x
 K k1(K x){
     K r = tn(KK, 1);
