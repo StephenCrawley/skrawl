@@ -11,7 +11,7 @@ static K Exprs(char c, Parser *p);
 static inline void ws(Parser *p){ while(' '==*p->current) ++p->current; }
 
 // next char. consume whitespace and consume & return next char
-static inline char next(Parser *p){ ws(p); char a=*p->current++; return '/'==a&&' '==p->current[-1] ? 0 : a; }
+static inline char next(Parser *p){ ws(p); char a=*p->current++; return '/'==a&&' '==p->current[-2] ? 0 : a; }
 
 // peek char. consume whitespace and peek next char (return but don't consume it)
 static inline char peek(Parser *p){ ws(p); char a=*p->current; return '/'==a&&' '==p->current[-1] ? 0 : a; }
