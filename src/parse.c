@@ -51,7 +51,7 @@ static K parseMExpr(Parser *p, K x){
         }
 
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
-        if (IS_VERB(x) && CNT(r)>1) tx(KV,x); 
+        if (IS_VERB(x) && CNT(r)>1) x=tx(KV,x); 
 
         x = j2(k1(x), r);
     }
@@ -136,7 +136,7 @@ static K parseNum(Parser *p){
             // if float parsed after ints, cast the return object to float
             if (KI==t && CNT(r)){ 
                 for (i32 i=0; i<CNT(r); i++) FLT(r)[i] = (double) INT(r)[i];
-                tx(KF,r);
+                r=tx(KF,r);
             }
             r = j2(r, kf(parseFlt(s, p->current-s, d-s)));
         }
@@ -179,7 +179,7 @@ static K parseSym(Parser *p){
         r = j2(r, ks(encodeSym(p)));
     } while('`'==peek(p));
 
-    return KS==TYP(r) ? k1(r) : va(r); //TODO: replace with enlist
+    return KS==TYP(r) ? k1(r) : va(r); // enlist, as sym literals are enlisted in K parse tree
 }
 
 static K parseVar(Parser *p){
@@ -240,7 +240,7 @@ static K expr(Parser *p){
 
     bool va = IS_VERB(x) || IS_ADVERB(x);
 
-    // return x and set composition flag
+    // set composition flag and return x
     if ( AT_EXPR_END(peek(p)) ) 
         return p->compose |= va, x;
 

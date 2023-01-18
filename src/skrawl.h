@@ -46,15 +46,19 @@ enum {
 // the header is 16 bytes
 // --mtrrrrnnnnnnnn
 // - unused, m membucket, t type, r refcount, n count
-#define HDR_MEM(x)  (( i8*)(x))[-14]
-#define HDR_TYP(x)  (( i8*)(x))[-13]
-#define HDR_REF(x)  ((u32*)(x))[-3]
-#define HDR_CNT(x)  ((i64*)(x))[-1]
+#define HDR_MEM(x)    (( i8*)(x))[-14]
+#define HDR_TYP(x)    (( i8*)(x))[-13]
+#define HDR_REF(x)    ((u32*)(x))[-3]
+#define HDR_CNT(x)    ((i64*)(x))[-1]
+// tagged pointer type get/set. type encoded in upper 8 bits
+#define TAG_TYP(x)    ((i8)((x)>>56))
+#define TAG_VAL(x)    ((x) & 0x00ffffffffffffff)
+#define SET_TAG(t,v)  ((((i64)(t))<<56) | (0x00ffffffffffffff & (i64)(v)))
 // wrapper accessors
-#define MEM(x)      HDR_MEM(x)  
-#define TYP(x)      HDR_TYP(x)  
-#define REF(x)      HDR_REF(x)  
-#define CNT(x)      HDR_CNT(x)  
+#define MEM(x)  HDR_MEM(x)  
+#define TYP(x)  __extension__({K _a=(x); TAG_TYP(_a) ? TAG_TYP(_a) : HDR_TYP(_a);})  
+#define REF(x)  HDR_REF(x)  
+#define CNT(x)  __extension__({K _a=(x); TAG_TYP(_a) ? 1 : HDR_CNT(_a);})
 
 // K object accessors
 #define OBJ(x)  ((     K*)(x))  //pointer to generic K object list
@@ -71,6 +75,7 @@ enum {
 #define IS_GENERIC(x)      __extension__({K _x=(x); i8 t=TYP(_x); KK==t || KL==t || IS_ADVERB(_x);}) //has other K objects as children
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
-static inline K tx(i8 t,K x){ return HDR_TYP(x)=t, x; }
+static inline u64   ic(char *s,char c){ return sc(s,c)-s; }
+static inline K     tx(i8 t,K x){ return TAG_TYP(x) ? x=SET_TAG(t,x) : (HDR_TYP(x)=t), x; }
 
 #endif

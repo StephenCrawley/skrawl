@@ -5,18 +5,31 @@
 
 // memory (buddy) allocation //
 
-// memory is managed using a buddy allocation algorithm
-// K objects occupy an x^2 block of memory
+// the K type is an unsigned 64-bit int
+// K objects are either a tagged int or a pointer to data
+
+// tagged objects contain the type in the upper 8 bits, and the value in the lower 56 bits
+// memory for tagged objects doesn't need to be managed manually 
+
+// otherwise the K is a pointer to data
+// pointed-to K objects are allocated on the heap using a buddy allocation algorithm
+// these objects occupy an x^2 bucket of memory
 // the K object header is 16 bytes (see object.h for header layout) so objects need to be assigned a minimum of 16 bytes
 // however 16B would only accommodate a 0-count object, and in practice we usually have objects with at least 1 element
 // so instead the minimum size MIN_ALLOC is 32 bytes 
-// TODO : this allocation scheme is performed for atoms and vectors. it is wasteful for atoms. we can improve this
+// the K pointer points to just after the header, to the start of the data. see skrawl.h for header and data accessors
+// example: if we wanted to allocate an array of 22 chars, we would need 16(header) + 22(data) = 38 bytes
+// 38 bytes fits into a 64-byte bucket. this leaves 26 bytes of space in the tail
+// this may seems wasteful but allows for in-place appends if there are no references to the object
 
-// there is a global K array M
-// this is where free memory buckets are stored
-// an object in M can be a linked list
-// suppose M[1] (64B block) is not a linked list, and a 64B object is "freed" with unref
-// xK(M[1])[0] is set to the freed K object
+// free K buckets are available in the global M array
+// K objects are ref counted with ref(increment) and unref(decrement)
+// when an object is "freed" (unref called when object ref is already 0) it is placed into M
+// each element of M contains a linked list of free objects
+// M[n] contains a linked list of buckets of size ( MIN_ALLOC<<n )
+// so M[0] has 32B buckets, M[1] 64B buckets, M[2] 128B, ...
+// NB: mmap'd memory is never returned to the OS, and free buckets are never coalesced with their buddies into larger buckets
+// TODO: implement coalesce&free functionality
 
 #define HEADER_SIZE    16
 #define MIN_ALLOC      32L 
@@ -59,7 +72,7 @@ static K m1(u64 n){
     // if the bucket exists, return it
     x = M[bucket];
     if (x){
-        M[bucket] = *OBJ(x);
+        M[bucket] = *OBJ(x); //set the next bucket in the linked list as the top of the free list in M
         return x;
     }
 
@@ -75,7 +88,7 @@ static K m1(u64 n){
 
     MEM(x) = bucket, M[j] = *OBJ(x), r = x;
 
-    // iteratively split the mmap'd block and add the new buckets to M
+    // iteratively split the mmap'd block into smaller buckets and add the buckets to M
     while (bucket < j){
         // jump to next bucket
         x += BUCKET_SIZE(x),
@@ -93,7 +106,7 @@ static K m1(u64 n){
 }
 
 // size of each type     KK  KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:  ::
-static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 1 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 1};
+static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8};
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -123,10 +136,11 @@ K j2(K x, K y){
     // if x is empty, return y
     if (!CNT(x)) return unref(x), y;
 
+    i8  s = SIZEOF(x);
     i8  t = ABS(TYP(x));
     i64 m = CNT(x);
     i64 n = CNT(y) + m;
-    u64 b = SIZEOF(x) * n; //number of bytes used by elements in joined object
+    u64 b = s * n; //number of bytes used by elements in joined object
 
     // if x has refcount=0 and enough space to append y's items, we append in place
     // otherwise we create a new object and copy in x and y
@@ -137,14 +151,14 @@ K j2(K x, K y){
         HDR_CNT(x) = n, HDR_TYP(x) = t;
     }
 
-    return xiy(x, m, y);
+    return TAG_TYP(y) ? (K)memcpy(CHR(x)+s*m,&y,s) : xiy(x,m,y);
 }
 
 K jk(K x, K y){
     return j2(x, k1(y));
 }
 
-// verb from atom. assumes atomic argument
+// vector from atom. assumes atomic argument
 K va(K x){
     K r = tn(ABS(TYP(x)), 1);
     memcpy((void*)r, (void*)x, SIZEOF(x));
@@ -194,27 +208,13 @@ K ks(i64 x){
 }
 
 // create monadic verb
-K ku(char c){
-    K r = tn(KU, 1);
-    char *s = VERB_STR;
-    CHR(r)[0] = sc(s,c) - s;
-    return r;
-}
+K ku(char c){ return SET_TAG(KU, ic(VERB_STR,c)); }
 
 // create dyadic verb
-K kv(char c){
-    K r = tn(KV, 1);
-    char *s = VERB_STR;
-    CHR(r)[0] = sc(s,c) - s;
-    return r;
-}
+K kv(char c){ return SET_TAG(KV, ic(VERB_STR,c)); }
 
 // create adverb
-K kw(i8 t){
-    K r = tn(KW, 1);
-    *CHR(r) = t;
-    return r;
-}
+K kw(i8 t){ return SET_TAG(KW, t); }
 
 // create adverb-modified object 
 K kwx(i8 t, K x){
@@ -224,14 +224,12 @@ K kwx(i8 t, K x){
 }
 
 // create magic value (elided list/function args)
-K km(){
-    return tn(KM, 0);
-}
+K km(){ return SET_TAG(KM,0); } 
 
 // decrement K object refcount and place it back in M if no longer referenced
 void unref(K x){
     // if ref not 0, decrement and return
-    if (REF(x)--) return;
+    if (TAG_TYP(x) || REF(x)--) return;
     
     // if generic K object, unref child objects
     if (IS_GENERIC(x))
@@ -248,7 +246,7 @@ void unref(K x){
 
 // increment refcount
 K ref(K x){
-    return REF(x)++, x;
+    return TAG_TYP(x) ? x : (REF(x)++, x);
 }
 
 // squeeze into more compact form if possible
@@ -331,9 +329,9 @@ static void _printK(K x){
     case KI: printInt(x); break;
     case KF: printFlt(x); break;
     case KS: printSym(x); break;
-    case KU: putchar(VERB_STR[*CHR(x)]); putchar(':'); break;
-    case KV: putchar(VERB_STR[*CHR(x)]); break;
-    case KW: putchar(ADVERB_STR[*CHR(x)]); if (2<*CHR(x)) putchar(':'); break;
+    case KU: putchar(VERB_STR[TAG_VAL(x)]); putchar(':'); break;
+    case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
+    case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;
     case K_ADVERB_START: printAdverb(x); break;
     case KL: for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } break;
     case KM: printf("::"); break;
