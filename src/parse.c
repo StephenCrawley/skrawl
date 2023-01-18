@@ -199,6 +199,12 @@ static K parseFenced(Parser *p, char b){
     return ++p->current, r;
 }
 
+// parse func args {[...] }. must be sym list
+static K parseArgs(Parser *p){
+    K r = squeeze(parseFenced(p,']'));
+    return KS==TYP(r) ? r : (unref(r),HANDLE_ERROR("invalid function args\n"));
+}
+
 static K classSwitch(Parser *p, char a, char c){
     K x, y; //x:parsed object, y:lambda params
     bool f=0; //is lambda function?
@@ -211,9 +217,8 @@ static K classSwitch(Parser *p, char a, char c){
     case '"': x=parseStr(p); break;
     case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?(++p->current,ku(a)):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
     case'\'': --p->current, x=parseAdverb(p,0); break;
-    case '[': x=parseFenced(p,']'); return KS!=TYP(x=squeeze(x))?(unref(x),HANDLE_ERROR("invalid function args\n")):x;
-    case '{': f=1,s=p->current-1,y='['!=next(p)?(--p->current,k1(ks(0))):classSwitch(p,'[','['); if (p->error) return y; //else FALLTHROUGH
-    case '(': x=parseFenced(p,")}"['{'==a]); if (p->error){ if('{'==a)unref(y); return x; } break;
+    case '{': f=1,s=p->current-1,y='['==peek(p)?++p->current,parseArgs(p):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
+    case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
     default : return '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
     }
 
