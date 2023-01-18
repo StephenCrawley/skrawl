@@ -19,7 +19,7 @@ static inline char peek(Parser *p){ ws(p); char a=*p->current; return '/'==a&&' 
 // return char class 
 static char class(char c){
     //                           ! "#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-    return (32>c||c>126) ? 0 : " +\"++++'()+++++'0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa ' ++`aaaaaaaaaaaaaaaaaaaaaaaaaa{+}+"[c-32];
+    return (32>c||c>126) ? 0 : " +\"++++/()+++++/0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa / ++`aaaaaaaaaaaaaaaaaaaaaaaaaa{+}+"[c-32];
 }
 
 // parse x'  
@@ -27,7 +27,7 @@ static K parseAdverb(Parser *p, K x){
     char c, t; //class, type
     char *s = ADVERB_STR;
 
-    while ( '\'' == class(peek(p)) ){
+    while ( '/' == class(peek(p)) ){
         c = *p->current++;
         t = sc(s, c) - s;
         if (':'==*p->current){ ++p->current; t+=3; }
@@ -215,8 +215,8 @@ static K classSwitch(Parser *p, char a, char c){
     case '`': --p->current, x=parseSym(p); break;
     case 'a': --p->current, x=parseVar(p); break;
     case '"': x=parseStr(p); break;
-    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?(++p->current,ku(a)):'\''!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
-    case'\'': --p->current, x=parseAdverb(p,0); break;
+    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?(++p->current,ku(a)):'/'!=class(c)?ku(a):'\''==c?ku(a):kv(a); break;
+    case '/': --p->current, x=parseAdverb(p,0); break;
     case '{': f=1,s=p->current-1,y='['==peek(p)?++p->current,parseArgs(p):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
     default : return '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
