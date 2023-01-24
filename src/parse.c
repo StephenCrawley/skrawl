@@ -225,7 +225,7 @@ static K classSwitch(Parser *p){
     case '`': x=parseSym(dec(p)); break;
     case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
-    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?inc(p),ku(a):'/'!=class(c)||'\''==c?ku(a):kv(a); break;
+    case '+': x=kv(a); a=peek(p); if(':'==a?inc(p),1:'\''==a) x=tx(KU,x); break;
     case '/': x=parseAdverb(dec(p),0); break;
     case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
