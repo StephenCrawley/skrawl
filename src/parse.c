@@ -32,11 +32,10 @@ static char class(char c){
 // parse x'  
 static K parseAdverb(Parser *p, K x){
     char c, t; //class, type
-    char *s = ADVERB_STR;
 
     while ( '/' == class(peek(p)) ){
         c = *p->current++;
-        t = sc(s, c) - s;
+        t = ic(ADVERB_STR, c);
         if (':'==*p->current){ ++p->current; t+=3; }
         // special case: if x==0 we're parsing bare adverbs (eg "'/")
         x = x ? k2(kw(t), x) : kw(t);
