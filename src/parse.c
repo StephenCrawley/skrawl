@@ -8,6 +8,11 @@
 // foward declarations
 static K Exprs(char c, Parser *p);
 
+// increment current char pointer
+static inline Parser *inc(Parser *p){ return ++p->current, p; }
+// decrement current char pointer
+static inline Parser *dec(Parser *p){ return --p->current, p; }
+
 // consume whitepace
 static inline void ws(Parser *p){ while(' '==*p->current) ++p->current; }
 
@@ -177,8 +182,7 @@ static K parseSym(Parser *p){
     K r = tn(KS, 0);
 
     do {
-        ++p->current;
-        r = j2(r, ks(encodeSym(p)));
+        r = j2(r, ks(encodeSym(inc(p))));
     } while('`'==peek(p));
 
     return KS==TYP(r) ? k1(r) : va(r); // enlist, as sym literals are enlisted in K parse tree
@@ -198,7 +202,7 @@ static K parseFenced(Parser *p, char b){
     if (b != (a=peek(p)))
         return unref(r), '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
 
-    return ++p->current, r;
+    return inc(p), r;
 }
 
 // parse func args {[...] }. must be sym list
@@ -217,13 +221,13 @@ static K classSwitch(Parser *p){
     if ('-'==a && '0'==class(*p->current)) c = '0';
 
     switch (c){
-    case '0': --p->current, x=parseNum(p); break;
-    case '`': --p->current, x=parseSym(p); break;
-    case 'a': --p->current, x=parseVar(p); break;
+    case '0': x=parseNum(dec(p)); break;
+    case '`': x=parseSym(dec(p)); break;
+    case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
-    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?(++p->current,ku(a)):'/'!=class(c)||'\''==c?ku(a):kv(a); break;
-    case '/': --p->current, x=parseAdverb(p,0); break;
-    case '{': f=1,s=p->current-1,y='['==peek(p)?++p->current,parseArgs(p):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
+    case '+': c=peek(p),x=AT_EXPR_END(c)?kv(a):':'==c?inc(p),ku(a):'/'!=class(c)||'\''==c?ku(a):kv(a); break;
+    case '/': x=parseAdverb(dec(p),0); break;
+    case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
     default : return '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
     }
@@ -263,9 +267,9 @@ static K expr(Parser *p){
     a = *p->current++;
     c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? '+' : '?';
     switch (c){
-    case ' ': if('+'!=class(a) || ('-'==a && '0'==class(*p->current))){ --p->current, y=classSwitch(p); break; } //else FALLTHROUGH
-    case '+': y=':'==*p->current?++p->current,ku(a):kv(a); y=parsePostfix(p, y); break;
-    default : --p->current; y=classSwitch(p);
+    case ' ': if('+'!=class(a) || ('-'==a && '0'==class(*p->current))){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
+    case '+': y=':'==*p->current?inc(p),ku(a):kv(a); y=parsePostfix(p, y); break;
+    default : y=classSwitch(dec(p));
     }
 
     // if y is a noun 
