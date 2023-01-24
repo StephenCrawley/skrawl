@@ -3,6 +3,7 @@
 #define AT_EXPR_END(c) sc(";)]}\n\0", (c))
 #define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf("'parse! "); printf(__VA_ARGS__);}; ku(':');})
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
+#define HEAD_IS_ADVERB(x) ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
 
 // foward declarations
 static K Exprs(char c, Parser *p);
@@ -45,13 +46,14 @@ static K parseMExpr(Parser *p, K x){
     while ('[' == peek(p)){
         ++p->current;
         r = ']'==peek(p) ? k1(ku(':')) : Exprs(0, p);
+
         if (']' != (c=next(p))){
             unref(x), unref(r);
             return HANDLE_ERROR("unexpected token: %c", c);
         }
 
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
-        if (IS_VERB(x) && CNT(r)>1) x=tx(KV,x); 
+        if (IS_VERB(x)) x = tx(CNT(r)==1 ? KU : KV,x); 
 
         x = j2(k1(x), r);
     }
@@ -205,10 +207,14 @@ static K parseArgs(Parser *p){
     return KS==TYP(r) ? r : (unref(r),HANDLE_ERROR("invalid function args\n"));
 }
 
-static K classSwitch(Parser *p, char a, char c){
+static K classSwitch(Parser *p){
+    char a, c, *s; //current char, char class, start of object
     K x, y; //x:parsed object, y:lambda params
     bool f=0; //is lambda function?
-    char *s; //s:start of object
+
+    a = next(p), c = class(a);
+    // if '-' followed by digit, we're parsing a number, so reclassify
+    if ('-'==a && '0'==class(*p->current)) c = '0';
 
     switch (c){
     case '0': --p->current, x=parseNum(p); break;
@@ -232,18 +238,12 @@ static K classSwitch(Parser *p, char a, char c){
 static K expr(Parser *p){
     K x, y, z; //prefix, infix, right expression
     char a, c; //current char, char class
-    
-    a = next(p);
-    c = class(a);
 
-    // if '-' followed by digit, we're parsing a number, so reclassify
-    if ('-'==a && '0'==class(*p->current)) c = '0';
-
-    // parse based on class of current character
-    x = classSwitch(p, a, c);
+    // parse prefix
+    x = classSwitch(p);
     if (p->error) return x;
 
-    bool va = IS_VERB(x) || IS_ADVERB(x);
+    bool va = IS_VERB(x) || HEAD_IS_ADVERB(x);
 
     // set composition flag and return x
     if ( AT_EXPR_END(peek(p)) ) 
@@ -252,29 +252,32 @@ static K expr(Parser *p){
     // parse +x
     if (va) 
         return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
-    
-    a = next(p);
-    c = class(a);
-    if ('+'==c && '['!=peek(p)){ //infix verb
-        y = parsePostfix(p, ':'==*p->current?(++p->current,ku(a)):kv(a));
+
+    // parse next term. some hairiness here
+    // need to determine whether y is infix or start of another expression
+    // if y is a verb ('*','+',"f/",etc) it is infix -> (y;x;expr())
+    // else (y is a noun) it is the start of the next expr, so we rewind and parse (x;expr())
+    // also, a '-' token can be dyadic minus or start of negative number
+    // x-1 -> (-;`x;1) but x -1 -> (`x;-1)
+    char *temp = p->current; // so we can rewind if y is a noun
+    a = *p->current++;
+    c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? '+' : '?';
+    switch (c){
+    case ' ': if('+'!=class(a) || ('-'==a && '0'==class(*p->current))){ --p->current, y=classSwitch(p); break; } //else FALLTHROUGH
+    case '+': y=':'==*p->current?++p->current,ku(a):kv(a); y=parsePostfix(p, y); break;
+    default : --p->current; y=classSwitch(p);
     }
-    else { //infix noun
-        // need to handle 2 cases. x y z->(x;(y;z)) and x y/z->((/;y);x;z)
-        char *t = p->current-1; //temp to reset if infix noun is not followed by adverb
 
-        y = classSwitch(p, a, c);
-        if (p->error) return unref(x), y;
-
-        if ( !IS_ADVERB(y) ){
-            if ( AT_EXPR_END(peek(p)) ){
-                return k2(x, y);
-            }
-            else {
-                unref(y);
-                p->current = t;
-                return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
-            }
+    // if y is a noun 
+    if ( !( IS_VERB(y) || HEAD_IS_ADVERB(y) ) ){
+        // return (x;y)
+        if (AT_EXPR_END(peek(p))){
+            return k2(x, y);
         }
+        // else rewind and return (x;expr()) 
+        unref(y);
+        p->current = temp;
+        return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
     }
 
     // parse x+
