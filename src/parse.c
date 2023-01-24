@@ -4,6 +4,7 @@
 #define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf("'parse! "); printf(__VA_ARGS__);}; ku(':');})
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 #define HEAD_IS_ADVERB(x) ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
+#define IS_K_SET(x) (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
 
 // foward declarations
 static K Exprs(char c, Parser *p);
@@ -290,7 +291,7 @@ static K expr(Parser *p){
     
     // parse x+y
     z = expr(p);
-    return p->compose ? COMPOSE(k2(y,x), z) : k3(y, x, z);
+    return (p->compose && !IS_K_SET(y)) ? COMPOSE(k2(y,x), z) : k3(y, x, z);
 }
 
 // parse ;-delimited Expressions
