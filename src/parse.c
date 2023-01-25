@@ -55,7 +55,7 @@ static K parseMExpr(Parser *p, K x){
         }
 
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
-        if (IS_VERB(x)) x = tx(CNT(r)==1 ? KU : KV,x); 
+        if (KV==TYP(x) && 1==CNT(r)) x = tx(KU,x); 
 
         x = j2(k1(x), r);
     }
@@ -222,7 +222,7 @@ static K classSwitch(Parser *p){
     case '`': x=parseSym(dec(p)); break;
     case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
-    case '+': x=kv(a); a=peek(p); if(':'==a?inc(p),1:'/'!=class(a)||'\''==a) x=tx(KU,x); break;
+    case '+': x=kv(a); a=peek(p); if(':'==a?inc(p),1:!AT_EXPR_END(a)&&'['!=a&&('/'!=class(a)||'\''==a)) x=tx(KU,x); break;
     case '/': x=parseAdverb(dec(p),0); break;
     case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
