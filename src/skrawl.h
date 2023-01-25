@@ -76,6 +76,6 @@ enum {
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
 static inline u64   ic(char *s,char c){ return sc(s,c)-s; }
-static inline K     tx(i8 t,K x){ return TAG_TYP(x) ? x=SET_TAG(t,x) : (HDR_TYP(x)=t), x; }
+static inline K     tx(i8 t,K x){ return TAG_TYP(x) ? SET_TAG(t,x) : (HDR_TYP(x)=t,x); }
 
 #endif

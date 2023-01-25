@@ -31,16 +31,13 @@ static char class(char c){
 
 // parse x'  
 static K parseAdverb(Parser *p, K x){
-    char c, t; //class, type
-
+    char t; //type
     while ( '/' == class(peek(p)) ){
-        c = *p->current++;
-        t = ic(ADVERB_STR, c);
+        t = ic(ADVERB_STR, *p->current++);
         if (':'==*p->current){ ++p->current; t+=3; }
         // special case: if x==0 we're parsing bare adverbs (eg "'/")
         x = x ? k2(kw(t), x) : kw(t);
     }
-
     return x;
 }
 
@@ -107,7 +104,7 @@ static double parseFlt(char *s, i32 len, i32 d){
     double f;
     i64 l, r; //left of dot, right of dot
     if ('-' == *s) return -parseFlt(++s, len-1, d-1);
-    l = d<len   ? parseInt(s, d) : 0;
+    l = d       ? parseInt(s, d) : 0;
     r = d<len-1 ? parseInt(s+d+1, len-d-1) : 0;
     f = (double) r;
     for (i32 i=0, n=len-d-1; i<n; i++) f/=10.0;
@@ -156,7 +153,7 @@ static K parseNum(Parser *p){
         if (' '!=*p->current) break;
 
         c = peek(p);
-    } while ('0'==class(c) || ('-'==c && '0'==class(p->current[1])));
+    } while ('0'==class(c) || '0'==class('-'==c?p->current[1+('.'==p->current[1])]:'.'==c?p->current[1]:0));
 
     return r;
 }
@@ -216,9 +213,9 @@ static K classSwitch(Parser *p){
     K x, y; //x:parsed object, y:lambda params
     bool f=0; //is lambda function?
 
-    a = next(p), c = class(a);
-    // if '-' followed by digit, we're parsing a number, so reclassify
-    if ('-'==a && '0'==class(*p->current)) c = '0';
+    a = next(p);
+    // if "-" or "-." followed by digit, we're parsing a number, so classify appropriately
+    c = '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:a) ? '0' : class(a);
 
     switch (c){
     case '0': x=parseNum(dec(p)); break;
@@ -265,9 +262,10 @@ static K expr(Parser *p){
     // x-1 -> (-;`x;1) but x -1 -> (`x;-1)
     char *temp = p->current; // so we can rewind if y is a noun
     a = *p->current++;
-    c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? '+' : '?';
+    // switch based on whether a space precedes the term
+    c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
     switch (c){
-    case ' ': if('+'!=class(a) || ('-'==a && '0'==class(*p->current))){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
+    case ' ': if('+'!=class(a) || '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:0)){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
     case '+': y=':'==*p->current?inc(p),ku(a):kv(a); y=parsePostfix(p, y); break;
     default : y=classSwitch(dec(p));
     }
