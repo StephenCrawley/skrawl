@@ -334,7 +334,7 @@ static void _printK(K x){
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;
     case K_ADVERB_START: printAdverb(x); break;
     case KL: for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } break;
-    case KM: printf("::"); break;
+    case KM: break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }
 }
