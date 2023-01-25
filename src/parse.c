@@ -200,7 +200,7 @@ static K parseFenced(Parser *p, char b){
 
     // if not properly closed, return error
     if (b != (a=peek(p)))
-        return unref(r), '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
+        return unref(r), !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
 
     return inc(p), r;
 }
@@ -229,7 +229,7 @@ static K classSwitch(Parser *p){
     case '/': x=parseAdverb(dec(p),0); break;
     case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
-    default : return '\n'==a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
+    default : return !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
     }
 
     // create lambda object
