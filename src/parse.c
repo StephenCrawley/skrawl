@@ -288,11 +288,11 @@ static K Exprs(char c, Parser *p){
     K r=tn(0,0), t;
 
     do {
-        t = !CNT(r) && AT_EXPR_END(peek(p)) ?  //if not 1st expression parsed and at expr end
-            (';'==c ? ku(':') : km())       :  //return null or magic value
-            expr(p);                           //else parse expression
-        r = jk(r,t);                           //join to previously parsed exprs
-        p->compose = false;                    //(re)set flags
+        t = AT_EXPR_END(peek(p))       ?  //if at expr end
+            (';'==c ? ku(':') : km())  :  //return null or magic value
+            expr(p);                      //else parse expression
+        r = jk(r,t);                      //join to previously parsed exprs
+        p->compose = false;               //(re)set flags
     } while (';'==next(p));    
     --p->current;
 
