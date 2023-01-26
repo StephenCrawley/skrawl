@@ -78,19 +78,15 @@ static K parsePostfix(Parser *p, K x){
     return x;
 }
 
+// parse "abc", "", etc
 static K parseStr(Parser *p){
-    K r;
-    char a; //current char
-    u64 n = 0; //count of chars in string
-    while ('"' != (a=next(p))){
-        ++n; 
-        if (!a){ //if EOL
-            --p->current;
-            return HANDLE_ERROR("unclosed string\n");
-        }
-    }
-    r = tn(1==n ? -KC : KC, n);
-    memcpy(CHR(r), p->current-n-1, n);
+    const char *s = p->current;
+    do { // if we hit EOL, error
+        if (!*p->current) return HANDLE_ERROR("unclosed string\n");
+    } while ('"' != *p->current++);
+    i64 n = p->current-s-1;
+    K r = tn(1 == n ? -KC : KC, n);
+    memcpy(CHR(r), s, n);
     return r;
 }
 
