@@ -1,10 +1,11 @@
 #include "parse.h"
 
 #define AT_EXPR_END(c) sc(";)]}\n\0", (c))
-#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; printf("'parse! "); printf(__VA_ARGS__);}; ku(':');})
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 #define HEAD_IS_ADVERB(x) ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
 #define IS_K_SET(x) (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
+#define PRINT_ERROR(...) (puts(p->src),printf("%*s^\n",(int)(p->current-p->src),""),printf("'parse! "), printf(__VA_ARGS__))
+#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; PRINT_ERROR(__VA_ARGS__);} ku(':');})
 
 // foward declarations
 static K Exprs(char c, Parser *p);
