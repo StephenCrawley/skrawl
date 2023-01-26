@@ -90,22 +90,22 @@ static K parseStr(Parser *p){
     return r;
 }
 
+// parse 123
 static i64 parseInt(const char *s, i32 len){
-    i64 n = 0;
     if ('-' == *s) return -parseInt(++s, len-1);
+    i64 n = 0;
     for (i64 i=0; i<len; i++) n = (n*10) + (s[i]-'0'); 
     return n;
 }
 
+// parse 1.23
 static double parseFlt(const char *s, i32 len, i32 d){
-    double f;
-    i64 l, r; //left of dot, right of dot
     if ('-' == *s) return -parseFlt(++s, len-1, d-1);
-    l = d       ? parseInt(s, d) : 0;
-    r = d<len-1 ? parseInt(s+d+1, len-d-1) : 0;
-    f = (double) r;
-    for (i32 i=0, n=len-d-1; i<n; i++) f/=10.0;
-    return (double)l + f;
+    double l, r; //left of dot, right of dot
+    l = (double)(d       ? parseInt(s, d) : 0);
+    r = (double)(d<len-1 ? parseInt(s+d+1, len-d-1) : 0);
+    for (i32 i=0, n=len-d-1; i<n; i++) r/=10.0;
+    return l + r;
 }
 
 // parse number(s). "1","1 23"
