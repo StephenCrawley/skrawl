@@ -160,30 +160,21 @@ static K parseNum(Parser *p){
 }
 
 static i64 encodeSym(Parser *p){
-    i8 i = 0;
     i64 n = 0;
-    char a = *p->current;
-    char c = class(a);
-
-    while ('a'==c || '0'==c){
-        // encode char in i64. max 8 chars per symbol
-        if (i<8) CHR(&n)[i++] = a; 
-        a = *++p->current;
-        c = class(a);
-    }
-
+    char c, *s=p->current;
+    while ('a'==(c=class(*p->current)) || '0'==c)
+        ++p->current;
+    // encode char in i64. max 8 chars per symbol
+    memcpy(&n, s, (p->current-s)>8 ? 8 : p->current-s);
     return n;
 }
 
 // parse `a`b`c
 static K parseSym(Parser *p){
-    K r = tn(KS, 0);
-
-    do {
-        r = j2(r, ks(encodeSym(inc(p))));
-    } while('`'==peek(p));
-
-    return KS==TYP(r) ? k1(r) : va(r); // enlist, as sym literals are enlisted in K parse tree
+    K r = ks(encodeSym(inc(p)));
+    while('`'==peek(p)) r = j2(r, ks(encodeSym(inc(p))));
+    // enlist, as sym literals are enlisted in K parse tree
+    return KS==TYP(r) ? k1(r) : va(r); 
 }
 
 static K parseVar(Parser *p){

@@ -297,13 +297,11 @@ static void printFlt(K x){
 }
 
 static void printSym(K x){
-    i8 j;
-    i64 *m;
-    for (i64 i=0, n=CNT(x); i<n; i++){
-        putchar('`');
-        m = INT(x) + i;
-        j = 0;
-        while (j<8 && CHR(m)[j]) putchar(CHR(m)[j++]);
+    // syms are encoded in i64, so max 8 chars
+    char s[10] = {'`', 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    for (i64 i=0, n=CNT(x), b=sizeof(i64); i<n; i++){
+        memcpy(&s[1], (void*)(INT(x)+i), b);
+        printf("%s", s);
     }
 }
 
