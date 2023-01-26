@@ -114,50 +114,39 @@ static double parseFlt(const char *s, i32 len, i32 d){
 
 // parse number(s). "1","1 23"
 static K parseNum(Parser *p){
-    K r = tn(KI, 0);
-    char c, f; //c:current char, f:count of dots seen
-    const char *s, *d; //s:start of num, d:location of dot
-    i8 t;  //return type
-    i64 n; //int placeholder
-
-    // parse number or numeric list 
+    char a; //current char
+    i8 n, d, f=0; //num length, count of dots '.', any floats?
+    K r = tn(KI, 0), t;
     do {
-        f = 0; 
-        // consume the number. s is where it starts 
-        s = p->current, d = s;
-        c = *s;
-        if ('-'==c) c = *++p->current;
-        while ('0'==class(c) || '.'==c){
-            if ('.'==c) { f += 1; d = p->current; }
-            c = *++p->current;
-        }
+        d = 0;
+        n = ('-'==*p->current);
+        do d+=('.'==p->current[n]), a=p->current[++n]; while ('0'==class(a) || '.'==a);
 
         // if more than one dot, error
-        if (f > 1)
+        if (d > 1)
             return unref(r), HANDLE_ERROR("invalid number\n");
 
-        // create a number and join it 
-        t = ABS(TYP(r));
-        if (f){
-            // if float parsed after ints, cast the return object to float
-            if (KI==t && CNT(r)){ 
-                for (i32 i=0; i<CNT(r); i++) FLT(r)[i] = (double) INT(r)[i];
-                r=tx(KF,r);
-            }
-            r = j2(r, kf(parseFlt(s, p->current-s, d-s)));
-        }
-        else {
-            n = parseInt(s, p->current-s);
-            r = j2(r, KI==t ? ki(n) : kf( (double)n ));
-        }
+        f |= d;
+        t = d ? kf(parseFlt(p->current, n, ic((char *)p->current, '.'))) : ki(parseInt(p->current, n));
+        r = jk(r, t);
+        p->current += n;
 
         // if not whitespace, then we're done parsing num literals
         if (' '!=*p->current) break;
+        a = peek(p);
+    } while ('0'==class(a) || '0'==class('-'==a?p->current[1+('.'==p->current[1])]:'.'==a?p->current[1]:0));
 
-        c = peek(p);
-    } while ('0'==class(c) || '0'==class('-'==c?p->current[1+('.'==p->current[1])]:'.'==c?p->current[1]:0));
+    // if just one number, return
+    if (1==CNT(r)) return ref(t), unref(r), t;
 
-    return r;
+    // else squeeze into compact form
+    t = tn(f?KF:KI, CNT(r));
+    if (f)
+        for (i64 i=0, n=CNT(t); i<n; i++) FLT(t)[i] = -KI==TYP(OBJ(r)[i]) ? (double)*INT(OBJ(r)[i]) : *FLT(OBJ(r)[i]);
+    else 
+        for (i64 i=0, n=CNT(t); i<n; i++) INT(t)[i] = *INT(OBJ(r)[i]);
+    
+    return unref(r), t;
 }
 
 static i64 encodeSym(Parser *p){
@@ -212,7 +201,7 @@ static K classSwitch(Parser *p){
     c = '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:a) ? '0' : class(a);
 
     switch (c){
-    case '0': x=parseNum(dec(p)); break;
+    case '0': x=parseNum(dec(p)); if (p->error)return x; break;
     case '`': x=parseSym(dec(p)); break;
     case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
