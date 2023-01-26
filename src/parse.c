@@ -80,7 +80,7 @@ static K parsePostfix(Parser *p, K x){
 
 static K parseStr(Parser *p){
     K r;
-    char a, *s = p->current; //current char, start of string after first "
+    char a; //current char
     u64 n = 0; //count of chars in string
     while ('"' != (a=next(p))){
         ++n; 
@@ -90,18 +90,18 @@ static K parseStr(Parser *p){
         }
     }
     r = tn(1==n ? -KC : KC, n);
-    memcpy(CHR(r), s, n);
+    memcpy(CHR(r), p->current-n-1, n);
     return r;
 }
 
-static i64 parseInt(char *s, i32 len){
+static i64 parseInt(const char *s, i32 len){
     i64 n = 0;
     if ('-' == *s) return -parseInt(++s, len-1);
     for (i64 i=0; i<len; i++) n = (n*10) + (s[i]-'0'); 
     return n;
 }
 
-static double parseFlt(char *s, i32 len, i32 d){
+static double parseFlt(const char *s, i32 len, i32 d){
     double f;
     i64 l, r; //left of dot, right of dot
     if ('-' == *s) return -parseFlt(++s, len-1, d-1);
@@ -115,7 +115,8 @@ static double parseFlt(char *s, i32 len, i32 d){
 // parse number(s). "1","1 23"
 static K parseNum(Parser *p){
     K r = tn(KI, 0);
-    char c, *s, f, *d; //c:current char, s:start of num, f:count of dots seen, d:location of dot
+    char c, f; //c:current char, f:count of dots seen
+    const char *s, *d; //s:start of num, d:location of dot
     i8 t;  //return type
     i64 n; //int placeholder
 
@@ -161,9 +162,9 @@ static K parseNum(Parser *p){
 
 static i64 encodeSym(Parser *p){
     i64 n = 0;
-    char c, *s=p->current;
-    while ('a'==(c=class(*p->current)) || '0'==c)
-        ++p->current;
+    char c;
+    const char *s = p->current;
+    while ('a'==(c=class(*p->current)) || '0'==c) { ++p->current; }
     // encode char in i64. max 8 chars per symbol
     memcpy(&n, s, (p->current-s)>8 ? 8 : p->current-s);
     return n;
@@ -201,7 +202,8 @@ static K parseArgs(Parser *p){
 }
 
 static K classSwitch(Parser *p){
-    char a, c, *s; //current char, char class, start of object
+    char a, c; //current char, char class, 
+    const char *s; // start of object
     K x, y; //x:parsed object, y:lambda params
     bool f=0; //is lambda function?
 
@@ -252,7 +254,7 @@ static K expr(Parser *p){
     // else (y is a noun) it is the start of the next expr, so we rewind and parse (x;expr())
     // also, a '-' token can be dyadic minus or start of negative number
     // x-1 -> (-;`x;1) but x -1 -> (`x;-1)
-    char *temp = p->current; // so we can rewind if y is a noun
+    const char *temp = p->current; // so we can rewind if y is a noun
     a = *p->current++;
     // switch based on whether a space precedes the term
     c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
@@ -299,7 +301,7 @@ static K Exprs(char c, Parser *p){
     return !c ? r : 1==CNT(r) ? ref(t),unref(r),t : j2(k1(ku(c)), r);
 }
 
-K parse(char *src){
+K parse(const char *src){
     K r;
 
     // init parser struct

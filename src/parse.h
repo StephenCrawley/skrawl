@@ -4,8 +4,8 @@
 #include "skrawl.h"
 #include "object.h"
 
-typedef struct {bool error,compose; char *src,*current;} Parser;
+typedef struct {bool error,compose; const char *src,*current;} Parser;
 
-K parse(char*);
+K parse(const char*);
 
 #endif
