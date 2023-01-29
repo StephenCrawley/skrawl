@@ -4,10 +4,12 @@
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 #define HEAD_IS_ADVERB(x) ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
 #define IS_K_SET(x) (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
-#define PRINT_ERROR(...) (puts(p->src),printf("%*s^\n",(int)(p->current-p->src),""),printf("'parse! "), printf(__VA_ARGS__))
-#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; PRINT_ERROR(__VA_ARGS__);} ku(':');})
+#define PRINT_ERROR(...) (printf("'parse! "), printf(__VA_ARGS__))
+#define PRINT_ERROR_SRC(...) (puts(p->src),printf("%*s^\n",(int)(p->current-p->src),""),PRINT_ERROR(__VA_ARGS__))
+#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; PRINT_ERROR_SRC(__VA_ARGS__);} ku(':');})
 
 // foward declarations
+static K expr(Parser *p);
 static K Exprs(char c, Parser *p);
 
 // increment current char pointer
@@ -30,6 +32,19 @@ static char class(char c){
     return (32>c||c>126) ? 0 : " +\"++++/()+++++/0000000000+ +++++aaaaaaaaaaaaaaaaaaaaaaaaaa / ++`aaaaaaaaaaaaaaaaaaaaaaaaaa{+}+"[c-32];
 }
 
+// parse ({[ Expressions... ]})
+static K parseFenced(Parser *p, char b){
+    char a=peek(p);
+    // parse Expressions
+    K r = ')'==a?tn(0,0):sc("}]",a)?ku(':'):Exprs(')'==b?',':'}'==b?';':0, p);
+
+    // if not properly closed, return error
+    if (b != (a=peek(p)))
+        return unref(r), !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
+
+    return inc(p), r;
+}
+
 // parse x'  
 static K parseAdverb(Parser *p, K x){
     char t; //type
@@ -45,19 +60,13 @@ static K parseAdverb(Parser *p, K x){
 // parse x[y;z]
 static K parseMExpr(Parser *p, K x){
     K r;
-    char c;
     while ('[' == peek(p)){
-        ++p->current;
-        r = ']'==peek(p) ? k1(ku(':')) : Exprs(0, p);
-
-        if (']' != (c=next(p))){
-            unref(x), unref(r);
-            return HANDLE_ERROR("unexpected token: %c", c);
-        }
-
+        // parse [ ... ] and return if error. if empty [] (type KU) then box r
+        r = parseFenced(inc(p),']');
+        if (p->error)return unref(x), r;
+        if (KU==TYP(r)) r = k1(r);
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
         if (KV==TYP(x) && 1==CNT(r)) x = tx(KU,x); 
-
         x = j2(k1(x), r);
     }
     return x;
@@ -73,9 +82,7 @@ static K parsePostfix(Parser *p, K x){
     x = parseAdverb(p, x);
 
     // if followed by [, recurse
-    if ('['==peek(p)) x=parsePostfix(p, x);
-
-    return x;
+    return '['==peek(p) ? parsePostfix(p,x) : x;
 }
 
 // parse "abc", "", etc
@@ -167,23 +174,13 @@ static K parseVar(Parser *p){
     return ks(encodeSym(p));
 }
 
-// parse ({[ Expressions... ]})
-static K parseFenced(Parser *p, char b){
-    char a=peek(p);
-    // parse Expressions
-    K r = ')'==a?tn(0,0):'}'==a?ku(':'):']'==a?k1(ks(0)):Exprs(')'==b?',':'}'==b?';':0, p);
-
-    // if not properly closed, return error
-    if (b != (a=peek(p)))
-        return unref(r), !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
-
-    return inc(p), r;
-}
-
 // parse func args {[...] }. must be sym list
 static K parseArgs(Parser *p){
+    if (']'==peek(p)) 
+        return ++p->current, squeeze(k1(ks('x')));
     K r = squeeze(parseFenced(p,']'));
-    return KS==TYP(r) ? r : (unref(r),HANDLE_ERROR("invalid function args\n"));
+    if (p->error) return r;
+    return KS==TYP(r) ? r : (unref(r), p->error=1, PRINT_ERROR("invalid function args\n"), ku(':'));
 }
 
 static K classSwitch(Parser *p){
@@ -203,7 +200,7 @@ static K classSwitch(Parser *p){
     case '"': x=parseStr(p); break;
     case '+': x=kv(a); a=peek(p); if(':'==a?inc(p),1:!AT_EXPR_END(a)&&'['!=a&&('/'!=class(a)||'\''==a)) x=tx(KU,x); break;
     case '/': x=parseAdverb(dec(p),0); break;
-    case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks(0)); if (p->error) return y; //else FALLTHROUGH
+    case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks('x')); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
     default : return !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
     }
