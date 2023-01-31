@@ -313,5 +313,7 @@ K parse(const char *src){
 
     // parse Expressions
     r = Exprs(';', &p);
+    // should be at EOL after calling Exprs()
+    r = !peek(&p) ? r : (unref(r),handleError(&p,*p.current));
     return p.error ? unref(r),(K)0 : r;
 }
