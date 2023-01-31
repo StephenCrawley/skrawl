@@ -36,7 +36,8 @@ enum {
     KER,                       // /:
     KEL,                       // \: 
     K_ADVERB_END = KEL,        //end of adverb types
-    KM                         //magic value
+    KM,                        //magic value
+    KE                         //error
 };
 
 #define VERB_STR    ":+-*%,?.@!$#_^&?=<>~|;"
