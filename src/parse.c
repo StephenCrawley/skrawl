@@ -4,13 +4,26 @@
 #define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
 #define HEAD_IS_ADVERB(x) ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
 #define IS_K_SET(x) (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
-#define PRINT_ERROR(...) (printf("'parse! "), printf(__VA_ARGS__))
-#define PRINT_ERROR_SRC(...) (puts(p->src),printf("%*s^\n",(int)(p->current-p->src),""),PRINT_ERROR(__VA_ARGS__))
-#define HANDLE_ERROR(...) __extension__({if (!p->error){p->error=true; PRINT_ERROR_SRC(__VA_ARGS__);} ku(':');})
 
 // foward declarations
 static K expr(Parser *p);
 static K Exprs(char c, Parser *p);
+
+// set error flag, print error, return error object
+// 'a' is flag to decide error msg to print. if >=0, it is an unexpected char in input stream
+static K handleError(Parser *p, char a){
+    if (p->error) return ke(); //if already error, return KE object
+    p->error = true;
+    // print src code and an arrow to the char that caused error
+    // can't print src when invalid arg (-3) as we don't keep track of which arg has the error
+    if (-2<=a) { puts(p->src); printf("%*s^\n",(int)(p->current-p->src),""); };
+    -3==a ? printf("'parse! invalid lambda args\n") :
+    -2==a ? printf("'parse! unclosed string\n")     :
+    -1==a ? printf("'parse! invalid number\n")      : 
+       !a ? printf("'parse! unexpected EOL\n")      : 
+            printf("'parse! unexpected token: %c\n",a);
+    return ke();
+}
 
 // increment current char pointer
 static inline Parser *inc(Parser *p){ return ++p->current, p; }
@@ -40,7 +53,7 @@ static K parseFenced(Parser *p, char b){
 
     // if not properly closed, return error
     if (b != (a=peek(p)))
-        return unref(r), !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
+        return unref(r), handleError(p, a);
 
     return inc(p), r;
 }
@@ -89,7 +102,7 @@ static K parsePostfix(Parser *p, K x){
 static K parseStr(Parser *p){
     const char *s = p->current;
     do { // if we hit EOL, error
-        if (!*p->current) return HANDLE_ERROR("unclosed string\n");
+        if (!*p->current) return handleError(p,-2);
     } while ('"' != *p->current++);
     i64 n = p->current-s-1;
     K r = tn(1 == n ? -KC : KC, n);
@@ -127,7 +140,7 @@ static K parseNum(Parser *p){
 
         // if more than one dot, error
         if (d > 1)
-            return unref(r), HANDLE_ERROR("invalid number\n");
+            return unref(r), r=handleError(p,-1), p->current+=n, r;
 
         f |= d;
         t = d ? kf(parseFlt(p->current, n, ic((char *)p->current, '.'))) : ki(parseInt(p->current, n));
@@ -180,7 +193,7 @@ static K parseArgs(Parser *p){
         return ++p->current, squeeze(k1(ks('x')));
     K r = squeeze(parseFenced(p,']'));
     if (p->error) return r;
-    return KS==TYP(r) ? r : (unref(r), p->error=1, PRINT_ERROR("invalid function args\n"), ku(':'));
+    return KS==TYP(r) ? r : (unref(r),handleError(p,-3));
 }
 
 static K classSwitch(Parser *p){
@@ -202,7 +215,7 @@ static K classSwitch(Parser *p){
     case '/': x=parseAdverb(dec(p),0); break;
     case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):k1(ks('x')); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
-    default : return !a ? HANDLE_ERROR("unexpected EOL\n") : HANDLE_ERROR("unexpected token: %c\n", a);
+    default : return handleError(p, a);
     }
 
     // create lambda object
