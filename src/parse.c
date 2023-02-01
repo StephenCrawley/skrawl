@@ -260,7 +260,7 @@ static K expr(Parser *p){
     }
 
     // if y is a noun 
-    if ( !( IS_VERB(y) || HEAD_IS_ADVERB(y) ) ){
+    if ( ')'==p->current[-1] || !( IS_VERB(y) || HEAD_IS_ADVERB(y) ) ){
         // return (x;y)
         if (AT_EXPR_END(peek(p))){
             return k2(x, y);
