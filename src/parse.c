@@ -262,9 +262,8 @@ static K expr(Parser *p){
     // if y is a noun 
     if ( ')'==p->current[-1] || !( IS_VERB(y) || HEAD_IS_ADVERB(y) ) ){
         // return (x;y)
-        if (AT_EXPR_END(peek(p))){
-            return k2(x, y);
-        }
+        if (AT_EXPR_END(peek(p))) return k2(x, y); 
+
         // else rewind and return (x;expr()) 
         unref(y);
         p->current = temp;
@@ -316,4 +315,25 @@ K parse(const char *src){
     // should be at EOL after calling Exprs()
     r = !peek(&p) ? r : (unref(r),handleError(&p,*p.current));
     return p.error ? unref(r),(K)0 : r;
+}
+
+#define SRC_MAX 128  //max repl source length
+
+K readK(){
+    // print prompt and read from stdin
+    char src[SRC_MAX], *s;
+    putchar(' ');
+    fgets(src, SRC_MAX, stdin);
+
+    // replace newline with 0
+    if ((s = sc(src,'\n'))) *s = 0;
+
+    // if not a system command, parse and return
+    if ('\\' != *(s=src))
+        return parse(s);
+
+    if (!*++s || '\\'==*s)
+        exit(0);
+
+    return printf("'error! unknown command\n"), (K)0;
 }

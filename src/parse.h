@@ -7,5 +7,6 @@
 typedef struct {bool error,compose; const char *src,*current;} Parser;
 
 K parse(const char*);
+K readK();
 
 #endif
