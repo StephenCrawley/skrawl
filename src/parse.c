@@ -233,7 +233,7 @@ static K expr(Parser *p){
     x = classSwitch(p);
     if (p->error) return x;
 
-    bool va = IS_VERB(x) || HEAD_IS_ADVERB(x);
+    bool va = ')'!=p->current[-1] && (IS_VERB(x) || HEAD_IS_ADVERB(x));
 
     // set composition flag and return x
     if ( AT_EXPR_END(peek(p)) ) 
