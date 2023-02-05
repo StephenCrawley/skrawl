@@ -11,6 +11,7 @@
 // type macros
 typedef uint64_t  K;
 typedef int8_t    i8;
+typedef uint8_t   u8;
 typedef int32_t   i32;
 typedef uint32_t  u32;
 typedef int64_t   i64;
@@ -64,7 +65,7 @@ enum {
 
 // K object accessors
 #define OBJ(x)  ((     K*)(x))  //pointer to generic K object list
-#define CHR(x)  ((    i8*)(x))  //pointer to int8 
+#define CHR(x)  ((    u8*)(x))  //pointer to int8 
 #define INT(x)  ((   i64*)(x))  //pointer to int64 
 #define FLT(x)  ((double*)(x))  //pointer to double 
 
