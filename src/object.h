@@ -25,6 +25,7 @@ K squeeze(K);
 K printK(K);
 
 static inline K ke(){ return SET_TAG(KE,0); }
+static inline K knul(){ return SET_TAG(KN,0); }
 
 #ifdef DBG_WS
 extern u64 WS;

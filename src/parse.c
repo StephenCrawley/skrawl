@@ -306,15 +306,14 @@ K parse(const char *src){
     p.current = src;
 
     // return if only whitespace or comment in input
-    if ('/'==*src || sc("\n\0", peek(&p))){
-        return (K)0;
-    }
+    if ('/'==*src || sc("\n\0", peek(&p)))
+        return knul();
 
     // parse Expressions
     r = Exprs(';', &p);
     // should be at EOL after calling Exprs()
     r = !peek(&p) ? r : (unref(r),handleError(&p,*p.current));
-    return p.error ? unref(r),(K)0 : r;
+    return p.error ? unref(r),ke() : r;
 }
 
 #define SRC_MAX 128  //max repl source length

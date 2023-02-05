@@ -36,8 +36,9 @@ enum {
     KER,                       // /:
     KEL,                       // \: 
     K_ADVERB_END = KEL,        //end of adverb types
-    KM,                        //magic value
-    KE                         //error
+    KM,                        //magic value(internal)
+    KN,                        //null(internal)
+    KE                         //error(internal)
 };
 
 #define VERB_STR    ":+-*%,?.@!$#_^&?=<>~|;"
@@ -74,6 +75,8 @@ enum {
 #define IS_VERB(a)         __extension__({i8 t=TYP(a); KU==t || KV==t;}) 
 #define IS_ADVERB(a)       __extension__({i8 t=TYP(a); K_ADVERB_START<=t && t<=K_ADVERB_END;})
 #define IS_GENERIC(x)      __extension__({K _x=(x); i8 t=TYP(_x); KK==t || KL==t || IS_ADVERB(_x);}) //has other K objects as children
+#define IS_ERROR(x)        __extension__({K _x=(x); KE==TAG_TYP(_x);})
+#define IS_NULL(x)         __extension__({K _x=(x); KN==TAG_TYP(_x);})
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
 static inline u64   ic(char *s,char c){ return sc(s,c)-s; }

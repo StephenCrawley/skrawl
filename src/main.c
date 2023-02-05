@@ -4,7 +4,7 @@
 
 int main(){
     for (;;){
-        unref(printK(readK()));
+        printK(readK());
 #ifdef DBG_WS
         printf("WS:%ld WT:%ld\n", WS, WT);
 #endif

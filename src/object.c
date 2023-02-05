@@ -338,7 +338,8 @@ static void _printK(K x){
 }
 
 K printK(K x){
+    if (IS_ERROR(x) || IS_NULL(x)) return x;
     _printK(x);
     putchar('\n');
-    return x;
+    return unref(x), x;
 }
