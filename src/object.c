@@ -323,7 +323,7 @@ static void printAdverb(K x){
 }
 
 static void _printK(K x){
-    i8  t = IS_ADVERB(x) ? K_ADVERB_START : TYP(x);
+    i8  t = IS_ADVERB_MOD(x) ? K_ADVERB_START : TYP(x);
     if (KL==t){ x=*OBJ(x); }
     i64 n = CNT(x);
     
