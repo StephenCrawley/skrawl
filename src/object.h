@@ -16,13 +16,16 @@ K k3(K, K, K);
 K ki(i64);
 K kf(double);
 K ks(i64);
-K ku(char);
-K kv(char);
+K ku(u64);
+K kv(u64);
+K kuc(char c);
+K kvc(char c);
 K kw(i8);
 K kwx(i8, K);
 K km();
 K squeeze(K);
 K printK(K);
+u64 iadverb(char c);
 
 static inline K ke(){ return SET_TAG(KE,0); }
 static inline K knul(){ return SET_TAG(KN,0); }

@@ -49,7 +49,7 @@ static char class(char c){
 static K parseFenced(Parser *p, char b){
     char a=peek(p);
     // parse Expressions
-    K r = ')'==a?tn(0,0):sc("}]",a)?ku(':'):Exprs(')'==b?',':'}'==b?';':0, p);
+    K r = ')'==a?tn(0,0):sc("}]",a)?kuc(':'):Exprs(')'==b?',':'}'==b?';':0, p);
 
     // if not properly closed, return error
     if (b != (a=peek(p)))
@@ -62,7 +62,7 @@ static K parseFenced(Parser *p, char b){
 static K parseAdverb(Parser *p, K x){
     char t; //type
     while ( '/' == class(peek(p)) ){
-        t = ic(ADVERB_STR, *p->current++);
+        t = iadverb(*p->current++);
         if (':'==*p->current){ ++p->current; t+=3; }
         // special case: if x==0 we're parsing bare adverbs (eg "'/")
         x = x ? k2(kw(t), x) : kw(t);
@@ -211,7 +211,7 @@ static K classSwitch(Parser *p){
     case '`': x=parseSym(dec(p)); break;
     case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
-    case '+': x=kv(a); a=peek(p); if(':'==a?inc(p),1:!AT_EXPR_END(a)&&'['!=a&&('/'!=class(a)||'\''==a)) x=tx(KU,x); break;
+    case '+': x=kvc(a); a=peek(p); if(':'==a?inc(p),1:!AT_EXPR_END(a)&&'['!=a&&('/'!=class(a)||'\''==a)) x=tx(KU,x); break;
     case '/': x=parseAdverb(dec(p),0); break;
     case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):squeeze(k1(ks('x'))); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
@@ -255,7 +255,7 @@ static K expr(Parser *p){
     c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
     switch (c){
     case ' ': if('+'!=class(a) || '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:0)){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
-    case '+': y=':'==*p->current?inc(p),ku(a):kv(a); y=parsePostfix(p, y); break;
+    case '+': y=':'==*p->current?inc(p),kuc(a):kvc(a); y=parsePostfix(p, y); break;
     default : y=classSwitch(dec(p));
     }
 
@@ -285,14 +285,14 @@ static K Exprs(char c, Parser *p){
 
     do {
         t = AT_EXPR_END(peek(p))       ?  //if at expr end
-            (';'==c ? ku(':') : km())  :  //return null or magic value
+            (';'==c ? kuc(':') : km())  :  //return null or magic value
             expr(p);                      //else parse expression
         r = jk(r,t);                      //join to previously parsed exprs
         p->compose = false;               //(re)set flags
     } while (';'==next(p));    
     --p->current;
 
-    return !c ? r : 1==CNT(r) ? ref(t),unref(r),t : j2(k1(ku(c)), r);
+    return !c ? r : 1==CNT(r) ? ref(t),unref(r),t : j2(k1(kuc(c)), r);
 }
 
 K parse(const char *src){

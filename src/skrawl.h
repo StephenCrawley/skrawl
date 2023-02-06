@@ -42,9 +42,6 @@ enum {
     KE                         //error(internal)
 };
 
-#define VERB_STR    ":+-*%,?.@!$#_^&?=<>~|;"
-#define ADVERB_STR  "'/\\'/\\"
-
 // K header accessors
 // the header is 16 bytes
 // --mtrrrrnnnnnnnn

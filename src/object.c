@@ -40,6 +40,10 @@
 K k1(K x);
 static void _printK(K x);
 
+// global vars
+static const char   *VERB_STR=":+-*%,?.@!$#_^&?=<>~|;";
+static const char *ADVERB_STR="'/\\'/\\";
+
 // mmap wrapper 
 static void *alloc_n(u64 n){
     void *x = mmap(0,n,PROT_READ|PROT_WRITE,MAP_ANONYMOUS|MAP_PRIVATE,-1,0);
@@ -208,10 +212,10 @@ K ks(i64 x){
 }
 
 // create monadic verb
-K ku(char c){ return SET_TAG(KU, ic(VERB_STR,c)); }
+K ku(u64 i){ return SET_TAG(KU, i); }
 
 // create dyadic verb
-K kv(char c){ return SET_TAG(KV, ic(VERB_STR,c)); }
+K kv(u64 i){ return SET_TAG(KV, i); }
 
 // create adverb
 K kw(i8 t){ return SET_TAG(KW, t); }
@@ -222,6 +226,10 @@ K kwx(i8 t, K x){
     *OBJ(r) = x;
     return r;
 }
+
+u64 iadverb(char c){ return ic((char*)ADVERB_STR,c); }
+K kuc(char c){ return ku(ic((char*)VERB_STR,c)); }
+K kvc(char c){ return kv(ic((char*)VERB_STR,c)); }
 
 // create magic value (elided list/function args)
 K km(){ return SET_TAG(KM,0); } 
