@@ -3,6 +3,9 @@
 
 #include "skrawl.h"
 
+#define UNREF_X(a) __extension__({__typeof__(a)_a=(a); unref(x), _a;})
+#define UNREF_R(a) __extension__({__typeof__(a)_a=(a); unref(r), _a;})
+
 // public object functions
 void unref(K);
 K ref(K);
@@ -27,7 +30,7 @@ K squeeze(K);
 K printK(K);
 u64 iadverb(char c);
 
-static inline K ke(){ return SET_TAG(KE,0); }
+static inline K   ke(){ return SET_TAG(KE,0); }
 static inline K knul(){ return SET_TAG(KN,0); }
 
 #ifdef DBG_WS

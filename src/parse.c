@@ -76,7 +76,7 @@ static K parseMExpr(Parser *p, K x){
     while ('[' == peek(p)){
         // parse [ ... ] and return if error. if empty [] (type KU) then box r
         r = parseFenced(inc(p),']');
-        if (p->error)return unref(x), r;
+        if (p->error)return UNREF_X(r);
         if (KU==TYP(r)) r = k1(r);
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
         if (KV==TYP(x) && 1==CNT(r)) x = tx(KU,x); 
@@ -153,7 +153,7 @@ static K parseNum(Parser *p){
     } while ('0'==class(a) || '0'==class('-'==a?p->current[1+('.'==p->current[1])]:'.'==a?p->current[1]:0));
 
     // if just one number, return
-    if (1==CNT(r)) return ref(t), unref(r), t;
+    if (1==CNT(r)) return UNREF_R(ref(t));
 
     // else squeeze into compact form
     t = tn(f?KF:KI, CNT(r));
@@ -193,7 +193,7 @@ static K parseArgs(Parser *p){
         return ++p->current, squeeze(k1(ks('x')));
     K r = squeeze(parseFenced(p,']'));
     if (p->error) return r;
-    return KS==TYP(r) ? r : (unref(r),handleError(p,-3));
+    return KS==TYP(r) ? r : UNREF_R(handleError(p,-3));
 }
 
 static K classSwitch(Parser *p){
@@ -285,14 +285,14 @@ static K Exprs(char c, Parser *p){
 
     do {
         t = AT_EXPR_END(peek(p))       ?  //if at expr end
-            (';'==c ? kuc(':') : km())  :  //return null or magic value
+            (';'==c ? kuc(':') : km()) :  //return null or magic value
             expr(p);                      //else parse expression
         r = jk(r,t);                      //join to previously parsed exprs
         p->compose = false;               //(re)set flags
     } while (';'==next(p));    
     --p->current;
 
-    return !c ? r : 1==CNT(r) ? ref(t),unref(r),t : j2(k1(kuc(c)), r);
+    return !c ? r : 1==CNT(r) ? UNREF_R(ref(t)) : j2(k1(kuc(c)), r);
 }
 
 K parse(const char *src){
@@ -312,8 +312,8 @@ K parse(const char *src){
     // parse Expressions
     r = Exprs(';', &p);
     // should be at EOL after calling Exprs()
-    r = !peek(&p) ? r : (unref(r),handleError(&p,*p.current));
-    return p.error ? unref(r),ke() : r;
+    r = !peek(&p) ? r : UNREF_R(handleError(&p,*p.current));
+    return p.error ? UNREF_R(ke()) : r;
 }
 
 #define SRC_MAX 128  //max repl source length
