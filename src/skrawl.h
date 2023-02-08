@@ -20,6 +20,7 @@ typedef uint64_t  u64;
 // K object types
 enum {
     KK,                        //generic list
+    KX,                        //byte
     KC,                        //char
     KI,                        //int64
     KF,                        //double

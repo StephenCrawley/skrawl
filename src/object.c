@@ -109,8 +109,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:  ::
-static i8 TYPE_SIZE[] = {8 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8};
+// size of each type     KK  KX, KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:  ::
+static i8 TYPE_SIZE[] = {8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8};
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -189,6 +189,9 @@ K k3(K x, K y, K z){
     OBJ(r)[0] = x, OBJ(r)[1] = y, OBJ(r)[2] = z;
     return r;
 }
+
+// create char atom
+K kx(u8 c){ K r; return r=tn(-KX,1), *CHR(r)=c, r; }
 
 // create int atom
 K ki(i64 x){
@@ -331,6 +334,7 @@ static void _printK(K x){
 
     switch(ABS(t)){
     case KK: if(1!=n)putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } if(1!=n)putchar(')'); break;
+    case KX: printf("0x"); for (i64 i=0; i<n; i++){ printf("%02X",CHR(x)[i]); } break;
     case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
     case KI: printInt(x); break;
     case KF: printFlt(x); break;

@@ -16,6 +16,7 @@ K va(K);
 K k1(K);
 K k2(K, K);
 K k3(K, K, K);
+K kx(u8);
 K ki(i64);
 K kf(double);
 K ks(i64);
