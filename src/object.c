@@ -230,6 +230,7 @@ K kwx(i8 t, K x){
     return r;
 }
 
+u8 cverb(u8 i){ return VERB_STR[i]; }
 u64 iadverb(char c){ return ic((char*)ADVERB_STR,c); }
 K kuc(char c){ return ku(ic((char*)VERB_STR,c)); }
 K kvc(char c){ return kv(ic((char*)VERB_STR,c)); }
@@ -334,7 +335,7 @@ static void _printK(K x){
 
     switch(ABS(t)){
     case KK: if(1!=n)putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } if(1!=n)putchar(')'); break;
-    case KX: printf("0x"); for (i64 i=0; i<n; i++){ printf("%02X",CHR(x)[i]); } break;
+    case KX: printf("0x"); for (i64 i=0; i<n; i++){ printf("%02x",CHR(x)[i]); } break;
     case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
     case KI: printInt(x); break;
     case KF: printFlt(x); break;
