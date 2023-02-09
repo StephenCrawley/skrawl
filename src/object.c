@@ -230,7 +230,8 @@ K kwx(i8 t, K x){
     return r;
 }
 
-u8 cverb(u8 i){ return VERB_STR[i]; }
+u8    cverb(u8 i){ return   VERB_STR[i]; }
+u8  cadverb(u8 i){ return ADVERB_STR[i]; }
 u64 iadverb(char c){ return ic((char*)ADVERB_STR,c); }
 K kuc(char c){ return ku(ic((char*)VERB_STR,c)); }
 K kvc(char c){ return kv(ic((char*)VERB_STR,c)); }

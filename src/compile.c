@@ -40,10 +40,11 @@ static K compileExprs(K x, K r){
     // then we compile f
     K f=*OBJ(x); t=TYP(f);
     return 
-        (KU==t&&2==n) ? addBytecode(r, OP_MONAD+TAG_VAL(f)) : //monad instruction
-        (KV==t&&3==n) ? addBytecode(r, OP_DYAD +TAG_VAL(f)) : //dyad instruction
-        IS_ERROR(r=compileExprs(f,r)) ? r :                   //error
-        compileApplyN(r,n-1);                                 //general apply
+        (KU==t&&2==n) ? addBytecode(r, OP_MONAD +TAG_VAL(f)) : //monad instruction
+        (KV==t&&3==n) ? addBytecode(r, OP_DYAD  +TAG_VAL(f)) : //dyad instruction
+        (KW==t&&2==n) ? addBytecode(r, OP_ADVERB+TAG_VAL(f)) : //adverb instruction
+        IS_ERROR(r=compileExprs(f,r)) ? r :                    //error
+        compileApplyN(r,n-1);                                  //general apply
 }
 
 // recurse thru parse tree, generating bytecode

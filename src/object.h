@@ -30,6 +30,7 @@ K km();
 K squeeze(K);
 K printK(K);
 u8 cverb(u8 i);
+u8 cadverb(u8 i);
 u64 iadverb(char c);
 
 static inline K   ke(){ return SET_TAG(KE,0); }

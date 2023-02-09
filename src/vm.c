@@ -12,13 +12,16 @@ K run(K x){
     for (;;){
         instr = *ip++;
 
-        switch (32u>instr-OP_MONAD ? OP_MONAD : 32u>instr-OP_DYAD ? OP_DYAD : instr){
+        switch (21u>instr-OP_MONAD ? OP_MONAD : 21u>instr-OP_DYAD ? OP_DYAD : 6u>instr-OP_ADVERB ? OP_ADVERB : instr){
         case OP_MONAD:
             printf("%03d OP_MONAD (%c)\n", instr, cverb(instr-OP_MONAD));
             break;
         case OP_DYAD:
             printf("%03d OP_DYAD (%c)\n", instr, cverb(instr-OP_DYAD));
             break;
+        case OP_ADVERB:
+            printf("%03d OP_ADVERB (%c%s)\n", instr, cadverb(instr-OP_ADVERB), instr-OP_ADVERB>2 ? ":" : ""); 
+            break;    
         case OP_CONSTANT:
             printf("%03d OP_CONSTANT (%d)\n", instr, *ip++);
             break;
