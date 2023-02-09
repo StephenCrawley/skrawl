@@ -23,12 +23,14 @@ static K compileApplyN(K r, u8 n){
 }
 
 static K compileExprs(K x, K r){
+    K y=0;
     i8 t=TYP(x); 
     i64 n=CNT(x), i=n-1;
 
     // if not generic, compile constant
-    // KS==TYP && 1==CNT (,`a) is a special case
-    if (KK!=t) return compileConstant(r, KS==t&&1==n ? ks(*INT(x)) : x);
+    // KS==TYP && 1==CNT (,`a) is a special case as we create a new atomic symbol
+    // which we must unref because it's not part of the parse tree which is unref'd later 
+    if (KK!=t) return r=compileConstant(r, KS==t&&1==n ? y=ks(*INT(x)) : x), y ? unref(y),r : r;
 
     // compile () or ,`a`b 
     if (!n)   return compileConstant(r, x);
@@ -54,7 +56,7 @@ static K compileExprs(K x, K r){
 K compile(K x){
     K r=k2(tn(KX,0),tn(KK,0));
     
-    // if compiling single expression (i.e. not(;:;...))
+    // if compiling single expression i.e. not(;:;...)
     if (KK!=TYP(x) || !CNT(x) || KU!=TYP(*OBJ(x)) || ';'!=cverb(TAG_VAL(*OBJ(x))))
         return IS_ERROR(r=compileExprs(x,r)) ? r : addBytecode(r, OP_RETURN);
     
