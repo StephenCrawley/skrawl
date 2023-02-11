@@ -1,28 +1,37 @@
 #include "parse.h"
 
-#define AT_EXPR_END(c) sc(";)]}\n\0", (c))
-#define COMPOSE(x,y) __extension__({K _x=(x),_y=(y); k3(kw(0),_x,_y) ;})
-#define HEAD_IS_ADVERB(x) ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
-#define IS_K_SET(x) (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
+#define AT_EXPR_END(c)     sc(";)]}\n\0", (c))
+#define COMPOSE(x,y)       k3(kw(0),x,y) 
+#define HEAD_IS_ADVERB(x)  ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
+#define IS_K_SET(x)        (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
 
 // foward declarations
 static K expr(Parser *p);
 static K Exprs(char c, Parser *p);
 
-// set error flag, print error, return error object
+// set error flag, return error object to be printed
 // 'a' is flag to decide error msg to print. if >=0, it is an unexpected char in input stream
 static K handleError(Parser *p, char a){
-    if (p->error) return ke(); //if already error, return KE object
-    p->error = true;
-    // print src code and an arrow to the char that caused error
-    // can't print src when invalid arg (-3) as we don't keep track of which arg has the error
-    if (-2<=a) { puts(p->src); printf("%*s^\n",(int)(p->current-p->src),""); };
-    -3==a ? printf("'parse! invalid lambda args\n") :
-    -2==a ? printf("'parse! unclosed string\n")     :
-    -1==a ? printf("'parse! invalid number\n")      : 
-       !a ? printf("'parse! unexpected EOL\n")      : 
-            printf("'parse! unexpected token: %c\n",a);
-    return ke();
+    // if already error, return KE object
+    if (p->error) return knul();
+
+    // else create error string to print later
+    K r=kC0(-3==a ? "'parse! invalid lambda args" : 
+            -2==a ? "'parse! unclosed string"     :
+            -1==a ? "'parse! invalid number"      :    
+               !a ? "'parse! unexpected EOL"      : 
+                    "'parse! unexpected token: "  );
+    if (a>0) r=j2(r,kc(a));
+
+    // source with arrow ^ pointing at char where error occurred
+    // some errors we don't print this because we lose the info about where the error occurred
+    if (-3<a){
+        i64 n=p->current-p->src;
+        r=k3(kC0((char*)p->src), j2((K)memset((void*)tn(KC,n),' ',n),kc('^')), r);
+    }
+
+    p->error=kerr(r);
+    return knul();
 }
 
 // increment current char pointer
@@ -300,8 +309,8 @@ K parse(const char *src){
 
     // init parser struct
     Parser p;
-    p.error = false;
     p.compose = false;
+    p.error = 0;
     p.src = src;
     p.current = src;
 
@@ -313,7 +322,7 @@ K parse(const char *src){
     r = Exprs(';', &p);
     // should be at EOL after calling Exprs()
     r = !peek(&p) ? r : UNREF_R(handleError(&p,*p.current));
-    return p.error ? UNREF_R(ke()) : r;
+    return p.error ? UNREF_R(p.error) : r;
 }
 
 #define SRC_MAX 128  //max repl source length

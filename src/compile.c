@@ -11,14 +11,14 @@ static K addBytecode(K r, u8 c){ return *OBJ(r)=j2(*OBJ(r),kx(c)), r; }
 static K addConstant(K r,  K y){ return OBJ(r)[1]=jk(OBJ(r)[1],ref(y)), r; }
 static K compileConstant(K r, K y){ 
     u8 n=CNT(OBJ(r)[1]);
-    if (IMM_ARG_MAX==n) return printf("'CONST MAX\n"),UNREF_R(ke());
+    if (IMM_ARG_MAX==n) return UNREF_R(kerr(kC0("'compile! CONST MAX")));
     r=addBytecode(r,OP_CONSTANT);
     return addBytecode(addConstant(r,y), n); 
 }
 
 // instruction to pop top of stack and apply it to next n items on top of stack
 static K compileApplyN(K r, u8 n){
-    if (IMM_ARG_MAX==n) return printf("'APPLY MAX\n"),ke();
+    if (IMM_ARG_MAX==n) return kerr(kC0("'compile! APPLY MAX"));
     return addBytecode(addBytecode(r,OP_APPLY_N), n);
 }
 

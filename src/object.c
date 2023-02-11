@@ -11,7 +11,7 @@
 // tagged objects contain the type in the upper 8 bits, and the value in the lower 56 bits
 // memory for tagged objects doesn't need to be managed manually 
 
-// otherwise the K is a pointer to data
+// otherwise the K is a pointer to data (NB: error objects are an exception)
 // pointed-to K objects are allocated on the heap using a buddy allocation algorithm
 // these objects occupy an x^2 bucket of memory
 // the K object header is 16 bytes (see object.h for header layout) so objects need to be assigned a minimum of 16 bytes
@@ -162,6 +162,27 @@ K jk(K x, K y){
     return j2(x, k1(y));
 }
 
+// join list of strings x with separator c
+K js(K x, char c){
+    // if c!=0 we need xn extra chars for the separators
+    i64 xn=CNT(x), n=c?xn:0;
+    // add the length of each string
+    for (i64 i=0; i<xn; i++) n+=CNT(OBJ(x)[i]);
+    // create return object
+    K r=tn(KC,n), t;
+    // ignore last separator
+    if (c) --HDR_CNT(r);
+    u8 *s=CHR(r);
+    // append strings and separator
+    for (i64 i=0; i<xn; i++){
+        t=OBJ(x)[i];
+        n=CNT(t);
+        s=n+(u8*)memcpy(s,CHR(t),n);
+        if (c) *s++ = c;
+    }
+    return UNREF_X(r);
+}
+
 // vector from atom. assumes atomic argument
 K va(K x){
     K r = tn(ABS(TYP(x)), 1);
@@ -190,8 +211,20 @@ K k3(K x, K y, K z){
     return r;
 }
 
-// create char atom
+// create byte atom
 K kx(u8 c){ K r; return r=tn(-KX,1), *CHR(r)=c, r; }
+
+// create char atom
+K kc(u8 c){ K r; return r=tn(-KC,1), *CHR(r)=c, r; }
+
+// create char vector with count n from string
+K kCn(char *s, i64 n){
+    return (K)memcpy((void*)tn(KC,n),s,n);
+}
+// create char vector with 0-terminated string
+K kC0(char *s){
+    return kCn(s,strlen(s));
+}
 
 // create int atom
 K ki(i64 x){
@@ -238,6 +271,9 @@ K kvc(char c){ return kv(ic((char*)VERB_STR,c)); }
 
 // create magic value (elided list/function args)
 K km(){ return SET_TAG(KM,0); } 
+
+// create tagged pointer to error string
+K kerr(K x){ return SET_TAG(KE,x); }
 
 // decrement K object refcount and place it back in M if no longer referenced
 void unref(K x){
@@ -345,15 +381,33 @@ static void _printK(K x){
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;
     case K_ADVERB_START: printAdverb(x); break;
+    case KE: x=TAG_VAL(x), n=CNT(x); /*FALLTHROUGH*/
     case KL: fwrite(CHR(x), sizeof(char), n, stdout); break;
     case KM: break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }
 }
 
+// error objects are special, they're the only true tagged pointer
+// upper 8 bits == KE, lower 56 is pointer to (lists of) string
+// tagging is useful so the object isn't freed as it propogates up the stack
+K printErr(K x){
+    // grab the pointer
+    x=TAG_VAL(x);
+    // if it points to list, join them with newlines
+    if (KK==TYP(x)) x=js(x,'\n');
+    // print
+    _printK(kerr(x));
+    // return
+    return UNREF_X(ke());
+}
+
 K printK(K x){
-    if (IS_ERROR(x) || IS_NULL(x)) return x;
-    _printK(x);
+    if (IS_NULL(x))  return x;
+    if (IS_ERROR(x))
+        x=printErr(x);
+    else 
+        _printK(x);
     putchar('\n');
     return unref(x), x;
 }
