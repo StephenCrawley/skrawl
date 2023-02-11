@@ -3,15 +3,26 @@
 
 #define IMM_ARG_MAX  255 //max value of immediate arg (max representable by 8bits)
 #define RETURN_IF_ERROR(x) __extension__({ K _e=(x); if(IS_ERROR((_e))) return _e; }) 
+#define BYTES(x)   (OBJ(x)[0]) //bytecodes accessor
+#define CONSTS(x)  (OBJ(x)[1]) //constants accessor
 
 // in this script x is the parse tree (or any child object within it)
 // and r is the object to be returned to the VM (see compile() below)
 
-static K addByte(K r, u8 x){ return *OBJ(r)=j2(*OBJ(r),kx(x)), r; }
-static K add2Bytes(K r, u8 x, u8 y){ return *OBJ(r)=j2(*OBJ(r),kx2(x,y)), r; }
-static K addConstant(K r, K y){ return OBJ(r)[1]=jk(OBJ(r)[1],ref(y)), r; }
+static K addByte(K r, u8 x){
+    return BYTES(r)=j2(BYTES(r),kx(x)), r; 
+}
+
+static K add2Bytes(K r, u8 x, u8 y){
+    return BYTES(r)=j2(BYTES(r),kx2(x,y)), r; 
+}
+
+static K addConstant(K r, K y){
+    return CONSTS(r)=jk(CONSTS(r),ref(y)), r;
+}
+
 static K compileConstant(K r, K y){ 
-    u8 n=CNT(OBJ(r)[1]);
+    u8 n=CNT(CONSTS(r));
     if (IMM_ARG_MAX==n) return UNREF_R(kerr(kC0("'compile! CONST MAX")));
     r=add2Bytes(r,OP_CONSTANT,n);
     return addConstant(r,y); 
@@ -55,6 +66,7 @@ static K compileExprs(K x, K r){
 // x - bytecodes
 // y - constants
 K compile(K x){
+    //    (BYTES   ;CONSTS  ) 
     K r=k2(tn(KX,0),tn(KK,0));
     
     // if compiling single expression i.e. not(;:;...)
