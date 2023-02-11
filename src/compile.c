@@ -1,10 +1,10 @@
 #include "compile.h"
 #include "object.h"
 
-#define IMM_ARG_MAX  255 //max number of immediate args (max representable by 8bits)
+#define IMM_ARG_MAX  255 //max value of immediate arg (max representable by 8bits)
 #define RETURN_IF_ERROR(x) __extension__({ K _e=(x); if(IS_ERROR((_e))) return _e; }) 
 
-// in this script, x is the parse tree (or any child object within it)
+// in this script x is the parse tree (or any child object within it)
 // and r is the object to be returned to the VM (see compile() below)
 
 static K addBytecode(K r, u8 c){ return *OBJ(r)=j2(*OBJ(r),kx(c)), r; }
@@ -18,35 +18,35 @@ static K compileConstant(K r, K y){
 
 // instruction to pop top of stack and apply it to next n items on top of stack
 static K compileApplyN(K r, u8 n){
-    if (n==IMM_ARG_MAX) return printf("'APPLY MAX\n"),ke();
-    return addBytecode(addBytecode(r, OP_APPLY_N), n);
+    if (IMM_ARG_MAX==n) return printf("'APPLY MAX\n"),ke();
+    return addBytecode(addBytecode(r,OP_APPLY_N), n);
 }
 
 static K compileExprs(K x, K r){
-    K y=0;
     i8 t=TYP(x); 
     i64 n=CNT(x), i=n-1;
 
-    // if not generic, compile constant
     // KS==TYP && 1==CNT (,`a) is a special case as we create a new atomic symbol
     // which we must unref because it's not part of the parse tree which is unref'd later 
-    if (KK!=t) return r=compileConstant(r, KS==t&&1==n ? y=ks(*INT(x)) : x), y ? unref(y),r : r;
-
-    // compile () or ,`a`b 
-    if (!n)   return compileConstant(r, x);
-    if (1==n) return compileConstant(r, *OBJ(x));
+    if (KS==t&&1==n) return x=ks(*INT(x)), r=compileConstant(r,x), UNREF_X(r);
+    // if not generic, compile constant
+    if (KK!=t) return compileConstant(r,x);
+    // compile () 
+    if (!n)    return compileConstant(r,x);
+    // compile ,`a`b 
+    if (1==n)  return compileConstant(r,*OBJ(x));
 
     // handle (f;...) where f is applied to the subsequent elements
     // we compile elements n-1 .. 1 first
-    while (i) RETURN_IF_ERROR(r=compileExprs(OBJ(x)[i--], r));
+    while (i) RETURN_IF_ERROR(r=compileExprs(OBJ(x)[i--],r));
     // then we compile f
     K f=*OBJ(x); t=TYP(f);
     return 
-        (KU==t&&2==n) ? addBytecode(r, OP_MONAD +TAG_VAL(f)) : //monad instruction
-        (KV==t&&3==n) ? addBytecode(r, OP_DYAD  +TAG_VAL(f)) : //dyad instruction
-        (KW==t&&2==n) ? addBytecode(r, OP_ADVERB+TAG_VAL(f)) : //adverb instruction
-        IS_ERROR(r=compileExprs(f,r)) ? r :                    //error
-        compileApplyN(r,n-1);                                  //general apply
+        (KU==t&&2==n) ? addBytecode(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
+        (KV==t&&3==n) ? addBytecode(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
+        (KW==t&&2==n) ? addBytecode(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
+        IS_ERROR(r=compileExprs(f,r)) ? r :                   //error
+        compileApplyN(r,n-1);                                 //general apply
 }
 
 // recurse thru parse tree, generating bytecode
