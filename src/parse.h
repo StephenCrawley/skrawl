@@ -2,7 +2,6 @@
 #define PARSE_H
 
 #include "skrawl.h"
-#include "object.h"
 
 typedef struct {bool compose; K error; const char *src,*current;} Parser;
 

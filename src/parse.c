@@ -1,4 +1,5 @@
 #include "parse.h"
+#include "object.h"
 
 #define AT_EXPR_END(c)     sc(";)]}\n\0", (c))
 #define COMPOSE(x,y)       k3(kw(0),x,y) 
