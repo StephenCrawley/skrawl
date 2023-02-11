@@ -7,7 +7,7 @@
 // in this script x is the parse tree (or any child object within it)
 // and r is the object to be returned to the VM (see compile() below)
 
-static K addByte(K r, u8 x)        { return *OBJ(r)=j2(*OBJ(r),kx(x))   , r; }
+static K addByte(K r, u8 x){ return *OBJ(r)=j2(*OBJ(r),kx(x)), r; }
 static K add2Bytes(K r, u8 x, u8 y){ return *OBJ(r)=j2(*OBJ(r),kx2(x,y)), r; }
 static K addConstant(K r, K y){ return OBJ(r)[1]=jk(OBJ(r)[1],ref(y)), r; }
 static K compileConstant(K r, K y){ 
@@ -46,8 +46,8 @@ static K compileExprs(K x, K r){
         (KU==t&&2==n) ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
         (KV==t&&3==n) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
         (KW==t&&2==n) ? addByte(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
-        IS_ERROR(r=compileExprs(f,r)) ? r :                   //error
-        compileApplyN(r,n-1);                                 //general apply
+        IS_ERROR(r=compileExprs(f,r)) ? r :               //error
+        compileApplyN(r,n-1);                             //general apply
 }
 
 // recurse thru parse tree, generating bytecode
