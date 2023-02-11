@@ -29,8 +29,8 @@ static K compileConstant(K r, K y){
 }
 
 // instruction to pop top of stack and apply it to next n items on top of stack
-static K compileApplyN(K r, u8 n){
-    if (IMM_ARG_MAX==n) return kerr(kC0("'compile! APPLY MAX"));
+static K compileApplyN(K r, i64 n){
+    if (IMM_ARG_MAX<n)  return UNREF_R(kerr(kC0("'compile! APPLY MAX")));
     return add2Bytes(r,OP_APPLY_N,n);
 }
 
