@@ -213,6 +213,8 @@ K k3(K x, K y, K z){
 
 // create byte atom
 K kx(u8 c){ K r; return r=tn(-KX,1), *CHR(r)=c, r; }
+// create 2-byte vector
+K kx2(u8 x,u8 y){ K r; return r=tn(KX,2), *CHR(r)=x, CHR(r)[1]=y, r; }
 
 // create char atom
 K kc(u8 c){ K r; return r=tn(-KC,1), *CHR(r)=c, r; }

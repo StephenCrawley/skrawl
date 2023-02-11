@@ -17,6 +17,7 @@ K k1(K);
 K k2(K, K);
 K k3(K, K, K);
 K kx(u8);
+K kx2(u8,u8);
 K kc(u8);
 K kCn(char*, i64);
 K kC0(char*);
