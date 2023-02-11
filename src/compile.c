@@ -12,8 +12,8 @@ static K addConstant(K r,  K y){ return OBJ(r)[1]=jk(OBJ(r)[1],ref(y)), r; }
 static K compileConstant(K r, K y){ 
     u8 n=CNT(OBJ(r)[1]);
     if (IMM_ARG_MAX==n) return UNREF_R(kerr(kC0("'compile! CONST MAX")));
-    r=addBytecode(r,OP_CONSTANT);
-    return addBytecode(addConstant(r,y), n); 
+    r=addBytecode(addBytecode(r,OP_CONSTANT),n);
+    return addConstant(r,y); 
 }
 
 // instruction to pop top of stack and apply it to next n items on top of stack
@@ -62,7 +62,7 @@ K compile(K x){
     
     // else compile each expression from 1 .. n-1
     for (i64 i=1,n=CNT(x)-1; i<=n; i++){
-        if (IS_ERROR(r=compileExprs(OBJ(x)[i],r))) return r;
+        RETURN_IF_ERROR(r=compileExprs(OBJ(x)[i],r));
         r=addBytecode(r, i==n ? OP_RETURN : OP_POP);
     }
     return r;
