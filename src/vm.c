@@ -1,29 +1,56 @@
 #include "vm.h"
 #include "object.h"
 #include "compile.h"
+#include "verb.h"
 
+#define POP()            ( *--top )
+#define PUSH(x)          ( *top++ = (x) )
 #define BYTECODE_PTR(x)  CHR( *OBJ(x) )
+#define CONSTANT_PTR(x)  OBJ( OBJ(x)[1] )
 
-K run(K x){
-    //instruction pointer, current instruction
-    const u8 *ip = BYTECODE_PTR(x);
-    u8 instr;
+K run(K r){
+    // VM registers and variables
+    K stack[256];
+    K *top=stack;
+    K *consts=CONSTANT_PTR(r);
+    const u8 *ip=BYTECODE_PTR(r);
+    u8 instr, b;  //instr:current instruction, b:temp byte variable
+
+    // useful variables to execute opcodes
+    K x;
+    DYAD v;
 
     for (;;){
-        instr = *ip++;
+        instr=*ip++;
 
-        switch (21u>instr-OP_MONAD ? OP_MONAD : 21u>instr-OP_DYAD ? OP_DYAD : 6u>instr-OP_ADVERB ? OP_ADVERB : instr){
+        // ternary step function to convert monads/dyads/adverbs opcodes to base opcode
+        switch (21u>instr-OP_MONAD  ? OP_MONAD  :
+                21u>instr-OP_DYAD   ? OP_DYAD   :
+                 6u>instr-OP_ADVERB ? OP_ADVERB : instr)
+        {
         case OP_MONAD:
             printf("%03d OP_MONAD (%c)\n", instr, cverb(instr-OP_MONAD));
             break;
         case OP_DYAD:
-            printf("%03d OP_DYAD (%c)\n", instr, cverb(instr-OP_DYAD));
+            //printf("%03d OP_DYAD (%c)\n", instr, cverb(instr-OP_DYAD));
+            b=instr-OP_DYAD;
+            v=dyad_table[b];
+            if (!v){
+                x=kerr(j2(kC0("'nyi! dyad "),kc(cverb(b))));
+                goto run_error;
+            }
+            x=POP();
+            x=(*v)(x,POP());
+            if (KE==TYP(x))
+                goto run_error;
+            PUSH(x);
             break;
         case OP_ADVERB:
             printf("%03d OP_ADVERB (%c%s)\n", instr, cadverb(instr-OP_ADVERB), instr-OP_ADVERB>2 ? ":" : ""); 
             break;    
         case OP_CONSTANT:
-            printf("%03d OP_CONSTANT (%d)\n", instr, *ip++);
+            //printf("%03d OP_CONSTANT (%d)\n", instr, *ip++);
+            PUSH(ref(consts[*ip++]));
             break;
         case OP_APPLY_N:
             printf("%03d OP_APPLY_N (%d)\n", instr, *ip++);
@@ -32,13 +59,18 @@ K run(K x){
             printf("%03d OP_POP\n",instr);
             break; 
         case OP_RETURN:
-            printf("%03d OP_RETURN\n",instr);
-            return x;
+            //printf("%03d OP_RETURN\n",instr);
+            return UNREF_R(POP());
         default:
             printf("%03d unknown instruction\n",instr);
         }
     }
-    return x;
+
+run_error:
+    // clean the stack
+    while (stack!=top--) unref(*top);
+    // return error
+    return UNREF_R(x);
 }
 
 // accepts parse tree (or error/null) as argument
