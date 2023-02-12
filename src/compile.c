@@ -69,7 +69,7 @@ K compile(K x){
     K r=k2(tn(KX,0),tn(KK,0));
     
     // if compiling single expression i.e. not(;:;...)
-    if (KK!=TYP(x) || !CNT(x) || KU!=TYP(*OBJ(x)) || ';'!=cverb(TAG_VAL(*OBJ(x))))
+    if (KK!=TYP(x) || !CNT(x) || KU!=TYP(*OBJ(x)) || TOK_SEMICOLON!=TAG_VAL(*OBJ(x)))
         return IS_ERROR(r=compileExprs(x,r)) ? r : addByte(r, OP_RETURN);
     
     // else compile each expression from 1 .. n-1
