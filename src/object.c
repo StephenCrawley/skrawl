@@ -41,7 +41,7 @@ K k1(K x);
 static void _printK(K x);
 
 // global vars
-static const char   *VERB_STR=":+-*%,?.@!$#_^&?=<>~|;";
+static const char   *VERB_STR=":+-*%,?.@!$#_^&=<>~|;";
 static const char *ADVERB_STR="'/\\'/\\";
 
 // mmap wrapper 

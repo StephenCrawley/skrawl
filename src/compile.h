@@ -5,9 +5,9 @@
 
 enum {
     OP_MONAD=0x00,
-    OP_DYAD=0x15,
-    OP_ADVERB=0x2a,
-    OP_CONSTANT=0x30,
+    OP_DYAD=0x14,
+    OP_ADVERB=0x28,
+    OP_CONSTANT=0x2e,
     OP_APPLY_N,
     OP_POP,
     OP_RETURN,
