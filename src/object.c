@@ -185,8 +185,8 @@ K js(K x, char c){
 
 // vector from atom. assumes atomic argument
 K va(K x){
-    K r = tn(ABS(TYP(x)), 1);
-    memcpy((void*)r, (void*)x, SIZEOF(x));
+    i8 rt=TAG_TYP(x)?TAG_TYP(x):-HDR_TYP(x);
+    K r=(K)memcpy(CHR(tn(rt,1)), TAG_TYP(x)?CHR(&x):CHR(x), TYPE_SIZE[rt]);
     return unref(x), r;
 }
 
@@ -247,6 +247,11 @@ K ks(i64 x){
     K r = tn(-KS, 1);
     INT(r)[0] = x;
     return r;
+}
+
+// make dict
+K kD(K x, K y){
+    return tx(KD,k2(x,y));
 }
 
 // create monadic verb
@@ -379,6 +384,7 @@ static void _printK(K x){
     case KI: printInt(x); break;
     case KF: printFlt(x); break;
     case KS: printSym(x); break;
+    case KD: _printK(*OBJ(x)), putchar('!'), _printK(OBJ(x)[1]); break;
     case KU: putchar(VERB_STR[TAG_VAL(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;

@@ -1,8 +1,8 @@
 #include "verb.h"
 #include "object.h"
 
-//                 : + - * % , ?    . @ ! $ # _ ^ & ? = < > ~ |
-DYAD dyad_table[]={0,0,0,0,0,0,find,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+//                 : + - * % , ?    . @ !   $ # _ ^ & ? = < > ~ |
+DYAD dyad_table[]={0,0,0,0,0,0,find,0,0,key,0,0,0,0,0,0,0,0,0,0,0};
 
 // x?y for KI and KS (syms encoded in i64)
 K findSym(K x, K y){
@@ -29,10 +29,11 @@ K findSym(K x, K y){
     return UNREF_XY(r);
 }
 
+// x?y
+// for each y, return index of 1st occurrence in x, or CNT(x) if no occurrence
 K find(K x, K y){
     // init
-    i8  xt=TYP(x);
-    i8 axt=ABS(xt);
+    i8  xt=TYP(x), axt=ABS(xt);
     i8  yt=TYP(y);
 
     // for now, just find for same-type operands
@@ -46,5 +47,13 @@ K find(K x, K y){
         case KS: return findSym(x,y);
         default: return UNREF_XY( kerr(kC0("'nyi! x?y for given types")) );
     }
+}
+
+// x!y
+// create a dictionary with x keys and y values
+K key(K x, K y){
+    if (CNT(x)!=CNT(y))
+        return UNREF_XY( kerr(kC0("'length! x!y operand length mismatch")) );
+    return kD(0<TYP(x)?x:va(x), 0<TYP(y)?y:va(y));
 }
 

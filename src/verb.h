@@ -6,6 +6,7 @@
 typedef K (*DYAD)(K,K);
 
 K find(K,K);
+K key(K,K);
 extern DYAD dyad_table[];
 
 #endif
