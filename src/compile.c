@@ -2,7 +2,6 @@
 #include "object.h"
 
 #define IMM_ARG_MAX  255 //max value of immediate arg (max representable by 8bits)
-#define RETURN_IF_ERROR(x) __extension__({ K _e=(x); if(IS_ERROR((_e))) return _e; }) 
 #define BYTES(x)   (OBJ(x)[0]) //bytecodes accessor
 #define CONSTS(x)  (OBJ(x)[1]) //constants accessor
 
