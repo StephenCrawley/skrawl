@@ -1,8 +1,21 @@
 #include "verb.h"
 #include "object.h"
 
-//                 : + - * % , ?    . @ !   $ # _ ^ & ? = < > ~ |
-DYAD dyad_table[]={0,0,0,0,0,0,find,0,0,key,0,0,0,0,0,0,0,0,0,0,0};
+//                 : + - * % , ?    . @ !   $ # _ ^ & = < > ~ |
+DYAD dyad_table[]={0,0,0,0,0,0,find,0,0,key,0,0,0,0,0,0,0,0,0,0};
+
+// f . x
+// generic apply function
+// f - some applicable value (primitive, lambda, list, etc)
+// x - a list of arguments to f 
+K apply(K x, K y){
+
+    // enlist is special, can take any number of arguments
+    if (IS_OP(x,KU,TOK_COMMA))
+        return UNREF_X(squeeze(y));
+
+    return UNREF_XY(kerr(kC0("'nyi! apply")));
+}
 
 // x?y for KI and KS (syms encoded in i64)
 K findSym(K x, K y){

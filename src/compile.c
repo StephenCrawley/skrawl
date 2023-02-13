@@ -52,6 +52,9 @@ static K compileExprs(K x, K r){
     while (i) RETURN_IF_ERROR(r=compileExprs(OBJ(x)[i--],r));
     // then we compile f
     K f=*OBJ(x); t=TYP(f);
+    // 'enlist' (,:;...) is special, should always be OP_APPLY_N
+    if (IS_OP(f,KU,TOK_COMMA)) return compileApplyN(compileConstant(r,f),n-1);
+    // compile the rest
     return 
         (KU==t&&2==n) ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
         (KV==t&&3==n) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction

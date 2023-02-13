@@ -17,7 +17,8 @@ K run(K r){
     u8 instr, b;  //instr:current instruction, b:temp byte variable
 
     // useful variables to execute opcodes
-    K x;
+    K x,y;
+    i64 n;
     DYAD v;
 
     for (;;){
@@ -41,7 +42,7 @@ K run(K r){
             }
             x=POP();
             x=(*v)(x,POP());
-            if (KE==TYP(x))
+            if (IS_ERROR(x))
                 goto run_error;
             PUSH(x);
             break;
@@ -49,11 +50,20 @@ K run(K r){
             printf("%03d OP_ADVERB (%c%s)\n", instr, cadverb(instr-OP_ADVERB), instr-OP_ADVERB>2 ? ":" : ""); 
             break;    
         case OP_CONSTANT:
-            //printf("%03d OP_CONSTANT (%d)\n", instr, *ip++);
+            //printf("%03d OP_CONSTANT (%d)\n", instr, *ip);
             PUSH(ref(consts[*ip++]));
             break;
         case OP_APPLY_N:
-            printf("%03d OP_APPLY_N (%d)\n", instr, *ip++);
+            //printf("%03d OP_APPLY_N (%d)\n", instr, *ip);
+            n=*ip++;
+            x=POP();
+            y=tn(KK,n);
+            for (i64 i=0; i<n; i++) 
+                OBJ(y)[i]=POP();
+            x=apply(x,y);
+            if (IS_ERROR(x))
+                goto run_error;
+            PUSH(x);
             break;
         case OP_POP:
             //printf("%03d OP_POP\n",instr);
