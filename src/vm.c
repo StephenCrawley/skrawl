@@ -56,7 +56,8 @@ K run(K r){
             printf("%03d OP_APPLY_N (%d)\n", instr, *ip++);
             break;
         case OP_POP:
-            printf("%03d OP_POP\n",instr);
+            //printf("%03d OP_POP\n",instr);
+            unref(POP());
             break; 
         case OP_RETURN:
             //printf("%03d OP_RETURN\n",instr);
