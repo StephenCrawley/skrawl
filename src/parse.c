@@ -4,7 +4,6 @@
 #define AT_EXPR_END(c)     sc(";)]}\n\0", (c))
 #define COMPOSE(x,y)       k3(kw(0),x,y) 
 #define HEAD_IS_ADVERB(x)  ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
-#define IS_K_SET(x)        (TAG_TYP(x) ? 0==TAG_VAL(x) : 0)
 
 // foward declarations
 static K expr(Parser *p);
@@ -286,7 +285,7 @@ static K expr(Parser *p){
     
     // parse x+y
     z = expr(p);
-    return (p->compose && !IS_K_SET(y)) ? COMPOSE(k2(y,x), z) : k3(y, x, z);
+    return (p->compose && !IS_OP(y,KV,TOK_COLON)) ? COMPOSE(k2(y,x), z) : k3(y, x, z);
 }
 
 // parse ;-delimited Expressions

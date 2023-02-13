@@ -77,6 +77,7 @@ enum {
 #define IS_GENERIC(x)      __extension__({K _x=(x); i8 t=TYP(_x); KK==t||KD==t||KL==t||IS_ADVERB_MOD(_x);}) //has other K objects as children
 #define IS_ERROR(x)        __extension__({K _x=(x); KE==TAG_TYP(_x);})
 #define IS_NULL(x)         __extension__({K _x=(x); KN==TAG_TYP(_x);})
+#define IS_OP(x,t,v)       __extension__({K _x=(x); _x==SET_TAG(t,v);})
 #define RETURN_IF_ERROR(x) __extension__({K _e=(x); if(IS_ERROR((_e))) return _e;}) 
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
