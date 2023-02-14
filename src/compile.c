@@ -59,7 +59,8 @@ static K compileExprs(K x, K r){
         (KU==t&&2==n) ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
         (KV==t&&3==n) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
         (KW==t&&2==n) ? addByte(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
-        IS_ERROR(r=compileExprs(f,r)) ? r :               //error
+        IS_ERROR(r=compileExprs(f,r)) ? r               : //error
+        2==n ? addByte(r,OP_DYAD+TOK_AT)                : //(f;x) generate equivalent f@x bytecode
         compileApplyN(r,n-1);                             //general apply
 }
 
