@@ -25,8 +25,8 @@ K run(K r){
         instr=*ip++;
 
         // ternary step function to convert monads/dyads/adverbs opcodes to base opcode
-        switch (21u>instr-OP_MONAD  ? OP_MONAD  :
-                21u>instr-OP_DYAD   ? OP_DYAD   :
+        switch (20u>instr-OP_MONAD  ? OP_MONAD  :
+                20u>instr-OP_DYAD   ? OP_DYAD   :
                  6u>instr-OP_ADVERB ? OP_ADVERB : instr)
         {
         case OP_MONAD:
@@ -36,10 +36,6 @@ K run(K r){
             //printf("%03d OP_DYAD (%c)\n", instr, cverb(instr-OP_DYAD));
             b=instr-OP_DYAD;
             v=dyad_table[b];
-            if (!v){
-                x=kerr(j2(kC0("'nyi! dyad "),kc(cverb(b))));
-                goto run_error;
-            }
             x=POP();
             x=(*v)(x,POP());
             if (IS_ERROR(x))

@@ -1,8 +1,11 @@
 #include "verb.h"
 #include "object.h"
 
-//                 : + - * % , ?    . @ !   $ # _ ^ & = < > ~ |
-DYAD dyad_table[]={0,0,0,0,0,0,find,0,0,key,0,0,0,0,0,0,0,0,0,0};
+DYAD dyad_table[]={
+    set,      add,     subtract, multiply,    divide, join, find,
+    dotApply, atApply, key,      cast,        take,   drop, fill,
+    min,      equal,   lessThan, greaterThan, match,  max
+};
 
 // f . x
 // generic apply function
@@ -56,9 +59,9 @@ K find(K x, K y){
     }
 
     switch (axt){
-        case KI: /* KS is i64 so same logic applies */
-        case KS: return findSym(x,y);
-        default: return UNREF_XY( kerr(kC0("'nyi! x?y for given types")) );
+    case KI: /* KS is i64 so same logic applies */
+    case KS: return findSym(x,y);
+    default: return UNREF_XY( kerr(kC0("'nyi! x?y for given types")) );
     }
 }
 
@@ -68,5 +71,77 @@ K key(K x, K y){
     if (CNT(x)!=CNT(y))
         return UNREF_XY( kerr(kC0("'length! x!y operand length mismatch")) );
     return kD(0<TYP(x)?x:va(x), 0<TYP(y)?y:va(y));
+}
+
+K set(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad :")) );
+}
+
+K add(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad +")) );
+}
+
+K subtract(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad -")) );
+}
+
+K multiply(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad *")) );
+}
+
+K divide(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad %")) );
+}
+
+K join(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad ,")) );
+}
+
+K dotApply(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad .")) );
+}
+
+K atApply(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad @")) );
+}
+
+K cast(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad $")) );
+}
+
+K take(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad #")) );
+}
+
+K drop(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad _")) );
+}
+
+K fill(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad ^")) );
+}
+
+K min(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad &")) );
+}
+
+K equal(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad =")) );
+}
+
+K lessThan(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad <")) );
+}
+
+K greaterThan(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad >")) );
+}
+
+K match(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad ~")) );
+}
+
+K max(K x, K y){
+    return UNREF_XY( kerr(kC0("'nyi! dyad |")) );
 }
 
