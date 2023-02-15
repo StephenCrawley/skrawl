@@ -13,7 +13,7 @@ K findSym(K x, K y){
     // init 
     i64 xn=CNT(x);
     i64 yn=CNT(y);
-    K r=tn(KI,yn);
+    K r=tn(0>TYP(y)?-KI:KI,yn);
 
     // pointers to use in the loop
     i64 *xptr=INT(x), *rptr=INT(r);
