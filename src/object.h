@@ -3,9 +3,11 @@
 
 #include "skrawl.h"
 
-#define UNREF_X(a)  __extension__({__typeof__(a)_a=(a); unref(x), _a;})
-#define UNREF_R(a)  __extension__({__typeof__(a)_a=(a); unref(r), _a;})
-#define UNREF_XY(a) __extension__({__typeof__(a)_a=(a); unref(x), unref(y), _a;})
+#define UNREF_X(a)   __extension__({__typeof__(a)_a=(a); unref(x), _a;})
+#define UNREF_Y(a)   __extension__({__typeof__(a)_a=(a); unref(y), _a;})
+#define UNREF_R(a)   __extension__({__typeof__(a)_a=(a); unref(r), _a;})
+#define UNREF_XY(a)  __extension__({__typeof__(a)_a=(a); unref(x), unref(y), _a;})
+#define UNREF_XYR(a) __extension__({__typeof__(a)_a=(a); unref(x), unref(y), unref(r), _a;})
 
 // public object functions
 void unref(K);
