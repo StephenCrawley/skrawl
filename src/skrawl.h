@@ -68,6 +68,12 @@ enum {
 #define INT(x)  ((   i64*)(x))  //pointer to int64 
 #define FLT(x)  ((double*)(x))  //pointer to double 
 
+// K null values
+#define CNULL  (0x20)
+#define INULL  ((i64)0x8000000000000000LL)
+#define FNULL  (0/0.0)
+#define SNULL  0
+
 // shared utility macros
 #define ABS(a)             __extension__({__typeof__(a)_a=(a); _a > 0 ? _a : -_a ;}) 
 #define MAX(a,b)           __extension__({__typeof__(a)_a=(a);__typeof__(b)_b=(b);_a>_b?_a:_b;})

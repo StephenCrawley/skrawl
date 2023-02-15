@@ -96,9 +96,10 @@ K index(K x, K y){
     i64 j, xn=CNT(x);
     switch (xt){
     case KK: for (i64 i=0; i<n; i++) j=INT(y)[i], OBJ(r)[i]=(j<0||j>=xn)?ku(0):OBJ(x)[j]; break;
-    case KC: for (i64 i=0; i<n; i++) j=INT(y)[i], CHR(r)[i]=(j<0||j>=xn)?   32:CHR(x)[j]; break;
-    case KI: for (i64 i=0; i<n; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?    0:INT(x)[j]; break;
-    case KF: for (i64 i=0; i<n; i++) j=INT(y)[i], FLT(r)[i]=(j<0||j>=xn)?    0:FLT(x)[j]; break;
+    case KC: for (i64 i=0; i<n; i++) j=INT(y)[i], CHR(r)[i]=(j<0||j>=xn)?CNULL:CHR(x)[j]; break;
+    case KI: for (i64 i=0; i<n; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?INULL:INT(x)[j]; break;
+    case KF: for (i64 i=0; i<n; i++) j=INT(y)[i], FLT(r)[i]=(j<0||j>=xn)?FNULL:FLT(x)[j]; break;
+    case KS: for (i64 i=0; i<n; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?SNULL:INT(x)[j]; break;
     }
 
     // if x was generic list, ref each element of the output
