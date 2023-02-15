@@ -5,7 +5,6 @@
 
 typedef K (*DYAD)(K,K);
 
-K apply(K,K);
 K set(K,K);
 K add(K,K);
 K subtract(K,K);

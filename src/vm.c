@@ -2,6 +2,7 @@
 #include "object.h"
 #include "compile.h"
 #include "verb.h"
+#include "apply.h"
 
 #define POP()            ( *--top )
 #define PUSH(x)          ( *top++ = (x) )

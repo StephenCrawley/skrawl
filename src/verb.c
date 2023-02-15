@@ -1,24 +1,12 @@
 #include "verb.h"
 #include "object.h"
+#include "apply.h"
 
 DYAD dyad_table[]={
     set,      add,     subtract, multiply,    divide, join, find,
     dotApply, atApply, key,      cast,        take,   drop, fill,
     min,      equal,   lessThan, greaterThan, match,  max
 };
-
-// f . x
-// generic apply function
-// f - some applicable value (primitive, lambda, list, etc)
-// x - a list of arguments to f 
-K apply(K x, K y){
-
-    // enlist is special, can take any number of arguments
-    if (IS_OP(x,KU,TOK_COMMA))
-        return UNREF_X(squeeze(y));
-
-    return UNREF_XY(kerr(kC0("'nyi! apply")));
-}
 
 // x?y for KI and KS (syms encoded in i64)
 K findSym(K x, K y){
@@ -102,7 +90,7 @@ K dotApply(K x, K y){
 }
 
 K atApply(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad @")) );
+    return apply(x,k1(y));
 }
 
 K cast(K x, K y){
