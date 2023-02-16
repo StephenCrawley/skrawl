@@ -3,7 +3,7 @@
 
 #define AT_EXPR_END(c)     sc(";)]}\n\0", (c))
 #define COMPOSE(x,y)       k3(kw(0),x,y) 
-#define HEAD_IS_ADVERB(x)  ( KK==TYP(x) && KW==TYP(*OBJ(x)) )
+#define HEAD_IS_ADVERB(x)  ( KK==TYP(x) && CNT(x) && KW==TYP(*OBJ(x)) )
 
 // foward declarations
 static K expr(Parser *p);
