@@ -284,8 +284,11 @@ K kerr(K x){ return SET_TAG(KE,x); }
 
 // decrement K object refcount and place it back in M if no longer referenced
 void unref(K x){
-    // if ref not 0, decrement and return
-    if (TAG_TYP(x) || REF(x)--) return;
+    // return tagged K
+    if (TAG_TYP(x)) return; 
+
+    // if refcount isn't 0, decrement and return
+    if (REF(x)) { --REF(x); return; };
     
     // if generic K object, unref child objects
     if (IS_GENERIC(x))
@@ -341,16 +344,16 @@ K squeeze(K x){
 static void printInt(K x){
     for (i64 i=0, n=CNT(x), last=n-1; i<n; i++){
         i64 j=INT(x)[i];
-        INULL==j ? printf("0N") : printf("%ld", j);
-        if (i != last) putchar(' ');
+        INULL==j ? printf("0N") : printf("%ld",j);
+        if (i!=last) putchar(' ');
     }
 }
 
 static void printFlt(K x){
     for (i64 i=0, n=CNT(x), last=n-1; i<n; i++){
         double f=FLT(x)[i];
-        f!=f ? printf("0n") : printf("%f", f);
-        if (i != last) putchar(' ');
+        f!=f ? printf("0n") : printf("%f",f);
+        if (i!=last) putchar(' ');
     }
 }
 
@@ -412,12 +415,16 @@ K printErr(K x){
     return UNREF_X(ke());
 }
 
+// print a K object. consumes the argument
 K printK(K x){
-    if (IS_NULL(x))  return x;
+    if (IS_NULL(x))
+        return x;
+
     if (IS_ERROR(x))
         x=printErr(x);
     else 
         _printK(x);
+
     putchar('\n');
     return unref(x), x;
 }
