@@ -312,29 +312,23 @@ K ref(K x){
 // ("a";"b") -> "ab"
 K squeeze(K x){
     K r;
-    i8 t, rt;
-    i64 n = CNT(x);
+    i8 t;
+    i64 n=CNT(x);
 
     // if not a general list or count=0, return x
     if (TYP(x) || !n) return x;
 
     // if 1st element not atom, return x
-    t = TYP( *OBJ(x) );
-    if (0<=t) return x;
+    t=TYP(*OBJ(x));
+    if (t>=0) return x;
 
     // if not all same type, return x
-    for (i64 i=1; i<n; i++) 
-        if (t!=TYP( OBJ(x)[i] )) return x;
+    for (i64 i=1; i<n; i++)
+        if (TYP(OBJ(x)[i]) != t) return x;
 
-    rt = -t;
-    r = tn(rt, n);
-    switch(rt){
-    case KI:
-    case KS: for (i64 i=0; i<n; i++) INT(r)[i] = *INT(OBJ(x)[i]); break; 
-    case KC: for (i64 i=0; i<n; i++) CHR(r)[i] = *CHR(OBJ(x)[i]); break;
-    case KF: for (i64 i=0; i<n; i++) FLT(r)[i] = *FLT(OBJ(x)[i]); break;
-    default: printf("'squeeze! type %d unsupported\n",rt), exit(0);
-    }
+    r=tn(-t,n);
+    for (i64 i=0, b=SIZEOF(r); i<n; i++)
+        memcpy(CHR(r)+b*i, (void*)OBJ(x)[i], b);
 
     return unref(x), r;
 }
