@@ -20,6 +20,7 @@ K run(K r){
     // useful variables to execute opcodes
     K x,y;
     i64 n;
+    MONAD u;
     DYAD v;
 
     for (;;){
@@ -32,7 +33,12 @@ K run(K r){
         {
 
         case OP_MONAD:
-            printf("%03d OP_MONAD (%c)\n", instr, cverb(instr-OP_MONAD));
+            //printf("%03d OP_MONAD (%c)\n", instr, cverb(instr-OP_MONAD));
+            u=monad_table[instr-OP_MONAD];
+            x=(*u)(POP());
+            if (IS_ERROR(x))
+                goto run_error;
+            PUSH(x);
             break;
 
         case OP_DYAD:

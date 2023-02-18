@@ -2,11 +2,104 @@
 #include "object.h"
 #include "apply.h"
 
+MONAD monad_table[]={
+    identity, flip,  neg,     first,     ksqrt, enlist,  distinct,
+    value,    type,  getKey,  string,    count, lower,   isNull,
+    where,    group, gradeUp, gradeDown, not,   reverse
+};
+
 DYAD dyad_table[]={
     set,      add,     subtract, multiply,    divide, join, find,
-    dotApply, atApply, key,      cast,        take,   drop, fill,
+    dotApply, atApply, makeKey,  cast,        take,   drop, fill,
     min,      equal,   lessThan, greaterThan, match,  max
 };
+
+// MONAD definitions //
+
+
+K identity(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad :")) );
+}
+
+K flip(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad +")) );
+}
+
+K neg(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad -")) );
+}
+
+K first(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad *")) );
+}
+
+K ksqrt(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad %")) );
+}
+
+K enlist(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad ,")) );
+}
+
+K distinct(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad ?")) );
+}
+
+K value(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad .")) );
+}
+
+K type(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad @")) );
+}
+
+K getKey(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad !")) );
+}
+
+K string(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad $")) );
+}
+
+K count(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad #")) );
+}
+
+K lower(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad _")) );
+}
+
+K isNull(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad ^")) );
+}
+
+K where(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad &")) );
+}
+
+K group(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad =")) );
+}
+
+K gradeUp(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad <")) );
+}
+
+K gradeDown(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad >")) );
+}
+
+K not(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad ~")) );
+}
+
+K reverse(K x){
+    return UNREF_X( kerr(kC0("'nyi! monad |")) );
+}
+
+
+// DYAD definitions //
+
 
 // x?y for KI and KS (syms encoded in i64)
 K findSym(K x, K y){
@@ -55,7 +148,7 @@ K find(K x, K y){
 
 // x!y
 // create a dictionary with x keys and y values
-K key(K x, K y){
+K makeKey(K x, K y){
     if (CNT(x)!=CNT(y))
         return UNREF_XY( kerr(kC0("'length! x!y operand length mismatch")) );
     return kD(TYP(x)>=0?x:va(x), TYP(y)>=0?y:va(y));
