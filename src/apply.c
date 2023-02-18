@@ -17,10 +17,10 @@ K apply(K x, K y){
         return UNREF_X(squeeze(y));
 
     // index
-    if (TYP(x)<KL){
+    if (TYP(x)<KINDEXABLE_END){
         // x[y]
         if (1==CNT(y))
-            return t=ref(*OBJ(y)),unref(y),index(x,t); //TODO: replace with first()
+            return UNREF_Y(index(x,ref(*OBJ(y)))); 
 
         // x[y;...]
         t=tn(KK,1); //reusable box
@@ -125,9 +125,10 @@ K index(K x, K y){
     K nl=0;
     switch (xt){
     case KK: 
-        for (i64 i=0; i<yn; i++)
-            j=INT(y)[i],
+        for (i64 i=0; i<yn; i++){
+            j=INT(y)[i];
             OBJ(r)[i]= (j<0||j>=xn) ? !nl?nl=nulls(*OBJ(x)):ref(nl) : ref(OBJ(x)[j]);
+        }
         break;
     case KC: for (i64 i=0; i<yn; i++) j=INT(y)[i], CHR(r)[i]=(j<0||j>=xn)?CNULL:CHR(x)[j]; break;
     case KI: for (i64 i=0; i<yn; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?INULL:INT(x)[j]; break;

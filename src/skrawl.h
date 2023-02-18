@@ -27,7 +27,8 @@ enum {
     KS,                        //symbol
     K_SIMPLE_LIST_END,         //simple lists are composed of same-type atoms
     KD=K_SIMPLE_LIST_END,      //dict
-    KL,                        //lambda
+    KINDEXABLE_END,            //end of types that can subscripted
+    KL=KINDEXABLE_END,         //lambda
     KU,                        //monad
     KV,                        //dyad
     KW,                        //adverb
