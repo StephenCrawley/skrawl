@@ -74,7 +74,6 @@ K run(K r){
 
         case OP_RETURN:
             //printf("%03d OP_RETURN\n",instr);
-            printf("return\n");
             return UNREF_R(POP());
 
         default:

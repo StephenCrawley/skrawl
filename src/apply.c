@@ -1,4 +1,3 @@
-
 #include "apply.h"
 #include "object.h"
 #include "verb.h"
@@ -33,21 +32,50 @@ K apply(K x, K y){
                 x=apply(x,ref(t));
                 // handle error
                 if (IS_ERROR(x))
-                    return unref(t),UNREF_Y(x);
+                    break;
             }
-            return unref(t),UNREF_Y(x);
+            *OBJ(t)=knul();
+            unref(t);
+            return UNREF_Y(x);
         }
     }
 
     return UNREF_XY(kerr(kC0("'nyi! apply")));
 }
 
+// get object with same shape, replacing all values with nulls
+static K nulls(K x){
+    if (!CNT(x)) return ref(x);
+
+    K   r;
+    i8  xt=TYP(x);
+    i64 xn=CNT(x);
+
+    // call recursively on generic objects
+    if (!xt){
+        r=tn(xt,xn);
+        for (i64 i=0; i<xn; i++)
+            OBJ(r)[i]=nulls(OBJ(x)[i]);
+        return r;
+    }
+
+    // else create nulls
+    switch(ABS(xt)){
+    case KC: r=tn(xt,xn); for (i64 i=0; i<xn; i++) CHR(r)[i]=CNULL; return r;
+    case KI: r=tn(xt,xn); for (i64 i=0; i<xn; i++) INT(r)[i]=INULL; return r;
+    case KF: r=tn(xt,xn); for (i64 i=0; i<xn; i++) FLT(r)[i]=FNULL; return r;
+    case KS: r=tn(xt,xn); for (i64 i=0; i<xn; i++) INT(r)[i]=SNULL; return r;
+    case KD: { K k=ref(*OBJ(x)); return kD(k,nulls(OBJ(x)[1])); }
+    default: return ku(0);
+    }
+}
+
 // index x at y
 K index(K x, K y){
     // init
     K r,t;
-    i8 xt=TYP(x), yt=TYP(y);
-    i64 n=CNT(y);
+    i8  xt=TYP(x), yt=TYP(y);
+    i64 xn=CNT(x), yn=CNT(y);
 
     // return type error if x is atom
     if (0>xt)
@@ -69,7 +97,7 @@ K index(K x, K y){
     // if y is general list, index for each item
     if (!yt){
         r=tn(KK,0);
-        for (i64 i=0; i<n; i++){
+        for (i64 i=0; i<yn; i++){
             // call on y[i]
             t=index(ref(x),ref(OBJ(y)[i]));
             // handle if error
@@ -87,24 +115,27 @@ K index(K x, K y){
         return UNREF_XY(kerr(kC0("'type! y is not valid index")));
 
     // if x is generic and y is atom, return ref(x[*y])
-    if (!xt && 0>yt)
-        return UNREF_XY( ref(OBJ(x)[*INT(y)]) );
+    if (!xt && 0>yt){
+        i64 j=*INT(y);
+        return !xn ? UNREF_Y(x) : UNREF_XY( (j<0||j>=xn) ? nulls(*OBJ(x)) : ref(OBJ(x)[*INT(y)]) );
+    }
     
     // return object
-    r=tn(yt>0?xt:-xt,n);
+    r=tn(yt>0?xt:-xt,yn);
 
-    i64 j, xn=CNT(x);
+    i64 j;
+    K nl=0;
     switch (xt){
-    case KK: for (i64 i=0; i<n; i++) j=INT(y)[i], OBJ(r)[i]=(j<0||j>=xn)?ku(0):OBJ(x)[j]; break;
-    case KC: for (i64 i=0; i<n; i++) j=INT(y)[i], CHR(r)[i]=(j<0||j>=xn)?CNULL:CHR(x)[j]; break;
-    case KI: for (i64 i=0; i<n; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?INULL:INT(x)[j]; break;
-    case KF: for (i64 i=0; i<n; i++) j=INT(y)[i], FLT(r)[i]=(j<0||j>=xn)?FNULL:FLT(x)[j]; break;
-    case KS: for (i64 i=0; i<n; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?SNULL:INT(x)[j]; break;
+    case KK: 
+        for (i64 i=0; i<yn; i++)
+            j=INT(y)[i],
+            OBJ(r)[i]= (j<0||j>=xn) ? !nl?nl=nulls(*OBJ(x)):ref(nl) : ref(OBJ(x)[j]);
+        break;
+    case KC: for (i64 i=0; i<yn; i++) j=INT(y)[i], CHR(r)[i]=(j<0||j>=xn)?CNULL:CHR(x)[j]; break;
+    case KI: for (i64 i=0; i<yn; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?INULL:INT(x)[j]; break;
+    case KF: for (i64 i=0; i<yn; i++) j=INT(y)[i], FLT(r)[i]=(j<0||j>=xn)?FNULL:FLT(x)[j]; break;
+    case KS: for (i64 i=0; i<yn; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?SNULL:INT(x)[j]; break;
     }
-
-    // if x was generic list, ref each element of the output
-    if (!xt)
-        for (i64 i=0; i<n; i++) ref(OBJ(r)[i]);
 
     return UNREF_XY(squeeze(r));
 }
