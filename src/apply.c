@@ -17,27 +17,25 @@ K apply(K x, K y){
         return UNREF_X(squeeze(y));
 
     // index
-    if (KL>TYP(x)){
+    if (TYP(x)<KL){
         // x[y]
         if (1==CNT(y))
             return t=ref(*OBJ(y)),unref(y),index(x,t); //TODO: replace with first()
 
         // x[y;...]
-        else {
-            t=tn(KK,1); //reusable box
-            for (i64 i=0,n=CNT(y); i<n; i++){
-                // box y[i]
-                *OBJ(t)=OBJ(y)[i];
-                // apply x to y[i]
-                x=apply(x,ref(t));
-                // handle error
-                if (IS_ERROR(x))
-                    break;
-            }
-            *OBJ(t)=knul();
-            unref(t);
-            return UNREF_Y(x);
+        t=tn(KK,1); //reusable box
+        for (i64 i=0,n=CNT(y); i<n; i++){
+            // box y[i]
+            *OBJ(t)=OBJ(y)[i];
+            // apply x to y[i]
+            x=apply(x,ref(t));
+            // handle error
+            if (IS_ERROR(x))
+                break;
         }
+        *OBJ(t)=knul();
+        unref(t);
+        return UNREF_Y(x);
     }
 
     return UNREF_XY(kerr(kC0("'nyi! apply")));
@@ -78,11 +76,11 @@ K index(K x, K y){
     i64 xn=CNT(x), yn=CNT(y);
 
     // return type error if x is atom
-    if (0>xt)
+    if (xt<0)
         return UNREF_XY(kerr(kC0("'type! can't index an atom")));
     
     // handle dicts. indexed using find()
-    if (KD==xt){
+    if (xt==KD){
         // get the keys to search on
         K k=*OBJ(x);
         // find the indexes of the keys
@@ -111,11 +109,11 @@ K index(K x, K y){
 
     // from here we're dealing with indexing with ints
     // so if y not int, return error
-    if (KI!=ABS(yt))
+    if (ABS(yt)!=KI)
         return UNREF_XY(kerr(kC0("'type! y is not valid index")));
 
     // if x is generic and y is atom, return ref(x[*y])
-    if (!xt && 0>yt){
+    if (!xt && yt<0){
         i64 j=*INT(y);
         return !xn ? UNREF_Y(x) : UNREF_XY( (j<0||j>=xn) ? nulls(*OBJ(x)) : ref(OBJ(x)[*INT(y)]) );
     }
