@@ -58,7 +58,7 @@ K find(K x, K y){
 K key(K x, K y){
     if (CNT(x)!=CNT(y))
         return UNREF_XY( kerr(kC0("'length! x!y operand length mismatch")) );
-    return kD(0<TYP(x)?x:va(x), 0<TYP(y)?y:va(y));
+    return kD(TYP(x)>=0?x:va(x), TYP(y)>=0?y:va(y));
 }
 
 K set(K x, K y){
