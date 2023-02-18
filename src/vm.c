@@ -15,7 +15,7 @@ K run(K r){
     K *top=stack;
     K *consts=CONSTANT_PTR(r);
     const u8 *ip=BYTECODE_PTR(r);
-    u8 instr, b;  //instr:current instruction, b:temp byte variable
+    u8 instr;  //current instruction
 
     // useful variables to execute opcodes
     K x,y;
@@ -30,26 +30,30 @@ K run(K r){
                 20u>instr-OP_DYAD   ? OP_DYAD   :
                  6u>instr-OP_ADVERB ? OP_ADVERB : instr)
         {
+
         case OP_MONAD:
             printf("%03d OP_MONAD (%c)\n", instr, cverb(instr-OP_MONAD));
             break;
+
         case OP_DYAD:
             //printf("%03d OP_DYAD (%c)\n", instr, cverb(instr-OP_DYAD));
-            b=instr-OP_DYAD;
-            v=dyad_table[b];
+            v=dyad_table[instr-OP_DYAD];
             x=POP();
             x=(*v)(x,POP());
             if (IS_ERROR(x))
                 goto run_error;
             PUSH(x);
             break;
+
         case OP_ADVERB:
             printf("%03d OP_ADVERB (%c%s)\n", instr, cadverb(instr-OP_ADVERB), instr-OP_ADVERB>2 ? ":" : ""); 
-            break;    
+            break;
+
         case OP_CONSTANT:
             //printf("%03d OP_CONSTANT (%d)\n", instr, *ip);
             PUSH(ref(consts[*ip++]));
             break;
+
         case OP_APPLY_N:
             //printf("%03d OP_APPLY_N (%d)\n", instr, *ip);
             n=*ip++;
@@ -62,13 +66,17 @@ K run(K r){
                 goto run_error;
             PUSH(x);
             break;
+
         case OP_POP:
             //printf("%03d OP_POP\n",instr);
             unref(POP());
-            break; 
+            break;
+
         case OP_RETURN:
             //printf("%03d OP_RETURN\n",instr);
+            printf("return\n");
             return UNREF_R(POP());
+
         default:
             printf("%03d unknown instruction\n",instr);
         }
