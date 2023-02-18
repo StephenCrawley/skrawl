@@ -20,7 +20,7 @@ K apply(K x, K y){
     if (TYP(x)<KINDEXABLE_END){
         // x[y]
         if (1==CNT(y))
-            return UNREF_Y(index(x,ref(*OBJ(y)))); 
+            return index(x,first(y)); 
 
         // x[y;...]
         t=tn(KK,1); //reusable box
@@ -115,7 +115,7 @@ K index(K x, K y){
     // if x is generic and y is atom, return ref(x[*y])
     if (!xt && yt<0){
         i64 j=*INT(y);
-        return !xn ? UNREF_Y(x) : UNREF_XY( (j<0||j>=xn) ? nulls(*OBJ(x)) : ref(OBJ(x)[*INT(y)]) );
+        return !xn ? UNREF_Y(x) : UNREF_XY((j<0||j>=xn) ? nulls(*OBJ(x)) : ref(OBJ(x)[*INT(y)]));
     }
     
     // return object

@@ -14,6 +14,7 @@ DYAD dyad_table[]={
     min,      equal,   lessThan, greaterThan, match,  max
 };
 
+
 // MONAD definitions //
 
 
@@ -29,8 +30,32 @@ K neg(K x){
     return UNREF_X( kerr(kC0("'nyi! monad -")) );
 }
 
+// *x
+// *1 2 3 -> 1
 K first(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad *")) );
+    // init
+    K r;
+    i8 xt=TYP(x);
+
+    // atoms
+    if (xt<0 || xt>=KINDEXABLE_END)
+        return x;
+
+    // generic objects
+    if (!xt)
+        return UNREF_X(ref(*OBJ(x)));
+
+    // return first item of dict values
+    if (xt==KD)
+        return UNREF_X(first(ref(OBJ(x)[1])));
+
+    switch(xt){
+    case KC: r=kc(*CHR(x)); break;
+    case KI: r=ki(*INT(x)); break;
+    case KF: r=kf(*FLT(x)); break;
+    case KS: r=ks(*INT(x)); break;
+    }
+    return UNREF_X(r);
 }
 
 K ksqrt(K x){
@@ -106,7 +131,7 @@ K findSym(K x, K y){
     // init 
     i64 xn=CNT(x);
     i64 yn=CNT(y);
-    K r=tn(0>TYP(y)?-KI:KI,yn);
+    K r=tn(TYP(y)<0?-KI:KI,yn);
 
     // pointers to use in the loop
     i64 *xptr=INT(x), *rptr=INT(r);
@@ -135,14 +160,13 @@ K find(K x, K y){
 
     // for now, just find for same-type operands
     if (axt!=ABS(yt)){
-        unref(x), unref(y);
-        return kerr(kC0("'nyi! x?y for differing types"));
+        return UNREF_XY(kerr(kC0("'nyi! x?y for differing types")));
     }
 
     switch (axt){
     case KI: /* KS is i64 so same logic applies */
     case KS: return findSym(x,y);
-    default: return UNREF_XY( kerr(kC0("'nyi! x?y for given types")) );
+    default: return UNREF_XY(kerr(kC0("'nyi! x?y for given types")));
     }
 }
 
@@ -150,7 +174,7 @@ K find(K x, K y){
 // create a dictionary with x keys and y values
 K makeKey(K x, K y){
     if (CNT(x)!=CNT(y))
-        return UNREF_XY( kerr(kC0("'length! x!y operand length mismatch")) );
+        return UNREF_XY(kerr(kC0("'length! x!y operand length mismatch")));
     return kD(TYP(x)>=0?x:va(x), TYP(y)>=0?y:va(y));
 }
 
