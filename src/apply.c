@@ -19,7 +19,7 @@ K apply(K x, K y){
     // index
     if (TYP(x)<KINDEXABLE_END){
         // x[y]
-        if (1==CNT(y))
+        if (CNT(y)==1)
             return index(x,first(y)); 
 
         // x[y;...]
@@ -112,14 +112,17 @@ K index(K x, K y){
     if (ABS(yt)!=KI)
         return UNREF_XY(kerr(kC0("'type! y is not valid index")));
 
-    // if x is generic and y is atom, return ref(x[*y])
+    // if x is generic and y is atom
     if (!xt && yt<0){
+        // ()[0] -> ()
+        if (!xn) return UNREF_Y(x);
+        // return ref(x[*y]) or nulls if out of bounds
         i64 j=*INT(y);
-        return !xn ? UNREF_Y(x) : UNREF_XY((j<0||j>=xn) ? nulls(*OBJ(x)) : ref(OBJ(x)[*INT(y)]));
+        return UNREF_XY((j>=0&&j<xn) ? ref(OBJ(x)[*INT(y)]) : nulls(*OBJ(x)));
     }
     
     // return object
-    r=tn(yt>0?xt:-xt,yn);
+    r=tn(yt>=0?xt:-xt,yn);
 
     i64 j;
     K nl=0;
@@ -127,13 +130,13 @@ K index(K x, K y){
     case KK: 
         for (i64 i=0; i<yn; i++){
             j=INT(y)[i];
-            OBJ(r)[i]= (j<0||j>=xn) ? !nl?nl=nulls(*OBJ(x)):ref(nl) : ref(OBJ(x)[j]);
+            OBJ(r)[i]= (j>=0&&j<xn) ? ref(OBJ(x)[j]) : !nl?nl=nulls(xn?*OBJ(x):x):ref(nl);
         }
         break;
-    case KC: for (i64 i=0; i<yn; i++) j=INT(y)[i], CHR(r)[i]=(j<0||j>=xn)?CNULL:CHR(x)[j]; break;
-    case KI: for (i64 i=0; i<yn; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?INULL:INT(x)[j]; break;
-    case KF: for (i64 i=0; i<yn; i++) j=INT(y)[i], FLT(r)[i]=(j<0||j>=xn)?FNULL:FLT(x)[j]; break;
-    case KS: for (i64 i=0; i<yn; i++) j=INT(y)[i], INT(r)[i]=(j<0||j>=xn)?SNULL:INT(x)[j]; break;
+    case KC: for (i64 i=0; i<yn; i++){ j=INT(y)[i], CHR(r)[i]=(j>=0&&j<xn)?CHR(x)[j]:CNULL; } break;
+    case KI: for (i64 i=0; i<yn; i++){ j=INT(y)[i], INT(r)[i]=(j>=0&&j<xn)?INT(x)[j]:INULL; } break;
+    case KF: for (i64 i=0; i<yn; i++){ j=INT(y)[i], FLT(r)[i]=(j>=0&&j<xn)?FLT(x)[j]:FNULL; } break;
+    case KS: for (i64 i=0; i<yn; i++){ j=INT(y)[i], INT(r)[i]=(j>=0&&j<xn)?INT(x)[j]:SNULL; } break;
     }
 
     return UNREF_XY(squeeze(r));
