@@ -254,6 +254,11 @@ K kD(K x, K y){
     return tx(KD,k2(x,y));
 }
 
+// make table from dict
+K kT(K x){
+    return tx(KT,k1(x));
+}
+
 // create monadic verb
 K ku(u64 i){ return SET_TAG(KU, i); }
 
@@ -384,6 +389,7 @@ static void _printK(K x){
     case KF: printFlt(x); break;
     case KS: printSym(x); break;
     case KD: _printK(*OBJ(x)), putchar('!'), _printK(OBJ(x)[1]); break;
+    case KT: putchar('+'); _printK(*OBJ(x)); break;
     case KU: putchar(VERB_STR[TAG_VAL(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;

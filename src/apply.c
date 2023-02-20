@@ -17,7 +17,7 @@ K apply(K x, K y){
         return UNREF_X(squeeze(y));
 
     // index
-    if (TYP(x)<KINDEXABLE_END){
+    if (TYP(x)<K_INDEXABLE_END){
         // x[y]
         if (CNT(y)==1)
             return index(x,first(y)); 
@@ -78,19 +78,6 @@ K index(K x, K y){
     // return type error if x is atom
     if (xt<0)
         return UNREF_XY(kerr(kC0("'type! can't index an atom")));
-    
-    // handle dicts. indexed using find()
-    if (xt==KD){
-        // get the keys to search on
-        K k=*OBJ(x);
-        // find the indexes of the keys
-        K ix=find(ref(k),y);
-        // return if error finding keys
-        if (IS_ERROR(ix))
-            return UNREF_X(ix);
-        // index the dict values
-        return UNREF_X(index(ref(OBJ(x)[1]),ix));
-    }
 
     // if y is general list, index for each item
     if (!yt){
@@ -105,6 +92,50 @@ K index(K x, K y){
             r=jk(r,t);
         }
         return UNREF_XY(squeeze(r));
+    }
+
+    // handle dicts. indexed using find()
+    if (xt==KD){
+        // get the keys to search on
+        K k=*OBJ(x);
+        // find the indexes of the keys
+        K ix=find(ref(k),y);
+        // return if error finding keys
+        if (IS_ERROR(ix))
+            return UNREF_X(ix);
+        // index the dict values
+        return UNREF_X(index(ref(OBJ(x)[1]),ix));
+    }
+
+    // handle tables. call index for each column
+    if (xt==KT){
+        // extract the underlying dict
+        K dict=*OBJ(x);
+
+        // if y is sym we're indexing by column, extract columns as if dict
+        if (KS==ABS(TYP(y)))
+            return UNREF_X(index(ref(dict),y));
+
+        // else we're indexing by row 
+        // extract keys and vals and create new column object
+        K keys=OBJ(dict)[0];
+        K vals=OBJ(dict)[1];
+        K r=tn(KK,0);
+
+        // iterate and index each column 
+        for (i64 i=0, n=CNT(vals); i<n; i++){
+            t=index(ref(OBJ(vals)[i]),ref(y));
+            // return if error
+            if (IS_ERROR(t))
+                return UNREF_XYR(t);
+            // else append
+            r=jk(r,squeeze(t));
+        }
+
+        // make dict with new indices
+        r=kD(ref(keys),squeeze(r));
+        // if y is atom, return dict. else return table
+        return UNREF_XY(TYP(y)<0 ? r : kT(r));
     }
 
     // from here we're dealing with indexing with ints

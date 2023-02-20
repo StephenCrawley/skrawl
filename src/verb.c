@@ -23,7 +23,39 @@ K identity(K x){
 }
 
 K flip(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad +")) );
+    // dict from table
+    if (TYP(x)==KT){
+        return UNREF_X(ref(*OBJ(x)));
+    }
+    // table from dict
+    else if (TYP(x)==KD){
+        // check that dict is valid 
+
+        // +1 2!(,1;,2) -> error
+        if (KS!=TYP(*OBJ(x)))
+            return UNREF_X(kerr(kC0("'type! +: (flip) - key must be sym")));
+
+        // +`a`b!1 2 -> error
+        K val=OBJ(x)[1];
+        if (KK!=TYP(val))
+            return UNREF_X(kerr(kC0("'rank! +: (flip) - dict value must be list of lists")));
+
+        // +`a`b!(1 2;3 4 5) -> error
+        i64 n=CNT(x), m=CNT(OBJ(val)[0]);
+        for (i64 i=0; i<n; i++){
+            if (CNT(OBJ(val)[i]) != m)
+                return UNREF_X(kerr(kC0("'length! +: (flip) - dict values must have equal count")));
+            
+            i8 t=TYP(OBJ(val)[i]);
+            if (t<0 || t>=K_INDEXABLE_END)
+                return UNREF_X(kerr(kC0("'nyi! +: (flip) - dict values must not be atomic")));
+        }
+
+        return kT(x);
+    }
+    
+    // matrix transpose not yet implemented
+    return UNREF_X(kerr(kC0("'nyi! +:")));
 }
 
 K neg(K x){
@@ -38,7 +70,7 @@ K first(K x){
     i8 xt=TYP(x);
 
     // atoms
-    if (xt<0 || xt>=KINDEXABLE_END)
+    if (xt<0 || xt>=K_INDEXABLE_END)
         return x;
 
     // generic objects
@@ -48,6 +80,10 @@ K first(K x){
     // return first item of dict values
     if (xt==KD)
         return UNREF_X(first(ref(OBJ(x)[1])));
+
+    // *[table] returns a dict
+    if (xt==KT)
+        return index(x,ki(0));
 
     switch(xt){
     case KC: r=kc(*CHR(x)); break;

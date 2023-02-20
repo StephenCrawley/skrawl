@@ -28,6 +28,7 @@ K ki(i64);
 K kf(double);
 K ks(i64);
 K kD(K,K);
+K kT(K);
 K ku(u64);
 K kv(u64);
 K kuc(char);

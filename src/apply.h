@@ -4,5 +4,6 @@
 #include "skrawl.h"
 
 K apply(K,K);
+K index(K,K);
 
 #endif
