@@ -29,7 +29,7 @@ enum {
     KD=K_SIMPLE_LIST_END,      //dict
     KT,                        //table
     K_INDEXABLE_END,           //end of types that can subscripted
-    KL=K_INDEXABLE_END,         //lambda
+    KL=K_INDEXABLE_END,        //lambda
     KU,                        //monad
     KV,                        //dyad
     KW,                        //adverb

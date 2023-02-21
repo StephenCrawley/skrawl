@@ -19,7 +19,7 @@ DYAD dyad_table[]={
 
 
 K identity(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad :")) );
+    return UNREF_X( kerr("'nyi! monad :") );
 }
 
 K flip(K x){
@@ -33,33 +33,33 @@ K flip(K x){
 
         // +1 2!(,1;,2) -> error
         if (KS!=TYP(*OBJ(x)))
-            return UNREF_X(kerr(kC0("'type! +: (flip) - key must be sym")));
+            return UNREF_X(kerr("'type! +: (flip) - key must be sym"));
 
         // +`a`b!1 2 -> error
         K val=OBJ(x)[1];
         if (KK!=TYP(val))
-            return UNREF_X(kerr(kC0("'rank! +: (flip) - dict value must be list of lists")));
+            return UNREF_X(kerr("'rank! +: (flip) - dict value must be list of lists"));
 
         // +`a`b!(1 2;3 4 5) -> error
         i64 n=CNT(x), m=CNT(OBJ(val)[0]);
         for (i64 i=0; i<n; i++){
             if (CNT(OBJ(val)[i]) != m)
-                return UNREF_X(kerr(kC0("'length! +: (flip) - dict values must have equal count")));
+                return UNREF_X(kerr("'length! +: (flip) - dict values must have equal count"));
             
             i8 t=TYP(OBJ(val)[i]);
             if (t<0 || t>=K_INDEXABLE_END)
-                return UNREF_X(kerr(kC0("'nyi! +: (flip) - dict values must not be atomic")));
+                return UNREF_X(kerr("'nyi! +: (flip) - dict values must not be atomic"));
         }
 
         return kT(x);
     }
     
     // matrix transpose not yet implemented
-    return UNREF_X(kerr(kC0("'nyi! +:")));
+    return UNREF_X(kerr("'nyi! +:"));
 }
 
 K neg(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad -")) );
+    return UNREF_X( kerr("'nyi! monad -") );
 }
 
 // *x
@@ -95,67 +95,67 @@ K first(K x){
 }
 
 K ksqrt(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad %")) );
+    return UNREF_X( kerr("'nyi! monad %") );
 }
 
 K enlist(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad ,")) );
+    return UNREF_X( kerr("'nyi! monad ,") );
 }
 
 K distinct(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad ?")) );
+    return UNREF_X( kerr("'nyi! monad ?") );
 }
 
 K value(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad .")) );
+    return UNREF_X( kerr("'nyi! monad .") );
 }
 
 K type(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad @")) );
+    return UNREF_X( kerr("'nyi! monad @") );
 }
 
 K getKey(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad !")) );
+    return UNREF_X( kerr("'nyi! monad !") );
 }
 
 K string(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad $")) );
+    return UNREF_X( kerr("'nyi! monad $") );
 }
 
 K count(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad #")) );
+    return UNREF_X( kerr("'nyi! monad #") );
 }
 
 K lower(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad _")) );
+    return UNREF_X( kerr("'nyi! monad _") );
 }
 
 K isNull(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad ^")) );
+    return UNREF_X( kerr("'nyi! monad ^") );
 }
 
 K where(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad &")) );
+    return UNREF_X( kerr("'nyi! monad &") );
 }
 
 K group(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad =")) );
+    return UNREF_X( kerr("'nyi! monad =") );
 }
 
 K gradeUp(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad <")) );
+    return UNREF_X( kerr("'nyi! monad <") );
 }
 
 K gradeDown(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad >")) );
+    return UNREF_X( kerr("'nyi! monad >") );
 }
 
 K not(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad ~")) );
+    return UNREF_X( kerr("'nyi! monad ~") );
 }
 
 K reverse(K x){
-    return UNREF_X( kerr(kC0("'nyi! monad |")) );
+    return UNREF_X( kerr("'nyi! monad |") );
 }
 
 
@@ -196,13 +196,13 @@ K find(K x, K y){
 
     // for now, just find for same-type operands
     if (axt!=ABS(yt)){
-        return UNREF_XY(kerr(kC0("'nyi! x?y for differing types")));
+        return UNREF_XY(kerr("'nyi! x?y for differing types"));
     }
 
     switch (axt){
     case KI: /* KS is i64 so same logic applies */
     case KS: return findSym(x,y);
-    default: return UNREF_XY(kerr(kC0("'nyi! x?y for given types")));
+    default: return UNREF_XY(kerr("'nyi! x?y for given types"));
     }
 }
 
@@ -210,36 +210,36 @@ K find(K x, K y){
 // create a dictionary with x keys and y values
 K makeKey(K x, K y){
     if (CNT(x)!=CNT(y))
-        return UNREF_XY(kerr(kC0("'length! x!y operand length mismatch")));
+        return UNREF_XY(kerr("'length! x!y operand length mismatch"));
     return kD(TYP(x)>=0?x:va(x), TYP(y)>=0?y:va(y));
 }
 
 K set(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad :")) );
+    return UNREF_XY( kerr("'nyi! dyad :") );
 }
 
 K add(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad +")) );
+    return UNREF_XY( kerr("'nyi! dyad +") );
 }
 
 K subtract(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad -")) );
+    return UNREF_XY( kerr("'nyi! dyad -") );
 }
 
 K multiply(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad *")) );
+    return UNREF_XY( kerr("'nyi! dyad *") );
 }
 
 K divide(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad %")) );
+    return UNREF_XY( kerr("'nyi! dyad %") );
 }
 
 K join(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad ,")) );
+    return UNREF_XY( kerr("'nyi! dyad ,") );
 }
 
 K dotApply(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad .")) );
+    return UNREF_XY( kerr("'nyi! dyad .") );
 }
 
 K atApply(K x, K y){
@@ -247,42 +247,42 @@ K atApply(K x, K y){
 }
 
 K cast(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad $")) );
+    return UNREF_XY( kerr("'nyi! dyad $") );
 }
 
 K take(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad #")) );
+    return UNREF_XY( kerr("'nyi! dyad #") );
 }
 
 K drop(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad _")) );
+    return UNREF_XY( kerr("'nyi! dyad _") );
 }
 
 K fill(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad ^")) );
+    return UNREF_XY( kerr("'nyi! dyad ^") );
 }
 
 K min(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad &")) );
+    return UNREF_XY( kerr("'nyi! dyad &") );
 }
 
 K equal(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad =")) );
+    return UNREF_XY( kerr("'nyi! dyad =") );
 }
 
 K lessThan(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad <")) );
+    return UNREF_XY( kerr("'nyi! dyad <") );
 }
 
 K greaterThan(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad >")) );
+    return UNREF_XY( kerr("'nyi! dyad >") );
 }
 
 K match(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad ~")) );
+    return UNREF_XY( kerr("'nyi! dyad ~") );
 }
 
 K max(K x, K y){
-    return UNREF_XY( kerr(kC0("'nyi! dyad |")) );
+    return UNREF_XY( kerr("'nyi! dyad |") );
 }
 

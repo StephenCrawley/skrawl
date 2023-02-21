@@ -284,8 +284,12 @@ K kvc(char c){ return kv(ic((char*)VERB_STR,c)); }
 // create magic value (elided list/function args)
 K km(){ return SET_TAG(KM,0); } 
 
-// create tagged pointer to error string
-K kerr(K x){ return SET_TAG(KE,x); }
+// create error object from x
+// if TYP(x)==KK join the strings
+K ke(K x){ return tx(KE,TYP(x)?x:js(x,'\n')); }
+
+// create error object from 0-terminated string
+K kerr(char *s){ return ke(kC0(s)); }
 
 // decrement K object refcount and place it back in M if no longer referenced
 void unref(K x){
@@ -375,13 +379,13 @@ static void printAdverb(K x){
 }
 
 static void _printK(K x){
-    i8  t = IS_ADVERB_MOD(x) ? K_ADVERB_START : TYP(x);
-    if (KL==t){ x=*OBJ(x); }
-    i64 n = CNT(x);
+    i8  xt=IS_ADVERB_MOD(x) ? K_ADVERB_START : TYP(x);
+    if (xt==KL){ x=*OBJ(x); }
+    i64 n=CNT(x);
     
-    if (1==n && (!t || IS_SIMPLE_LIST(x))) putchar(',');
+    if (1==n && (!xt || IS_SIMPLE_LIST(x))) putchar(',');
 
-    switch(ABS(t)){
+    switch(ABS(xt)){
     case KK: if(1!=n)putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } if(1!=n)putchar(')'); break;
     case KX: printf("0x"); for (i64 i=0; i<n; i++){ printf("%02x",CHR(x)[i]); } break;
     case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
@@ -394,25 +398,11 @@ static void _printK(K x){
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;
     case K_ADVERB_START: printAdverb(x); break;
-    case KE: x=TAG_VAL(x), n=CNT(x); /*FALLTHROUGH*/
+    case KE: //FALLTHROUGH
     case KL: fwrite(CHR(x), sizeof(char), n, stdout); break;
     case KM: break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }
-}
-
-// error objects are special, they're the only true tagged pointer
-// upper 8 bits == KE, lower 56 is pointer to (lists of) string
-// tagging is useful so the object isn't freed as it propogates up the stack
-K printErr(K x){
-    // grab the pointer
-    x=TAG_VAL(x);
-    // if it points to list, join them with newlines
-    if (KK==TYP(x)) x=js(x,'\n');
-    // print
-    _printK(kerr(x));
-    // return
-    return UNREF_X(ke());
 }
 
 // print a K object. consumes the argument
@@ -420,11 +410,7 @@ K printK(K x){
     if (IS_NULL(x))
         return x;
 
-    if (IS_ERROR(x))
-        x=printErr(x);
-    else 
-        _printK(x);
-
+    _printK(x);
     putchar('\n');
     return unref(x), x;
 }

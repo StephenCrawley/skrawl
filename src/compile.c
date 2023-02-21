@@ -22,14 +22,14 @@ static K addConstant(K r, K y){
 
 static K compileConstant(K r, K y){ 
     u8 n=CNT(CONSTS(r));
-    if (IMM_ARG_MAX==n) return UNREF_R(kerr(kC0("'compile! CONST MAX")));
+    if (IMM_ARG_MAX==n) return UNREF_R(kerr("'compile! CONST MAX"));
     r=add2Bytes(r,OP_CONSTANT,n);
     return addConstant(r,y); 
 }
 
 // instruction to pop top of stack and apply it to next n items on top of stack
 static K compileApplyN(K r, i64 n){
-    if (IMM_ARG_MAX<n)  return UNREF_R(kerr(kC0("'compile! APPLY MAX")));
+    if (IMM_ARG_MAX<n) return UNREF_R(kerr("'compile! APPLY MAX"));
     return add2Bytes(r,OP_APPLY_N,n);
 }
 

@@ -30,7 +30,7 @@ static K handleError(Parser *p, char a){
         r=k3(kC0((char*)p->src), j2((K)memset((void*)tn(KC,n),' ',n),kc('^')), r);
     }
 
-    p->error=kerr(r);
+    p->error=ke(r);
     return knul();
 }
 

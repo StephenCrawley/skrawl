@@ -36,14 +36,14 @@ K kvc(char);
 K kw(i8);
 K kwx(i8, K);
 K km();
-K kerr(K);
+K ke(K);
+K kerr(char*);
 K squeeze(K);
 K printK(K);
 u8 cverb(u8 i);
 u8 cadverb(u8 i);
 u64 iadverb(char c);
 
-static inline K   ke(){ return SET_TAG(KE,0); }
 static inline K knul(){ return SET_TAG(KN,0); }
 
 #ifdef DBG_WS

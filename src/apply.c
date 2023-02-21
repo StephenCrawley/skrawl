@@ -38,7 +38,7 @@ K apply(K x, K y){
         return UNREF_Y(x);
     }
 
-    return UNREF_XY(kerr(kC0("'nyi! apply")));
+    return UNREF_XY(kerr("'nyi! apply"));
 }
 
 // get object with same shape, replacing all values with nulls
@@ -77,7 +77,7 @@ K index(K x, K y){
 
     // return type error if x is atom
     if (xt<0)
-        return UNREF_XY(kerr(kC0("'type! can't index an atom")));
+        return UNREF_XY(kerr("'type! can't index an atom"));
 
     // if y is general list, index for each item
     if (!yt){
@@ -141,7 +141,7 @@ K index(K x, K y){
     // from here we're dealing with indexing with ints
     // so if y not int, return error
     if (ABS(yt)!=KI)
-        return UNREF_XY(kerr(kC0("'type! y is not valid index")));
+        return UNREF_XY(kerr("'type! y is not valid index"));
 
     // if x is generic and y is atom
     if (!xt && yt<0){
