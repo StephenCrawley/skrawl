@@ -113,7 +113,7 @@ K index(K x, K y){
         K dict=*OBJ(x);
 
         // if y is sym we're indexing by column, extract columns as if dict
-        if (KS==ABS(TYP(y)))
+        if (ABS(yt)==KS)
             return UNREF_X(index(ref(dict),y));
 
         // else we're indexing by row 

@@ -71,7 +71,7 @@ enum {
 #define FLT(x)  ((double*)(x))  //pointer to double 
 
 // K null values
-#define CNULL  (0x20)
+#define CNULL  (' ')
 #define INULL  ((i64)0x8000000000000000LL)
 #define FNULL  (0/0.0)
 #define SNULL  0

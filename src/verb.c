@@ -67,7 +67,8 @@ K neg(K x){
 K first(K x){
     // init
     K r;
-    i8 xt=TYP(x);
+    i8  xt=TYP(x);
+    i64 xn=CNT(x);
 
     // atoms
     if (xt<0 || xt>=K_INDEXABLE_END)
@@ -75,7 +76,7 @@ K first(K x){
 
     // generic objects
     if (!xt)
-        return UNREF_X(ref(*OBJ(x)));
+        return !xn ? x : UNREF_X(ref(*OBJ(x)));
 
     // return first item of dict values
     if (xt==KD)
@@ -86,10 +87,10 @@ K first(K x){
         return index(x,ki(0));
 
     switch(xt){
-    case KC: r=kc(*CHR(x)); break;
-    case KI: r=ki(*INT(x)); break;
-    case KF: r=kf(*FLT(x)); break;
-    case KS: r=ks(*INT(x)); break;
+    case KC: r=kc(xn ? *CHR(x) : CNULL); break;
+    case KI: r=ki(xn ? *INT(x) : INULL); break;
+    case KF: r=kf(xn ? *FLT(x) : FNULL); break;
+    case KS: r=ks(xn ? *INT(x) : SNULL); break;
     }
     return UNREF_X(r);
 }
