@@ -1,6 +1,7 @@
 #include "apply.h"
 #include "object.h"
 #include "verb.h"
+#include "parse.h"
 
 // forward declarations
 K index(K x, K y);
@@ -10,21 +11,47 @@ K index(K x, K y);
 // f - some applicable value (primitive, lambda, list, etc)
 // x - a list of arguments to f 
 K apply(K x, K y){
-    K t;
+    K   t;
+    i8  xt=TYP(x);
+    i64 yn=CNT(y);
 
     // enlist is special, can take any number of arguments
     if (IS_OP(x,KU,TOK_COMMA))
         return UNREF_X(squeeze(y));
 
+    // atoms
+    if (xt<0){
+        // some sym atoms have special functions
+        if (xt==-KS){
+            // always monadic
+            if (yn>1)
+                return UNREF_XY(kerr("'rank! too many args"));
+
+            y=first(y);
+            switch(*INT(x)){
+            // `p@x -> return parse tree
+            case 'p':
+                if (TYP(y)!=KC)
+                    return UNREF_XY(kerr("'type! can only parse char vector"));
+                y=j2(y,kc(0));
+                return UNREF_XY(parse((const char*)y));
+
+            default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
+            }
+        }
+
+        return UNREF_XY(kerr("'type! atom not an applicable value"));
+    }
+
     // index
-    if (TYP(x)<K_INDEXABLE_END){
+    if (xt<K_INDEXABLE_END){
         // x[y]
-        if (CNT(y)==1)
+        if (yn==1)
             return index(x,first(y)); 
 
         // x[y;...]
         t=tn(KK,1); //reusable box
-        for (i64 i=0,n=CNT(y); i<n; i++){
+        for (i64 i=0; i<yn; i++){
             // box y[i]
             *OBJ(t)=OBJ(y)[i];
             // apply x to y[i]
@@ -74,10 +101,6 @@ K index(K x, K y){
     K r,t;
     i8  xt=TYP(x), yt=TYP(y);
     i64 xn=CNT(x), yn=CNT(y);
-
-    // return type error if x is atom
-    if (xt<0)
-        return UNREF_XY(kerr("'type! can't index an atom"));
 
     // if y is general list, index for each item
     if (!yt){
