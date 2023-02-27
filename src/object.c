@@ -342,6 +342,30 @@ K squeeze(K x){
     return unref(x), r;
 }
 
+// expand
+// "ab" -> ("a";"b")
+K expand(K x){
+    K  r;
+    i8 xt=TYP(x);
+
+    if (xt==KK)
+        return x;
+
+    if (xt==KT){
+        return printf("'expand\n"), exit(1), (K)0;
+    }
+
+    i64 xn=CNT(x);
+    r=tn(KK,xn);
+    switch(xt){
+    case KC: for (i64 i=0; i<xn; i++) OBJ(r)[i]=kc(CHR(x)[i]); break;
+    case KI: for (i64 i=0; i<xn; i++) OBJ(r)[i]=ki(INT(x)[i]); break;
+    case KF: for (i64 i=0; i<xn; i++) OBJ(r)[i]=kf(FLT(x)[i]); break;
+    case KS: for (i64 i=0; i<xn; i++) OBJ(r)[i]=ks(INT(x)[i]); break;
+    }
+    return UNREF_X(r);
+}
+
 // printer functions //
 
 static void printInt(K x){

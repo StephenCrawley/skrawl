@@ -39,6 +39,7 @@ K km();
 K ke(K);
 K kerr(char*);
 K squeeze(K);
+K expand(K);
 K printK(K);
 u8 cverb(u8 i);
 u8 cadverb(u8 i);
