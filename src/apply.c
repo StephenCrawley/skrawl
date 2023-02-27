@@ -97,6 +97,10 @@ static K nulls(K x){
 
 // index x at y
 K index(K x, K y){
+    // x[::] -> return x
+    if (IS_OP(y,KU,TOK_COLON))
+        return x;
+        
     // init
     K r,t;
     i8  xt=TYP(x), yt=TYP(y);
