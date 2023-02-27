@@ -240,7 +240,10 @@ K join(K x, K y){
 }
 
 K dotApply(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad .") );
+    i8 yt=TYP(y);
+    if (yt<0 || yt>K_INDEXABLE_END || yt==KD)
+        return UNREF_XY(kerr("'rank! . (apply) - right arg must be list"));
+    return apply(x,expand(y));
 }
 
 K atApply(K x, K y){
