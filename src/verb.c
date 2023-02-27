@@ -9,7 +9,7 @@ MONAD monad_table[]={
 };
 
 DYAD dyad_table[]={
-    set,      add,     subtract, multiply,    divide, join, find,
+    dex,      add,     subtract, multiply,    divide, join, find,
     dotApply, atApply, makeKey,  cast,        take,   drop, fill,
     min,      equal,   lessThan, greaterThan, match,  max
 };
@@ -19,7 +19,7 @@ DYAD dyad_table[]={
 
 
 K identity(K x){
-    return UNREF_X( kerr("'nyi! monad :") );
+    return x;
 }
 
 K flip(K x){
@@ -215,8 +215,10 @@ K makeKey(K x, K y){
     return kD(TYP(x)>=0?x:va(x), TYP(y)>=0?y:va(y));
 }
 
-K set(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad :") );
+// x:y
+// return the right argument
+K dex(K x, K y){
+    return UNREF_X(y);
 }
 
 K add(K x, K y){

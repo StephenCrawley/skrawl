@@ -32,7 +32,7 @@ K not(K);
 K reverse(K);
 
 // dyadic operator functions
-K set(K,K);
+K dex(K,K);
 K add(K,K);
 K subtract(K,K);
 K multiply(K,K);
