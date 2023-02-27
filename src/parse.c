@@ -3,7 +3,6 @@
 
 #define AT_EXPR_END(c)     sc(";)]}\n\0", (c))
 #define COMPOSE(x,y)       k3(kw(0),x,y) 
-#define HEAD_IS_ADVERB(x)  ( KK==TYP(x) && CNT(x) && KW==TYP(*OBJ(x)) )
 
 // foward declarations
 static K expr(Parser *p);
@@ -16,16 +15,16 @@ static K handleError(Parser *p, char a){
     if (p->error) return knul();
 
     // else create error string to print later
-    K r=kC0(-3==a ? "'parse! invalid lambda args" : 
-            -2==a ? "'parse! unclosed string"     :
-            -1==a ? "'parse! invalid number"      :    
+    K r=kC0(a==-3 ? "'parse! invalid lambda args" : 
+            a==-2 ? "'parse! unclosed string"     :
+            a==-1 ? "'parse! invalid number"      :    
                !a ? "'parse! unexpected EOL"      : 
                     "'parse! unexpected token: "  );
     if (a>0) r=j2(r,kc(a));
 
     // source with arrow ^ pointing at char where error occurred
     // some errors we don't print this because we lose the info about where the error occurred
-    if (-3<a){
+    if (a>-3){
         i64 n=p->current-p->src;
         r=k3(kC0((char*)p->src), j2((K)memset((void*)tn(KC,n),' ',n),kc('^')), r);
     }
@@ -70,41 +69,47 @@ static K parseFenced(Parser *p, char b){
 // parse x'  
 static K parseAdverb(Parser *p, K x){
     char t; //type
-    while ( '/' == class(peek(p)) ){
-        t = iadverb(*p->current++);
-        if (':'==*p->current){ ++p->current; t+=3; }
+    do {
+        t=iadverb(*p->current++);
+        if (*p->current==':'){ ++p->current; t+=3; }
         // special case: if x==0 we're parsing bare adverbs (eg "'/")
-        x = x ? k2(kw(t), x) : kw(t);
-    }
+        x= x ? k2(kw(t),x) : kw(t);
+    } while (class(peek(p))=='/');
     return x;
 }
 
 // parse x[y;z]
 static K parseMExpr(Parser *p, K x){
     K r;
-    while ('[' == peek(p)){
+    do {
         // parse [ ... ] and return if error. if empty [] (type KU) then box r
-        r = parseFenced(inc(p),']');
+        r=parseFenced(inc(p),']');
         if (p->error)return UNREF_X(r);
         if (KU==TYP(r)) r = k1(r);
         // parse +[1] as (+:;1) and +[1;2] as (+;1;2)
-        if (KV==TYP(x) && 1==CNT(r)) x = tx(KU,x); 
-        x = j2(k1(x), r);
-    }
+        if (TYP(x)==KV && CNT(r)==1) x=tx(KU,x); 
+        x = j2(k1(x),r);
+    } while (peek(p)=='[');
     return x;
 }
 
 // parse adverbs and m-expressions
 static K parsePostfix(Parser *p, K x){
     // parse m-expressions
-    x = parseMExpr(p, x);
-    if(p->error) return x;
+    if (peek(p)=='['){
+        p->verb=false; //f[] is a noun
+        x=parseMExpr(p,x);
+        if(p->error) return x;
+    }
 
     // parse adverbs
-    x = parseAdverb(p, x);
+    if (class(peek(p))=='/'){
+        p->verb=true;
+        x=parseAdverb(p,x);
+    }
 
     // if followed by [, recurse
-    return '['==peek(p) ? parsePostfix(p,x) : x;
+    return peek(p)=='[' ? parsePostfix(p,x) : x;
 }
 
 // parse "abc", "", etc
@@ -112,7 +117,7 @@ static K parseStr(Parser *p){
     const char *s = p->current;
     do { // if we hit EOL, error
         if (!*p->current) return handleError(p,-2);
-    } while ('"' != *p->current++);
+    } while (*p->current++ != '"');
     i64 n = p->current-s-1;
     K r = tn(1 == n ? -KC : KC, n);
     memcpy(CHR(r), s, n);
@@ -121,7 +126,7 @@ static K parseStr(Parser *p){
 
 // parse 123
 static i64 parseInt(const char *s, i32 len){
-    if ('-' == *s) return -parseInt(++s, len-1);
+    if (*s=='-') return -parseInt(++s, len-1);
     i64 n = 0;
     for (i64 i=0; i<len; i++) n = (n*10) + (s[i]-'0'); 
     return n;
@@ -178,7 +183,7 @@ static i64 encodeSym(Parser *p){
     i64 n = 0;
     char c;
     const char *s = p->current;
-    while ('a'==(c=class(*p->current)) || '0'==c) { ++p->current; }
+    while ((c=class(*p->current))=='a' || c=='0') { ++p->current; }
     // encode char in i64. max 8 chars per symbol
     memcpy(&n, s, (p->current-s)>8 ? 8 : p->current-s);
     return n;
@@ -187,9 +192,9 @@ static i64 encodeSym(Parser *p){
 // parse `a`b`c
 static K parseSym(Parser *p){
     K r = ks(encodeSym(inc(p)));
-    while('`'==peek(p)) r = j2(r, ks(encodeSym(inc(p))));
+    while(peek(p)=='`') r=j2(r,ks(encodeSym(inc(p))));
     // enlist, as sym literals are enlisted in K parse tree
-    return KS==TYP(r) ? k1(r) : va(r); 
+    return TYP(r)==KS ? k1(r) : va(r); 
 }
 
 static K parseVar(Parser *p){
@@ -198,7 +203,7 @@ static K parseVar(Parser *p){
 
 // parse func args {[...] }. must be sym list
 static K parseArgs(Parser *p){
-    if (']'==peek(p)) 
+    if (peek(p)==']') 
         return ++p->current, squeeze(k1(ks('x')));
     K r = squeeze(parseFenced(p,']'));
     if (p->error) return r;
@@ -227,8 +232,11 @@ static K classSwitch(Parser *p){
     default : return handleError(p, a);
     }
 
+    // set verb flag
+    p->verb = (c=='+');
+
     // create lambda object
-    if (f) x=k2(y,x), y=tn(KC,p->current-s), memcpy(CHR(y),s,p->current-s), x=tx(KL,j2(k1(y),x));
+    if (f) x=k2(y,x), y=kCn((char*)s,p->current-s), x=tx(KL,j2(k1(y),x));
 
     return parsePostfix(p, x);
 }
@@ -242,15 +250,13 @@ static K expr(Parser *p){
     x = classSwitch(p);
     if (p->error) return x;
 
-    bool va = ')'!=p->current[-1] && (IS_VERB(x) || HEAD_IS_ADVERB(x));
-
     // set composition flag and return x
-    if ( AT_EXPR_END(peek(p)) ) 
-        return p->compose |= va, x;
+    if (AT_EXPR_END(peek(p))) 
+        return p->compose|=p->verb, x;
 
     // parse +x
-    if (va) 
-        return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
+    if (p->verb) 
+        return y=expr(p), p->compose ? COMPOSE(x,y) : k2(x,y);
 
     // parse next term. some hairiness here
     // need to determine whether y is infix or start of another expression
@@ -262,30 +268,31 @@ static K expr(Parser *p){
     a = *p->current++;
     // switch based on whether a space precedes the term
     c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
+    p->verb=false;
     switch (c){
     case ' ': if('+'!=class(a) || '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:0)){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
-    case '+': y=':'==*p->current?inc(p),kuc(a):kvc(a); y=parsePostfix(p, y); break;
+    case '+': p->verb=true,y=*p->current==':'?inc(p),kuc(a):kvc(a); y=parsePostfix(p,y); break;
     default : y=classSwitch(dec(p));
     }
 
     // if y is a noun 
-    if ( ')'==p->current[-1] || !( IS_VERB(y) || HEAD_IS_ADVERB(y) ) ){
+    if (!p->verb){
         // return (x;y)
-        if (AT_EXPR_END(peek(p))) return k2(x, y); 
+        if (AT_EXPR_END(peek(p))) return k2(x,y); 
 
         // else rewind and return (x;expr()) 
         unref(y);
         p->current = temp;
-        return y = expr(p), p->compose ? COMPOSE(x, y) : k2(x, y);
+        return y = expr(p), p->compose ? COMPOSE(x,y) : k2(x,y);
     }
 
     // parse x+
     if ( AT_EXPR_END(peek(p)) ) 
-        return p->compose = true, k2(y, x);
+        return p->compose = true, k2(y,x);
     
     // parse x+y
     z = expr(p);
-    return (p->compose && !IS_OP(y,KV,TOK_COLON)) ? COMPOSE(k2(y,x), z) : k3(y, x, z);
+    return (p->compose && !IS_OP(y,KV,TOK_COLON)) ? COMPOSE(k2(y,x),z) : k3(y,x,z);
 }
 
 // parse ;-delimited Expressions
@@ -294,11 +301,11 @@ static K Exprs(char c, Parser *p){
 
     do {
         t = AT_EXPR_END(peek(p))       ?  //if at expr end
-            (';'==c ? kuc(':') : km()) :  //return null or magic value
+            (c==';' ? kuc(':') : km()) :  //return null or magic value
             expr(p);                      //else parse expression
         r = jk(r,t);                      //join to previously parsed exprs
         p->compose = false;               //(re)set flags
-    } while (';'==next(p));    
+    } while (next(p)==';');    
     --p->current;
 
     return !c ? r : 1==CNT(r) ? UNREF_R(ref(t)) : j2(k1(kuc(c)), r);
@@ -310,6 +317,7 @@ K parse(const char *src){
     // init parser struct
     Parser p;
     p.compose = false;
+    p.verb = false;
     p.error = 0;
     p.src = src;
     p.current = src;
@@ -334,13 +342,13 @@ K readK(){
     fgets(src, SRC_MAX, stdin);
 
     // replace newline with 0
-    if ((s = sc(src,'\n'))) *s = 0;
+    if ((s=sc(src,'\n'))) *s='\0';
 
     // if not a system command, parse and return
-    if ('\\' != *(s=src))
+    if (*(s=src) != '\\')
         return parse(s);
 
-    if (!*++s || '\\'==*s)
+    if (!*++s || *s=='\\')
         exit(0);
 
     return printf("'error! unknown command\n"), (K)0;
