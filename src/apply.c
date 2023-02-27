@@ -21,26 +21,25 @@ K apply(K x, K y){
 
     // atoms
     if (xt<0){
-        // some sym atoms have special functions
-        if (xt==-KS){
-            // always monadic
-            if (yn>1)
-                return UNREF_XY(kerr("'rank! too many args"));
+        // only syms can be applicable value
+        if (xt!=-KS)
+            return UNREF_XY(kerr("'type! atom not an applicable value"));
 
-            y=first(y);
-            switch(*INT(x)){
-            // `p@x -> return parse tree
-            case 'p':
-                if (TYP(y)!=KC)
-                    return UNREF_XY(kerr("'type! can only parse char vector"));
-                y=j2(y,kc(0));
-                return UNREF_XY(parse((const char*)y));
+        // syms can only be applied monadic
+        if (yn!=1)
+            return UNREF_XY(kerr("'rank! sym can only be monadic"));
 
-            default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
-            }
+        y=first(y);
+        switch(*INT(x)){
+        // `p@x -> return parse tree
+        case 'p':
+            if (TYP(y)!=KC)
+                return UNREF_XY(kerr("'type! can only parse char vector"));
+            y=j2(y,kc(0));
+            return UNREF_XY(parse((const char*)y));
+            
+        default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
         }
-
-        return UNREF_XY(kerr("'type! atom not an applicable value"));
     }
 
     // index
