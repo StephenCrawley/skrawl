@@ -424,6 +424,7 @@ static void _printK(K x){
     case K_ADVERB_START: printAdverb(x); break;
     case KE: //FALLTHROUGH
     case KL: fwrite(CHR(x), sizeof(char), n, stdout); break;
+    case KP: _printK(*OBJ(x)); putchar('['); for (i64 i=1,last=n-1; i<n; i++){_printK(OBJ(x)[i]);if(i!=last)putchar(';');}putchar(']'); break;
     case KM: break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }

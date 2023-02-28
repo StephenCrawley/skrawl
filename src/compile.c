@@ -22,46 +22,48 @@ static K addConstant(K r, K y){
 
 static K compileConstant(K r, K y){ 
     u8 n=CNT(CONSTS(r));
-    if (IMM_ARG_MAX==n) return UNREF_R(kerr("'compile! CONST MAX"));
+    if (n==IMM_ARG_MAX) return UNREF_R(kerr("'compile! CONST MAX"));
     r=add2Bytes(r,OP_CONSTANT,n);
     return addConstant(r,y); 
 }
 
 // instruction to pop top of stack and apply it to next n items on top of stack
 static K compileApplyN(K r, i64 n){
-    if (IMM_ARG_MAX<n) return UNREF_R(kerr("'compile! APPLY MAX"));
+    if (n>IMM_ARG_MAX) return UNREF_R(kerr("'compile! APPLY MAX"));
     return add2Bytes(r,OP_APPLY_N,n);
 }
 
 static K compileExprs(K x, K r){
-    i8 t=TYP(x); 
-    i64 n=CNT(x), i=n-1;
+    K t;
+    bool m=0;
+    i8  xt=TYP(x); 
+    i64 xn=CNT(x), i=xn-1;
 
     // KS==TYP && 1==CNT (,`a) is a special case as we create a new atomic symbol
     // which we must unref because it's not part of the parse tree which is unref'd later 
-    if (KS==t&&1==n) return x=ks(*INT(x)), r=compileConstant(r,x), UNREF_X(r);
+    if (xt==KS&&xn==1) return x=ks(*INT(x)), r=compileConstant(r,x), UNREF_X(r);
     // if not generic, compile constant
-    if (KK!=t) return compileConstant(r,x);
+    if (xt!=KK) return compileConstant(r,x);
     // compile () 
-    if (!n)    return compileConstant(r,x);
+    if (!xn)    return compileConstant(r,x);
     // compile ,`a`b 
-    if (1==n)  return compileConstant(r,*OBJ(x));
+    if (xn==1)  return compileConstant(r,*OBJ(x));
 
     // handle (f;...) where f is applied to the subsequent elements
     // we compile elements n-1 .. 1 first
-    while (i) RETURN_IF_ERROR(r=compileExprs(OBJ(x)[i--],r));
+    while (i) RETURN_IF_ERROR((t=OBJ(x)[i--],m|=IS_MAGIC_VAL(t),r=compileExprs(t,r)));
     // then we compile f
-    K f=*OBJ(x); t=TYP(f);
+    K f=*OBJ(x); xt=TYP(f);
     // 'enlist' (,:;...) is special, should always be OP_APPLY_N
-    if (IS_OP(f,KU,TOK_COMMA)) return compileApplyN(compileConstant(r,f),n-1);
+    if (IS_OP(f,KU,TOK_COMMA)) return compileApplyN(compileConstant(r,f),xn-1);
     // compile the rest
     return 
-        (KU==t&&2==n) ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
-        (KV==t&&3==n) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
-        (KW==t&&2==n) ? addByte(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
-        IS_ERROR(r=compileExprs(f,r)) ? r               : //error
-        2==n ? addByte(r,OP_DYAD+TOK_AT)                : //(f;x) generate equivalent f@x bytecode
-        compileApplyN(r,n-1);                             //general apply
+        (xt==KU && xn==2)       ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
+        (xt==KV && xn==3 && !m) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
+        (xt==KW && xn==2)       ? addByte(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
+        IS_ERROR(r=compileExprs(f,r)) ? r                         : //error
+        xn==2 ? addByte(r,OP_DYAD+TOK_AT)                         : //(f;x) generate equivalent f@x bytecode
+        compileApplyN(r,xn-1);                                      //general apply
 }
 
 // recurse thru parse tree, generating bytecode
@@ -73,7 +75,7 @@ K compile(K x){
     K r=k2(tn(KX,0),tn(KK,0));
     
     // if compiling single expression i.e. not(;:;...)
-    if (KK!=TYP(x) || !CNT(x) || KU!=TYP(*OBJ(x)) || TOK_SEMICOLON!=TAG_VAL(*OBJ(x)))
+    if (TYP(x)!=KK || !CNT(x) || TYP(*OBJ(x))!=KU || TAG_VAL(*OBJ(x))!=TOK_SEMICOLON)
         return IS_ERROR(r=compileExprs(x,r)) ? r : addByte(r, OP_RETURN);
     
     // else compile each expression from 1 .. n-1

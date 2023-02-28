@@ -15,6 +15,11 @@ K apply(K x, K y){
     i8  xt=TYP(x);
     i64 yn=CNT(y);
 
+    // if any magic values, return projection
+    for (i64 i=0; i<yn; i++)
+        if (IS_MAGIC_VAL(OBJ(y)[i]))
+            return tx(KP,j2(k1(x),y));
+
     // enlist is special, can take any number of arguments
     if (IS_OP(x,KU,TOK_COMMA))
         return UNREF_X(squeeze(y));
@@ -37,7 +42,7 @@ K apply(K x, K y){
                 return UNREF_XY(kerr("'type! can only parse char vector"));
             y=j2(y,kc(0));
             return UNREF_XY(parse((const char*)y));
-            
+
         default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
         }
     }
