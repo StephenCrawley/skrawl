@@ -21,7 +21,7 @@ K apply(K x, K y){
             return tx(KP,j2(k1(x),y));
 
     // enlist is special, can take any number of arguments
-    if (IS_OP(x,KU,TOK_COMMA))
+    if (IS_MONAD(x,TOK_COMMA))
         return UNREF_X(squeeze(y));
 
     // atoms
@@ -102,7 +102,7 @@ static K nulls(K x){
 // index x at y
 K index(K x, K y){
     // x[::] -> return x
-    if (IS_OP(y,KU,TOK_COLON))
+    if (IS_MONAD(y,TOK_COLON))
         return x;
         
     // init

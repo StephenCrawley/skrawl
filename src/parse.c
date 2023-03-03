@@ -292,7 +292,7 @@ static K expr(Parser *p){
     
     // parse x+y
     z = expr(p);
-    return (p->compose && !IS_OP(y,KV,TOK_COLON)) ? COMPOSE(k2(y,x),z) : k3(y,x,z);
+    return (p->compose && !IS_DYAD(y,TOK_COLON)) ? COMPOSE(k2(y,x),z) : k3(y,x,z);
 }
 
 // parse ;-delimited Expressions

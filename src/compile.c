@@ -55,7 +55,7 @@ static K compileExprs(K x, K r){
     // then we compile f
     K f=*OBJ(x); xt=TYP(f);
     // 'enlist' (,:;...) is special, should always be OP_APPLY_N
-    if (IS_OP(f,KU,TOK_COMMA)) return compileApplyN(compileConstant(r,f),xn-1);
+    if (IS_MONAD(f,TOK_COMMA)) return compileApplyN(compileConstant(r,f),xn-1);
     // compile the rest
     return 
         (xt==KU && xn==2)       ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction

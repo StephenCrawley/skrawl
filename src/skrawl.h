@@ -87,6 +87,8 @@ enum {
 #define IS_ERROR(x)        __extension__({K _x=(x); KE==TYP(_x);})
 #define IS_NULL(x)         __extension__({K _x=(x); KN==TAG_TYP(_x);})
 #define IS_OP(x,t,v)       __extension__({K _x=(x); _x==SET_TAG(t,v);})
+#define IS_MONAD(x,v)      __extension__({IS_OP(x,KU,v);})
+#define IS_DYAD(x,v)       __extension__({IS_OP(x,KV,v);})
 #define IS_MAGIC_VAL(x)    __extension__({IS_OP(x,KM,0);})
 #define RETURN_IF_ERROR(x) __extension__({K _e=(x); if(IS_ERROR((_e))) return _e;}) 
 // shared utility functions
