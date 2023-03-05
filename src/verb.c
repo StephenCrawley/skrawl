@@ -185,7 +185,7 @@ K findSym(K x, K y){
         rptr[i]=j;
     }
 
-    return UNREF_XY(r);
+    return r;
 }
 
 // x?y
@@ -202,7 +202,7 @@ K find(K x, K y){
 
     switch (axt){
     case KI: /* KS is i64 so same logic applies */
-    case KS: return findSym(x,y);
+    case KS: return UNREF_XY(findSym(x,y));
     default: return UNREF_XY(kerr("'nyi! x?y for given types"));
     }
 }
