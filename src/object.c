@@ -11,12 +11,13 @@
 // tagged objects contain the type in the upper 8 bits, and the value in the lower 56 bits
 // memory for tagged objects doesn't need to be managed manually 
 
-// otherwise the K is a pointer to data (NB: error objects are an exception)
+// otherwise the K is a pointer to data 
 // pointed-to K objects are allocated on the heap using a buddy allocation algorithm
 // these objects occupy an x^2 bucket of memory
-// the K object header is 16 bytes (see object.h for header layout) so objects need to be assigned a minimum of 16 bytes
+// the K object header is 16 bytes (see object.h for header layout) so *theoretically* objects need to be assigned a minimum of 16 bytes
 // however 16B would only accommodate a 0-count object, and in practice we usually have objects with at least 1 element
-// so instead the minimum size MIN_ALLOC is 32 bytes 
+// also an object in the free list (see next paragraph) is a node in a linked list so needs space for a pointer to the next free object
+// therefore the minimum size MIN_ALLOC is 32 bytes 
 // the K pointer points to just after the header, to the start of the data. see skrawl.h for header and data accessors
 // example: if we wanted to allocate an array of 22 chars, we would need 16(header) + 22(data) = 38 bytes
 // 38 bytes fits into a 64-byte bucket. this leaves 26 bytes of space in the tail
