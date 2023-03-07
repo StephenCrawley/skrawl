@@ -90,7 +90,6 @@ enum {
 #define IS_MONAD(x,v)      __extension__({IS_OP(x,KU,v);})
 #define IS_DYAD(x,v)       __extension__({IS_OP(x,KV,v);})
 #define IS_MAGIC_VAL(x)    __extension__({IS_OP(x,KM,0);})
-#define RETURN_IF_ERROR(x) __extension__({K _e=(x); if(IS_ERROR((_e))) return _e;}) 
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
 static inline u64   ic(char *s,char c){ return sc(s,c)-s; }

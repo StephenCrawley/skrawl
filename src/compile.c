@@ -1,9 +1,9 @@
 #include "compile.h"
 #include "object.h"
 
-#define IMM_ARG_MAX  255 //max value of immediate arg (max representable by 8bits)
-#define BYTES(x)   (OBJ(x)[0]) //bytecodes accessor
-#define CONSTS(x)  (OBJ(x)[1]) //constants accessor
+#define IMM_ARG_MAX  255  //max value of immediate arg (max representable by 8bits)
+#define BYTES(x)     (OBJ(x)[0]) //bytecodes accessor
+#define CONSTS(x)    (OBJ(x)[1]) //constants accessor
 
 // in this script x is the parse tree (or any child object within it)
 // and r is the object to be returned to the VM (see compile() below)
@@ -34,24 +34,29 @@ static K compileApplyN(K r, i64 n){
 }
 
 static K compileExprs(K x, K r){
-    K t;
-    bool m=0;
+    K t; //temp object
+    bool m=0; //any magic values?
     i8  xt=TYP(x); 
-    i64 xn=CNT(x), i=xn-1;
+    i64 xn=CNT(x);
 
-    // KS==TYP && 1==CNT (,`a) is a special case as we create a new atomic symbol
+    // compile literals
+    // TYP==KS && CNT==1 (,`a) is a special case as we create a new atomic symbol
     // which we must unref because it's not part of the parse tree which is unref'd later 
-    if (xt==KS&&xn==1) return x=ks(*INT(x)), r=compileConstant(r,x), UNREF_X(r);
-    // if not generic, compile constant
-    if (xt!=KK) return compileConstant(r,x);
-    // compile () 
-    if (!xn)    return compileConstant(r,x);
+    if (xt==KS && xn==1) return x=ks(*INT(x)), r=compileConstant(r,x), UNREF_X(r);
+    // compile constant or ()
+    if (xt!=KK || !xn) return compileConstant(r,x);
     // compile ,`a`b 
     if (xn==1)  return compileConstant(r,*OBJ(x));
 
     // handle (f;...) where f is applied to the subsequent elements
-    // we compile elements n-1 .. 1 first
-    while (i) RETURN_IF_ERROR((t=OBJ(x)[i--],m|=IS_MAGIC_VAL(t),r=compileExprs(t,r)));
+    // first we compile elements n-1 .. 1
+    for (i64 i=xn-1; i>0; i--){
+        t=OBJ(x)[i];                //next node
+        m|=IS_MAGIC_VAL(t);         //check if magic value
+        r=compileExprs(t,r);        //compile
+        if (IS_ERROR(r)) return r;
+    }
+
     // then we compile f
     K f=*OBJ(x); xt=TYP(f);
     // 'enlist' (,:;...) is special, should always be OP_APPLY_N
@@ -75,11 +80,13 @@ K compile(K x){
     
     // if compiling single expression i.e. not(;:;...)
     if (TYP(x)!=KK || !CNT(x) || TYP(*OBJ(x))!=KU || TAG_VAL(*OBJ(x))!=TOK_SEMICOLON)
-        return IS_ERROR(r=compileExprs(x,r)) ? r : addByte(r, OP_RETURN);
+        return IS_ERROR(r=compileExprs(x,r)) ? r : addByte(r,OP_RETURN);
     
     // else compile each expression from 1 .. n-1
     for (i64 i=1,n=CNT(x)-1; i<=n; i++){
-        RETURN_IF_ERROR(r=compileExprs(OBJ(x)[i],r));
+        r=compileExprs(OBJ(x)[i],r);
+        if (IS_ERROR(r)) return r;
+        // append OP_RETURN if last expression, else append OP_POP
         r=addByte(r, i==n ? OP_RETURN : OP_POP);
     }
     return r;
