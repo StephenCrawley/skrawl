@@ -358,7 +358,7 @@ K expand(K x){
 
     i64 xn=CNT(x);
     r=tn(KK,xn);
-    switch(xt){
+    switch(ABS(xt)){
     case KC: for (i64 i=0; i<xn; i++) OBJ(r)[i]=kc(CHR(x)[i]); break;
     case KI: for (i64 i=0; i<xn; i++) OBJ(r)[i]=ki(INT(x)[i]); break;
     case KF: for (i64 i=0; i<xn; i++) OBJ(r)[i]=kf(FLT(x)[i]); break;
