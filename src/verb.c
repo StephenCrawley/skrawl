@@ -33,22 +33,22 @@ K flip(K x){
 
         // +1 2!(,1;,2) -> error
         if (KS!=TYP(*OBJ(x)))
-            return UNREF_X(kerr("'type! +: (flip) - key must be sym"));
+            return UNREF_X(kerr("'type! +x (flip) - key must be sym"));
 
         // +`a`b!1 2 -> error
         K val=OBJ(x)[1];
         if (KK!=TYP(val))
-            return UNREF_X(kerr("'rank! +: (flip) - dict value must be list of lists"));
+            return UNREF_X(kerr("'rank! +x (flip) - dict value must be list of lists"));
 
         // +`a`b!(1 2;3 4 5) -> error
         i64 n=CNT(x), m=CNT(OBJ(val)[0]);
         for (i64 i=0; i<n; i++){
             if (CNT(OBJ(val)[i]) != m)
-                return UNREF_X(kerr("'length! +: (flip) - dict values must have equal count"));
+                return UNREF_X(kerr("'length! +x (flip) - dict values must have equal count"));
             
             i8 t=TYP(OBJ(val)[i]);
             if (t<0 || t>=K_INDEXABLE_END)
-                return UNREF_X(kerr("'nyi! +: (flip) - dict values must not be atomic"));
+                return UNREF_X(kerr("'nyi! +x (flip) - dict values must not be atomic"));
         }
 
         return kT(x);
@@ -197,13 +197,13 @@ K find(K x, K y){
 
     // for now, just find for same-type operands
     if (axt!=ABS(yt)){
-        return UNREF_XY(kerr("'nyi! x?y for differing types"));
+        return UNREF_XY(kerr("'nyi! x?y (find) - different xy types"));
     }
 
     switch (axt){
     case KI: /* KS is i64 so same logic applies */
     case KS: return UNREF_XY(findSym(x,y));
-    default: return UNREF_XY(kerr("'nyi! x?y for given types"));
+    default: return UNREF_XY(kerr("'nyi! x?y (find) - type"));
     }
 }
 

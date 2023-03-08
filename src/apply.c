@@ -22,13 +22,13 @@ K apply(K x, K y){
 
     // enlist is special, can take any number of arguments
     if (IS_MONAD(x,TOK_COMMA))
-        return UNREF_X(squeeze(y));
+        return squeeze(y);
 
     // atoms
     if (xt<0){
         // only syms can be applicable value
         if (xt!=-KS)
-            return UNREF_XY(kerr("'type! atom not an applicable value"));
+            return UNREF_XY(kerr("'rank! atom not an applicable value"));
 
         // syms can only be applied monadic
         if (yn!=1)
