@@ -149,13 +149,13 @@ K index(K x, K y){
 
         // else we're indexing by row 
         // extract keys and vals and create new column object
-        K keys=OBJ(dict)[0];
-        K vals=OBJ(dict)[1];
+        K key=KEY(dict);
+        K val=VAL(dict);
         K r=tn(KK,0);
 
         // iterate and index each column 
-        for (i64 i=0, n=CNT(vals); i<n; i++){
-            t=index(ref(OBJ(vals)[i]),ref(y));
+        for (i64 i=0,n=CNT(val); i<n; i++){
+            t=index(ref(OBJ(val)[i]),ref(y));
             // return if error
             if (IS_ERROR(t))
                 return UNREF_XYR(t);
@@ -164,9 +164,9 @@ K index(K x, K y){
         }
 
         // make dict with new indices
-        r=kD(ref(keys),squeeze(r));
+        r=kD(ref(key),squeeze(r));
         // if y is atom, return dict. else return table
-        return UNREF_XY(TYP(y)<0 ? r : kT(r));
+        return UNREF_XY(yt<0?r:kT(r));
     }
 
     // from here we're dealing with indexing with ints
