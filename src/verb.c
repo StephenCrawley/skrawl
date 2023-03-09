@@ -46,8 +46,7 @@ K flip(K x){
             if (CNT(OBJ(val)[i]) != m)
                 return UNREF_X(kerr("'length! +x (flip) - dict values must have equal count"));
             
-            i8 t=TYP(OBJ(val)[i]);
-            if (t<0 || t>=K_INDEXABLE_END)
+            if (IS_ATOM(OBJ(val)[i]))
                 return UNREF_X(kerr("'nyi! +x (flip) - dict values must not be atomic"));
         }
 
@@ -210,17 +209,15 @@ K find(K x, K y){
 // x!y
 // create a dictionary with x keys and y values
 K makeKey(K x, K y){
-    i8 xt=TYP(x), yt=TYP(y);
-    
-    if (xt==KD || yt==KD)
+    if (TYP(x)==KD || TYP(y)==KD)
         return UNREF_XY(kerr("'type! x!y (make dict) - operands must be lists"));
 
     if (KCOUNT(x)!=KCOUNT(y))
         return UNREF_XY(kerr("'length! x!y (make dict) - operand length mismatch"));
 
     // enlist x and y if needed
-    x= xt>=0&&xt<K_INDEXABLE_END? x : va(x);
-    y= yt>=0&&yt<K_INDEXABLE_END? y : va(y);
+    x=IS_ATOM(x) ? va(x) : x;
+    y=IS_ATOM(y) ? va(y) : y;
 
     return kD(x,y);
 }
@@ -252,8 +249,7 @@ K join(K x, K y){
 }
 
 K dotApply(K x, K y){
-    i8 yt=TYP(y);
-    if (yt<0 || yt>K_INDEXABLE_END || yt==KD)
+    if (IS_ATOM(y) || TYP(y)==KD)
         return UNREF_XY(kerr("'rank! . (apply) - right arg must be list"));
     return apply(x,expand(y));
 }
