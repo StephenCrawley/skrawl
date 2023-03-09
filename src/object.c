@@ -384,6 +384,16 @@ K expand(K x){
     return UNREF_X(r);
 }
 
+// copy n items from index i
+K sublist(K x, i64 i, i64 n){
+    i8 s=SIZEOF(x);
+    K r=tn(TYP(x),n);
+    memcpy(CHR(r),CHR(x)+(s*i),s*n);
+    if (!TYP(x))
+        for (i64 i=0; i<n; i++) { ref(OBJ(r)[i]); }
+    return UNREF_X(r);
+}
+
 // printer functions //
 
 static void printInt(K x){

@@ -41,6 +41,8 @@ K ke(K);
 K kerr(char*);
 K squeeze(K);
 K expand(K);
+K item(i64,K);
+K sublist(K,i64,i64);
 K printK(K);
 u8 cverb(u8 i);
 u8 cadverb(u8 i);

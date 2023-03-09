@@ -2,6 +2,7 @@
 #include "object.h"
 #include "verb.h"
 #include "parse.h"
+#include "adverb.h"
 
 // forward declarations
 K index(K x, K y);
@@ -16,9 +17,12 @@ K apply(K x, K y){
     i64 yn=CNT(y);
 
     // if any magic values, return projection
-    for (i64 i=0; i<yn; i++)
-        if (IS_MAGIC_VAL(OBJ(y)[i]))
-            return tx(KP,j2(k1(x),y));
+    // only applies to non-indexable types (elided values in indexing has slice semantics)
+    if (xt<0 || xt>=K_INDEXABLE_END){
+        for (i64 i=0; i<yn; i++)
+            if (IS_MAGIC_VAL(OBJ(y)[i]))
+                return tx(KP,j2(k1(x),y));
+    }
 
     // enlist is special, can take any number of arguments
     if (IS_MONAD(x,TOK_COMMA))
@@ -56,6 +60,13 @@ K apply(K x, K y){
         // x[y;...]
         t=tn(KK,1); //reusable box
         for (i64 i=0; i<yn; i++){
+            // x[;i] -> x@\:i
+            if (IS_MAGIC_VAL(OBJ(y)[i])){
+                *OBJ(t)=knul();
+                unref(t);
+                if (yn==i+1) return UNREF_Y(x);
+                return x=mapleft(apply,x,sublist(y,i+1,yn-(i+1)));
+            }
             // box y[i]
             *OBJ(t)=OBJ(y)[i];
             // apply x to y[i]
@@ -102,7 +113,7 @@ static K nulls(K x){
 // index x at y
 K index(K x, K y){
     // x[::] -> return x
-    if (IS_MONAD(y,TOK_COLON))
+    if (IS_MONAD(y,TOK_COLON) || IS_MAGIC_VAL(y))
         return x;
         
     // init
