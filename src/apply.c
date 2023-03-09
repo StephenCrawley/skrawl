@@ -12,28 +12,45 @@ K index(K x, K y);
 // f - some applicable value (primitive, lambda, list, etc)
 // x - a list of arguments to f 
 K apply(K x, K y){
-    K   t;
     i8  xt=TYP(x);
     i64 yn=CNT(y);
 
-    // if any magic values, return projection
-    // only applies to non-indexable types (elided values in indexing has slice semantics)
-    if (xt<0 || xt>=K_INDEXABLE_END){
-        for (i64 i=0; i<yn; i++)
+    // simple atom is not an applicable value
+    // (some symbols are special, they have special functions)
+    if (xt<0 && xt!=-KS)
+        return UNREF_XY(kerr("rank! atom not an applicable value"));
+
+    // index
+    if (xt>=0 && xt<K_INDEXABLE_END){
+        // x[y]
+        if (yn==1)
+            return index(x,first(y)); 
+
+        // x[y;...]
+        for (i64 i=0; i<yn; i++){
+            // handle elided index. x[;i] -> x@\:i
             if (IS_MAGIC_VAL(OBJ(y)[i]))
-                return tx(KP,j2(k1(x),y));
+                return (yn==++i) ? UNREF_Y(x) : mapleft(apply,x,sublist(y,i,yn-i));
+            // apply to next index
+            x=apply(x,k1(ref(OBJ(y)[i])));
+            // handle error
+            if (IS_ERROR(x))
+                break;
+        }
+        return UNREF_Y(x);
     }
+
+    // if any magic values, return projection
+    for (i64 i=0; i<yn; i++)
+        if (IS_MAGIC_VAL(OBJ(y)[i]))
+            return tx(KP,j2(k1(x),y));
 
     // enlist is special, can take any number of arguments
     if (IS_MONAD(x,TOK_COMMA))
         return squeeze(y);
 
-    // atoms
-    if (xt<0){
-        // only syms can be applicable value
-        if (xt!=-KS)
-            return UNREF_XY(kerr("'rank! atom not an applicable value"));
-
+    // symbols
+    if (xt==-KS){
         // syms can only be applied monadic
         if (yn!=1)
             return UNREF_XY(kerr("'rank! sym can only be monadic"));
@@ -49,35 +66,6 @@ K apply(K x, K y){
 
         default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
         }
-    }
-
-    // index
-    if (xt<K_INDEXABLE_END){
-        // x[y]
-        if (yn==1)
-            return index(x,first(y)); 
-
-        // x[y;...]
-        t=tn(KK,1); //reusable box
-        for (i64 i=0; i<yn; i++){
-            // x[;i] -> x@\:i
-            if (IS_MAGIC_VAL(OBJ(y)[i])){
-                *OBJ(t)=knul();
-                unref(t);
-                if (yn==i+1) return UNREF_Y(x);
-                return x=mapleft(apply,x,sublist(y,i+1,yn-(i+1)));
-            }
-            // box y[i]
-            *OBJ(t)=OBJ(y)[i];
-            // apply x to y[i]
-            x=apply(x,ref(t));
-            // handle error
-            if (IS_ERROR(x))
-                break;
-        }
-        *OBJ(t)=knul();
-        unref(t);
-        return UNREF_Y(x);
     }
 
     return UNREF_XY(kerr("'nyi! apply"));
