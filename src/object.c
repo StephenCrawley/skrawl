@@ -38,7 +38,6 @@
 #define SIZEOF(x)      ( TYPE_SIZE[ABS(TYP(x))] )   //elemental size of x
 
 // forward declarations
-K k1(K x);
 static void _printK(K x);
 
 // global vars
@@ -129,38 +128,37 @@ K tn(i8 t, i64 n){
 // copy y into x starting at x[i]
 static K xiy(K x, i64 i, K y){
     i8 s = SIZEOF(x);
-    memcpy(CHR(x) + s*i, (void*)y, s*CNT(y));
-    if (!TYP(y)){
-        for (i64 i=0, n=CNT(y); i<n; i++) ref( OBJ(y)[i] );
-    }
-    return unref(y), x;
+    memcpy(CHR(x)+s*i, (void*)y, s*CNT(y));
+    if (!TYP(y))
+        for (i64 i=0,n=CNT(y); i<n; i++){ ref(OBJ(y)[i]); }
+    return UNREF_Y(x);
 }
 
 // join 2 K objects
 K j2(K x, K y){
     // if x is empty, return y
-    if (!CNT(x)) return unref(x), y;
+    if (!CNT(x)) return UNREF_X(y);
 
-    i8  s = SIZEOF(x);
-    i8  t = ABS(TYP(x));
-    i64 m = CNT(x);
-    i64 n = CNT(y) + m;
-    u64 b = s * n; //number of bytes used by elements in joined object
+    i8  s=SIZEOF(x);
+    i8  t=ABS(TYP(x));
+    i64 m=CNT(x);
+    i64 n=CNT(y)+m;
+    u64 b=s*n;  //number of bytes used by elements in joined object
 
     // if x has refcount=0 and enough space to append y's items, we append in place
     // otherwise we create a new object and copy in x and y
     if (REF(x) || BUCKET_SIZE(x) < b+HEADER_SIZE){
-        x = xiy(tn(t,n), 0, x);
+        x=xiy(tn(t,n),0,x);
     }
     else {
-        HDR_CNT(x) = n, HDR_TYP(x) = t;
+        HDR_CNT(x)=n, HDR_TYP(x)=t;
     }
 
     return TAG_TYP(y) ? (K)memcpy(CHR(x)+s*m,&y,s) : xiy(x,m,y);
 }
 
 K jk(K x, K y){
-    return j2(x, k1(y));
+    return j2(x,k1(y));
 }
 
 // join list of strings x with separator c
@@ -186,9 +184,9 @@ K js(K x, char c){
 
 // vector from atom. assumes atomic argument
 K va(K x){
-    i8 rt=TAG_TYP(x)?TAG_TYP(x):-HDR_TYP(x);
-    K r=(K)memcpy(CHR(tn(rt,1)), TAG_TYP(x)?CHR(&x):CHR(x), TYPE_SIZE[rt]);
-    return unref(x), r;
+    // tag types don't have compact (C array) form, so they go into KK
+    K r=tn(TAG_TYP(x)?KK:-HDR_TYP(x),1);
+    return TAG_TYP(x)?(K)memcpy(CHR(r),&x,SIZEOF(x)):xiy(r,0,x);
 }
 
 // enlist x

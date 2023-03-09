@@ -210,9 +210,19 @@ K find(K x, K y){
 // x!y
 // create a dictionary with x keys and y values
 K makeKey(K x, K y){
-    if (CNT(x)!=CNT(y))
-        return UNREF_XY(kerr("'length! x!y operand length mismatch"));
-    return kD(TYP(x)>=0?x:va(x), TYP(y)>=0?y:va(y));
+    i8 xt=TYP(x), yt=TYP(y);
+    
+    if (xt==KD || yt==KD)
+        return UNREF_XY(kerr("'type! x!y (make dict) - operands must be lists"));
+
+    if (KCOUNT(x)!=KCOUNT(y))
+        return UNREF_XY(kerr("'length! x!y (make dict) - operand length mismatch"));
+
+    // enlist x and y if needed
+    x= xt>=0&&xt<K_INDEXABLE_END? x : va(x);
+    y= yt>=0&&yt<K_INDEXABLE_END? y : va(y);
+
+    return kD(x,y);
 }
 
 // x:y
