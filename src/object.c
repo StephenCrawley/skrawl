@@ -341,27 +341,46 @@ K squeeze(K x){
     return unref(x), r;
 }
 
-// expand
-// "ab" -> ("a";"b")
-K expand(K x){
-    K  r;
+// return x[i]
+// ref if x[i] is an object
+K item(i64 i, K x){
     i8 xt=TYP(x);
 
-    if (xt==KK)
-        return x;
-
     if (xt==KT){
-        return printf("'expand\n"), exit(1), (K)0;
+        // extract underlying dict
+        K dict=*OBJ(x);
+
+        // return object, and values (columns)
+        K r=tn(KK,0),t;
+        K val=VAL(dict);
+
+        // iterate and index each column 
+        for (i64 j=0,n=CNT(val); j<n; j++){
+            t=item(i,OBJ(val)[j]);
+            // return if error
+            if (IS_ERROR(t))
+                return UNREF_XR(t);
+            // else append
+            r=jk(r,t);
+        }
+
+        return kD(ref(KEY(dict)),squeeze(r));
     }
 
-    i64 xn=CNT(x);
-    r=tn(KK,xn);
-    switch(ABS(xt)){
-    case KC: for (i64 i=0; i<xn; i++) OBJ(r)[i]=kc(CHR(x)[i]); break;
-    case KI: for (i64 i=0; i<xn; i++) OBJ(r)[i]=ki(INT(x)[i]); break;
-    case KF: for (i64 i=0; i<xn; i++) OBJ(r)[i]=kf(FLT(x)[i]); break;
-    case KS: for (i64 i=0; i<xn; i++) OBJ(r)[i]=ks(INT(x)[i]); break;
-    }
+    return
+        xt==KK ? ref(OBJ(x)[i]) :
+        xt==KC ?  kc(CHR(x)[i]) :
+        xt==KI ?  ki(INT(x)[i]) :
+        xt==KF ?  kf(FLT(x)[i]) :
+                  ks(INT(x)[i]) ;
+}
+
+// "ab" -> ("a";"b")
+K expand(K x){
+    i64 n=KCOUNT(x);
+    K r=tn(KK,n);
+    for (i64 i=0; i<n; i++)
+        OBJ(r)[i]=item(i,x);
     return UNREF_X(r);
 }
 
