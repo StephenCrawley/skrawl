@@ -16,6 +16,7 @@ K ref(K);
 K tn(i8,i64);
 K j2(K,K);
 K jk(K,K);
+i8 ksize(K);
 K va(K);
 K k1(K);
 K k2(K,K);

@@ -182,6 +182,10 @@ K js(K x, char c){
     return UNREF_X(r);
 }
 
+i8 ksize(K x){
+    return SIZEOF(x);
+}
+
 // vector from atom. assumes atomic argument
 K va(K x){
     // tag types don't have compact (C array) form, so they go into KK

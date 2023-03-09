@@ -291,7 +291,34 @@ K greaterThan(K x, K y){
 }
 
 K match(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad ~") );
+    // same object?
+    if (x==y)
+        return UNREF_XY(ki(1));
+
+    // different types?
+    if (TYP(x)!=TYP(y))
+        return UNREF_XY(ki(0));
+
+    // different counts?
+    if (KCOUNT(x)!=KCOUNT(y))
+        return UNREF_XY(ki(0));
+
+    // recurse generic types
+    if(IS_GENERIC(x)){
+        bool r=1;
+        for (i64 i=0,n=CNT(x); i<n; i++){
+            K t=match(ref(OBJ(x)[i]),ref(OBJ(y)[i]));
+            r &= *INT(t);
+            if (!r)
+                return UNREF_XY(t);
+            unref(t);
+        }
+        return UNREF_XY(ki(r));
+    }
+
+    // simple types
+    K r=ki(!memcmp(CHR(x),CHR(y),CNT(x)*ksize(x)));
+    return UNREF_XY(r);
 }
 
 K max(K x, K y){
