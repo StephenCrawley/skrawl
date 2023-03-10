@@ -1,4 +1,5 @@
 #include "object.h"
+#include "verb.h"
 #define __USE_MISC //for MAP_ANONYMOUS declaration
 #include <sys/mman.h>
 #undef __USE_MISC
@@ -320,6 +321,51 @@ K ref(K x){
     return TAG_TYP(x) ? x : (REF(x)++, x);
 }
 
+// squeeze conforming dicts into table
+// (`a`b!1 2;`a`b!3 4) -> +`a`b!(1 3;2 4)
+K squeezeDict(K x){
+    // we will use the 1st dict to compare against other elements
+    K key=KEY(*OBJ(x));
+    if (TYP(key)!=KS)
+        return x;
+
+    // iterate x and check dicts conform
+    i64 n=CNT(x);
+    for (i64 i=1; i<n; i++){
+        K t=OBJ(x)[i];
+        // check item is a dict
+        if (TYP(t)!=KD)
+            return x;
+        // and the keys match
+        K key2=KEY(t);
+        if (TYP(key2)!=KS)
+            return x;
+        if (CNT(key2)!=CNT(key))
+            return x;
+        if (memcmp(CHR(key2),CHR(key),ksize(key)*CNT(key2)))
+            return x;
+    }
+
+    // create columns
+    i64 m=CNT(key);
+    K r=tn(KK,m);
+    for (i64 i=0; i<m; i++)
+        OBJ(r)[i]=tn(KK,n);
+    
+    // populate columns
+    for (i64 i=0; i<n; i++)
+        for (i64 j=0; j<m; j++)
+            OBJ(OBJ(r)[j])[i]=item(j,VAL(OBJ(x)[i]));
+
+    // squeeze the columns
+    for (i64 i=0; i<m; i++)
+        OBJ(r)[i]=squeeze(OBJ(r)[i]);
+
+    // return object
+    r=kD(ref(key),r);
+    return UNREF_X(kT(r));
+}
+
 // squeeze into more compact form if possible
 // ("a";"b") -> "ab"
 K squeeze(K x){
@@ -330,8 +376,11 @@ K squeeze(K x){
     // if not a general list or count=0, return x
     if (TYP(x) || !n) return x;
 
-    // if 1st element not atom, return x
     t=TYP(*OBJ(x));
+    // if first element dict, call squeezeDict
+    if (t==KD) return squeezeDict(x);
+
+    // if 1st element not atom, return x
     if (t>=0) return x;
 
     // if not all same type, return x
