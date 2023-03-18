@@ -404,18 +404,12 @@ K item(i64 i, K x){
         K dict=*OBJ(x);
 
         // return object, and values (columns)
-        K r=tn(KK,0),t;
+        K r=tn(KK,0);
         K val=VAL(dict);
 
         // iterate and index each column 
-        for (i64 j=0,n=CNT(val); j<n; j++){
-            t=item(i,OBJ(val)[j]);
-            // return if error
-            if (IS_ERROR(t))
-                return UNREF_XR(t);
-            // else append
-            r=jk(r,t);
-        }
+        for (i64 j=0,n=CNT(val); j<n; j++)
+            r=jk(r,item(i,OBJ(val)[j]));
 
         return kD(ref(KEY(dict)),squeeze(r));
     }
