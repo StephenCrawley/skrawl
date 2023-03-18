@@ -331,6 +331,7 @@ K squeezeDict(K x){
 
     // iterate x and check dicts conform
     i64 n=CNT(x);
+    i64 m=CNT(key);
     for (i64 i=1; i<n; i++){
         K t=OBJ(x)[i];
         // check item is a dict
@@ -340,14 +341,13 @@ K squeezeDict(K x){
         K key2=KEY(t);
         if (TYP(key2)!=KS)
             return x;
-        if (CNT(key2)!=CNT(key))
+        if (CNT(key2)!=m)
             return x;
         if (memcmp(CHR(key2),CHR(key),ksize(key)*CNT(key2)))
             return x;
     }
 
     // create columns
-    i64 m=CNT(key);
     K r=tn(KK,m);
     for (i64 i=0; i<m; i++)
         OBJ(r)[i]=tn(KK,n);
@@ -357,7 +357,7 @@ K squeezeDict(K x){
         for (i64 j=0; j<m; j++)
             OBJ(OBJ(r)[j])[i]=item(j,VAL(OBJ(x)[i]));
 
-    // squeeze the columns
+    // squeeze columns
     for (i64 i=0; i<m; i++)
         OBJ(r)[i]=squeeze(OBJ(r)[i]);
 
