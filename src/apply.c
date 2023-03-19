@@ -127,7 +127,7 @@ K index(K x, K y){
     // handle dicts. indexed using find()
     if (xt==KD){
         // get the keys to search on
-        K k=*OBJ(x);
+        K k=KEY(x);
         // find the indexes of the keys
         K ix=find(ref(k),y);
         // return if error finding keys

@@ -32,12 +32,12 @@ K flip(K x){
         // check that dict is valid 
 
         // +1 2!(,1;,2) -> error
-        if (KS!=TYP(*OBJ(x)))
+        if (TYP(KEY(x))!=KS)
             return UNREF_X(kerr("'type! +x (flip) - key must be sym"));
 
         // +`a`b!1 2 -> error
-        K val=OBJ(x)[1];
-        if (KK!=TYP(val))
+        K val=VAL(x);
+        if (TYP(val)!=KK)
             return UNREF_X(kerr("'rank! +x (flip) - dict value must be list of lists"));
 
         // +`a`b!(1 2;3 4 5) -> error

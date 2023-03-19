@@ -15,7 +15,7 @@
 // otherwise the K is a pointer to data 
 // pointed-to K objects are allocated on the heap using a buddy allocation algorithm
 // these objects occupy an x^2 bucket of memory
-// the K object header is 16 bytes (see object.h for header layout) so *theoretically* objects need to be assigned a minimum of 16 bytes
+// the K object header is 16 bytes (see skrawl.h for header layout) so *theoretically* objects need to be assigned a minimum of 16 bytes
 // however 16B would only accommodate a 0-count object, and in practice we usually have objects with at least 1 element
 // also an object in the free list (see next paragraph) is a node in a linked list so needs space for a pointer to the next free object
 // therefore the minimum size MIN_ALLOC is 32 bytes 
@@ -482,7 +482,7 @@ static void _printK(K x){
     if (xt==KL){ x=*OBJ(x); }
     i64 n=CNT(x);
     
-    if (1==n && (!xt || IS_SIMPLE_LIST(x))) putchar(',');
+    if (n==1 && (!xt || IS_SIMPLE_LIST(x))) putchar(',');
 
     switch(ABS(xt)){
     case KK: if(1!=n)putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } if(1!=n)putchar(')'); break;
@@ -491,7 +491,7 @@ static void _printK(K x){
     case KI: printInt(x); break;
     case KF: printFlt(x); break;
     case KS: printSym(x); break;
-    case KD: _printK(*OBJ(x)), putchar('!'), _printK(OBJ(x)[1]); break;
+    case KD: _printK(KEY(x)), putchar('!'), _printK(VAL(x)); break;
     case KT: putchar('+'); _printK(*OBJ(x)); break;
     case KU: putchar(VERB_STR[TAG_VAL(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
