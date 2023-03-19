@@ -94,6 +94,7 @@ static K nulls(K x){
     case KF: r=tn(xt,xn); for (i64 i=0; i<xn; i++) FLT(r)[i]=FNULL; return r;
     case KS: r=tn(xt,xn); for (i64 i=0; i<xn; i++) INT(r)[i]=SNULL; return r;
     case KD: { K k=ref(*OBJ(x)); return kD(k,nulls(OBJ(x)[1])); }
+    case KT: return kT(nulls(*OBJ(x)));
     default: return ku(0);
     }
 }
