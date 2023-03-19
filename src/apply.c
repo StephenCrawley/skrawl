@@ -179,7 +179,7 @@ K index(K x, K y){
         if (!xn) return UNREF_Y(x);
         // return ref(x[*y]) or nulls if out of bounds
         i64 j=*INT(y);
-        return UNREF_XY((j>=0&&j<xn) ? ref(OBJ(x)[*INT(y)]) : nulls(*OBJ(x)));
+        return UNREF_XY((j>=0&&j<xn) ? ref(OBJ(x)[j]) : nulls(*OBJ(x)));
     }
     
     // return object

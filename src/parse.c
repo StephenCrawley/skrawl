@@ -351,5 +351,5 @@ K readK(){
     if (!*++s || *s=='\\')
         exit(0);
 
-    return printf("'error! unknown command\n"), (K)0;
+    return kerr("'system! unknown command");
 }
