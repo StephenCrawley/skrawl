@@ -49,12 +49,15 @@ K apply(K x, K y){
     if (IS_MONAD(x,TOK_COMMA))
         return squeeze(y);
 
+    i8 rank=RANK(x);
+
+    // too many args
+    if (yn>rank){
+        return UNREF_XY(kerr("'rank! too many args"));
+    }
+
     // symbols
     if (xt==-KS){
-        // syms can only be applied monadic
-        if (yn!=1)
-            return UNREF_XY(kerr("'rank! sym can only be monadic"));
-
         y=first(y);
         switch(*INT(x)){
         // `p@x -> return parse tree
