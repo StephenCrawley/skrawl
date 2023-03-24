@@ -56,6 +56,11 @@ K apply(K x, K y){
         return UNREF_XY(kerr("'rank! too many args"));
     }
 
+    // too few args
+    if (yn<rank){
+        return tx(KP,j2(k1(x),y));
+    }
+
     // symbols
     if (xt==-KS){
         y=first(y);
