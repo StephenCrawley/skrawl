@@ -52,7 +52,9 @@ K run(K r){
             break;
 
         case OP_ADVERB:
-            printf("%03d OP_ADVERB (%c%s)\n", instr, cadverb(instr-OP_ADVERB), instr-OP_ADVERB>2 ? ":" : ""); 
+            //printf("%03d OP_ADVERB (%c%s)\n", instr, cadverb(instr-OP_ADVERB), instr-OP_ADVERB>2 ? ":" : "");
+            x=POP();
+            PUSH(kwx(K_ADVERB_START+(instr-OP_ADVERB),x));
             break;
 
         case OP_CONSTANT:

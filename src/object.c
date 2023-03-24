@@ -274,8 +274,8 @@ K kw(i8 t){ return SET_TAG(KW, t); }
 
 // create adverb-modified object 
 K kwx(i8 t, K x){
-    K r = tn(t, 1);
-    *OBJ(r) = x;
+    K r=tx(t,k1(x));
+    HDR_RNK(r)=RANK(x);
     return r;
 }
 
@@ -468,15 +468,6 @@ static void printSym(K x){
     }
 }
 
-static void printAdverb(K x){
-    i8 t = TYP(x);
-    printf("(%c", ADVERB_STR[t - K_ADVERB_START]);
-    if (t >= KEP) putchar(':');
-    putchar(';');
-    _printK( *OBJ(x) );
-    putchar(')');
-}
-
 static void _printK(K x){
     i8  xt=IS_ADVERB_MOD(x) ? K_ADVERB_START : TYP(x);
     if (xt==KL){ x=*OBJ(x); }
@@ -496,7 +487,7 @@ static void _printK(K x){
     case KU: putchar(VERB_STR[TAG_VAL(x)]); putchar(':'); break;
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;
-    case K_ADVERB_START: printAdverb(x); break;
+    case K_ADVERB_START: _printK(*OBJ(x)); _printK(kw(TYP(x)-K_ADVERB_START)); break;
     case KE: //FALLTHROUGH
     case KL: fwrite(CHR(x), sizeof(char), n, stdout); break;
     case KP: _printK(*OBJ(x)); putchar('['); for (i64 i=1,last=n-1; i<n; i++){_printK(OBJ(x)[i]);if(i!=last)putchar(';');}putchar(']'); break;

@@ -76,6 +76,15 @@ K apply(K x, K y){
         }
     }
 
+    if (IS_ADVERB_MOD(x)){
+        return each2(UNREF_X(ref(*OBJ(x))),y);
+    }
+
+    // apply dyad
+    if (xt==KV){
+        return UNREF_Y((*dyad_table[TAG_VAL(x)])(ref(OBJ(y)[0]),ref(OBJ(y)[1])));
+    }
+
     return UNREF_XY(kerr("'nyi! apply"));
 }
 
