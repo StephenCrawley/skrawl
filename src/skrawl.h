@@ -49,8 +49,9 @@ enum {
 
 // K header accessors
 // the header is 16 bytes
-// --mtrrrrnnnnnnnn
-// - unused, m membucket, t type, r refcount, n count
+// -rmtrrrrnnnnnnnn
+// - unused, r rank, m membucket, t type, r refcount, n count
+#define HDR_RNK(x)    (( i8*)(x))[-15]
 #define HDR_MEM(x)    (( i8*)(x))[-14]
 #define HDR_TYP(x)    (( i8*)(x))[-13]
 #define HDR_REF(x)    ((u32*)(x))[-3]

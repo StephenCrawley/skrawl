@@ -34,7 +34,7 @@ K each2(K f, K a){
     }
 
     // lists must have same count
-    i64 xn=KCOUNT(x), yn=KCOUNT(x);
+    i64 xn=KCOUNT(x), yn=KCOUNT(y);
     if (!xatom && !yatom && xn!=yn){
         unref(f),unref(a);
         return kerr("'length");
