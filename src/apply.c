@@ -177,7 +177,7 @@ K index(K x, K y){
             if (IS_ERROR(t))
                 return UNREF_XYR(t);
             // else append
-            r=jk(r,squeeze(t));
+            r=jk(r,t);
         }
 
         // make dict with new indices
@@ -211,6 +211,7 @@ K index(K x, K y){
             j=INT(y)[i];
             OBJ(r)[i]= (j>=0&&j<xn) ? ref(OBJ(x)[j]) : !nl?nl=nulls(xn?*OBJ(x):x):ref(nl);
         }
+        r=squeeze(r);
         break;
     case KC: for (i64 i=0; i<yn; i++){ j=INT(y)[i], CHR(r)[i]=(j>=0&&j<xn)?CHR(x)[j]:CNULL; } break;
     case KI: for (i64 i=0; i<yn; i++){ j=INT(y)[i], INT(r)[i]=(j>=0&&j<xn)?INT(x)[j]:INULL; } break;
@@ -218,5 +219,5 @@ K index(K x, K y){
     case KS: for (i64 i=0; i<yn; i++){ j=INT(y)[i], INT(r)[i]=(j>=0&&j<xn)?INT(x)[j]:SNULL; } break;
     }
 
-    return UNREF_XY(squeeze(r));
+    return UNREF_XY(r);
 }

@@ -110,8 +110,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KX, KC  KI  KF  KS  KU  KV  KW  '   /   \   ':  /:  \:  ::
-static i8 TYPE_SIZE[] = {8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8};
+// size of each type     KK  KX  KC  KI  KF  KS  KD  KT  KL  KP  '   /   \   ':  /:  \:  KU  KV  KW  
+static i8 TYPE_SIZE[] = {8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 };
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
