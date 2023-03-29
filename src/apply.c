@@ -142,6 +142,14 @@ K index(K x, K y){
         return UNREF_XY(squeeze(r));
     }
 
+    // if y is a dict, index like (!y)!x[.y]
+    if (yt==KD){
+        r=index(ref(x),ref(VAL(y)));
+        if (IS_ERROR(r))
+            return UNREF_XY(r);
+        return UNREF_XY(kD(ref(KEY(y)),r));
+    }
+
     // handle dicts. indexed using find()
     if (xt==KD){
         // get the keys to search on
