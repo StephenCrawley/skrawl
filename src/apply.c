@@ -7,13 +7,29 @@
 // forward declarations
 K index(K x, K y);
 
+// f[;;][1] -> f[1;;]
+K fillMV(K x, K y){
+    x=reuse(x);
+    i64 yn=CNT(y);
+    for (i64 i=0; i<yn; i++){
+        for (i64 j=1,xn=CNT(x); j<xn; j++){
+            if (IS_MAGIC_VAL(OBJ(x)[j])){
+                OBJ(x)[j]=ref(OBJ(y)[i]);
+                break;
+            }
+        }
+    }
+    HDR_RNK(x)-=yn;
+    return UNREF_Y(x);
+}
+
 // f . x
 // generic apply function
 // f - some applicable value (primitive, lambda, list, etc)
 // x - a list of arguments to f 
 K apply(K x, K y){
     i8  xt=TYP(x);
-    i64 yn=CNT(y);
+    i64 xn=CNT(x), yn=CNT(y);
 
     // simple atom is not an applicable value
     // (some symbols are special, they have special functions)
@@ -41,9 +57,14 @@ K apply(K x, K y){
     }
 
     // if any magic values, return projection
+    i8 rn=0;
     for (i64 i=0; i<yn; i++)
-        if (IS_MAGIC_VAL(OBJ(y)[i]))
-            return tx(KP,j2(k1(x),y));
+        rn+=IS_MAGIC_VAL(OBJ(y)[i]);
+    if (rn){
+        K r=j2(k1(x),y);
+        HDR_RNK(r)=rn;
+        return tx(KP,r);
+    }
 
     // enlist is special, can take any number of arguments
     if (IS_MONAD(x,TOK_COMMA))
@@ -58,7 +79,10 @@ K apply(K x, K y){
 
     // too few args
     if (yn<rank){
-        return tx(KP,j2(k1(x),y));
+        // create projection
+        if (xt!=KP) return tx(KP,j2(k1(x),y));
+        // else fill in elided args of existing projection
+        return fillMV(x,y);
     }
 
     // symbols
@@ -74,6 +98,14 @@ K apply(K x, K y){
 
         default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
         }
+    }
+
+    // projections
+    if (xt==KP){
+        x=fillMV(x,y);
+        K f=ref(*OBJ(x));
+        K a=sublist(x,1,xn-1);
+        return apply(f,a);
     }
 
     if (IS_ADVERB_MOD(x)){
