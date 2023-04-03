@@ -65,34 +65,7 @@ K neg(K x){
 // *1 2 3 -> 1
 // TODO : replace with index(x,0)?
 K first(K x){
-    // init
-    K r;
-    i8  xt=TYP(x);
-    i64 xn=CNT(x);
-
-    // atoms
-    if (xt<0 || xt>=K_INDEXABLE_END)
-        return x;
-
-    // generic objects
-    if (!xt)
-        return !xn ? x : UNREF_X(ref(*OBJ(x)));
-
-    // return first item of dict values
-    if (xt==KD)
-        return UNREF_X(first(ref(OBJ(x)[1])));
-
-    // *[table] returns a dict
-    if (xt==KT)
-        return index(x,ki(0));
-
-    switch(xt){
-    case KC: r=kc(xn ? *CHR(x) : CNULL); break;
-    case KI: r=ki(xn ? *INT(x) : INULL); break;
-    case KF: r=kf(xn ? *FLT(x) : FNULL); break;
-    case KS: r=ks(xn ? *INT(x) : SNULL); break;
-    }
-    return UNREF_X(r);
+    return IS_ATOM(x) ? x : index(TYP(x)==KD ?  value(x) : x, ki(0));
 }
 
 K ksqrt(K x){
