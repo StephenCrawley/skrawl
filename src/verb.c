@@ -63,6 +63,7 @@ K neg(K x){
 
 // *x
 // *1 2 3 -> 1
+// TODO : replace with index(x,0)?
 K first(K x){
     // init
     K r;
@@ -107,7 +108,7 @@ K distinct(K x){
 }
 
 K value(K x){
-    return UNREF_X( kerr("'nyi! monad .") );
+    return TYP(x)==KD ? UNREF_X(ref(VAL(x))) : UNREF_X( kerr("'nyi! monad .") );
 }
 
 K type(K x){
@@ -248,10 +249,11 @@ K join(K x, K y){
     return UNREF_XY( kerr("'nyi! dyad ,") );
 }
 
+// x . y
 K dotApply(K x, K y){
-    if (IS_ATOM(y) || TYP(y)==KD)
+    if (IS_ATOM(y))
         return UNREF_XY(kerr("'rank! . (apply) - right arg must be list"));
-    return apply(x,expand(y));
+    return apply(x,expand(TYP(y)==KD ? value(y) : y));
 }
 
 K atApply(K x, K y){
