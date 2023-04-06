@@ -19,6 +19,7 @@ K enlist(K);
 K distinct(K);
 K value(K);
 K type(K);
+K til(i64);
 K getKey(K);
 K string(K);
 K count(K);

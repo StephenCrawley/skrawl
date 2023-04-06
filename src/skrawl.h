@@ -81,6 +81,7 @@ enum {
 // shared utility macros
 #define ABS(a)             __extension__({__typeof__(a)_a=(a); _a > 0 ? _a : -_a ;}) 
 #define MAX(a,b)           __extension__({__typeof__(a)_a=(a);__typeof__(b)_b=(b);_a>_b?_a:_b;})
+#define MIN(a,b)           __extension__({__typeof__(a)_a=(a);__typeof__(b)_b=(b);_a<_b?_a:_b;})
 #define KEY(x)             OBJ((x))[0] //dict key
 #define VAL(x)             OBJ((x))[1] //dict value
 #define KCOUNT(x)          __extension__({K _b=(x); i8 t=TYP(_b); CNT(t==KD?VAL(_b):t==KT?*OBJ(VAL(*OBJ(_b))):_b);})
