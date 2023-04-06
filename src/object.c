@@ -484,9 +484,9 @@ static void _printK(K x){
     case KK: if(1!=n)putchar('('); for (i64 i=0, last=n-1; i<n; i++){ _printK( OBJ(x)[i] ); if(i!=last)putchar(';'); } if(1!=n)putchar(')'); break;
     case KX: printf("0x"); for (i64 i=0; i<n; i++){ printf("%02x",CHR(x)[i]); } break;
     case KC: putchar('"'); for (i64 i=0; i<n; i++){ putchar(CHR(x)[i]); } putchar('"'); break;
-    case KI: printInt(x); break;
-    case KF: printFlt(x); break;
-    case KS: printSym(x); break;
+    case KI: n?printInt(x):(void)printf("!0"); break;
+    case KF: n?printFlt(x):(void)printf("0#0."); break;
+    case KS: n?printSym(x):(void)printf("0#`"); break;
     case KD: _printK(KEY(x)), putchar('!'), _printK(VAL(x)); break;
     case KT: putchar('+'); _printK(*OBJ(x)); break;
     case KU: putchar(VERB_STR[TAG_VAL(x)]); putchar(':'); break;

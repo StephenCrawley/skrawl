@@ -88,8 +88,29 @@ K type(K x){
     return UNREF_X( kerr("'nyi! monad @") );
 }
 
+// !n. called in getKey. used internally 
+K til(i64 n){
+    K r=tn(KI,n);
+    for (i64 i=0; i<n; i++) INT(r)[i]=i;
+    return r;
+}
+
+// !x
 K getKey(K x){
-    return UNREF_X( kerr("'nyi! monad !") );
+    i8 xt=TYP(x);
+
+    // !3 -> 0 1 2
+    if (xt==-KI){
+        i64 n=*INT(x);
+        unref(x);
+        return n>=0 ? til(n) : kerr("'domain! !x (key) - x must be positive int");
+    }
+
+    // !`a`b!1 2 -> `a`b
+    if (xt==KD)
+        return UNREF_X(ref(KEY(x)));
+    
+    return UNREF_X( kerr("'type! !x (key) - invalid operand") );
 }
 
 K string(K x){
@@ -238,11 +259,62 @@ K cast(K x, K y){
 }
 
 K take(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad #") );
+    K r;
+    if (TYP(x)!=-KI)
+        return UNREF_XY(kerr("'type! x#y (take) - x must be int atom"));
+    
+    if (TYP(y)==KD){
+        K newkey=take(ref(x),ref(KEY(y)));
+        r=kD(newkey,take(x,ref(VAL(y))));
+        return UNREF_Y(r);
+    }
+
+    i64 rn=ABS(*INT(x));  //return count
+    i8  rt=ABS(TYP(y));   //return type
+    r=tn(rt,rn);          //return object
+    i64 yn=CNT(y);        //y count
+    i64 sz=ksize(y);      //elemental size of y
+    i64 rbytes=sz*rn;     //remaining number of bytes to copy into r
+    i64 offset=rn%yn;     //offset if yn not a multiple of rn
+    u8 *ptr=CHR(r);       //pointer to track current location of copy
+
+    // if -x#y, copy in the tail
+    // -5#!3 -> 1 2 0 1 2
+    // copies the first 1 2
+    if (offset && *INT(x)<0){
+        i64 n=sz*offset;
+        ptr=n+(u8*)memcpy(ptr,CHR(y)+sz*(yn-offset),n);
+        rbytes-=n;
+    }
+
+    // copy all of y, rn/yn times 
+    i64 yb=sz*yn;
+    while (rbytes >= yb){
+        ptr=yb+(u8*)memcpy(ptr,CHR(y),yb);
+        rbytes-=yb;
+    }
+
+    // copy the remainder
+    if (rbytes)
+        memcpy(ptr,CHR(y),rbytes);
+
+    // reference if generic list
+    if (!rt)
+        for (i64 i=0; i<rn; i++) ref(OBJ(r)[i]);
+
+    return UNREF_XY(r);
 }
 
+// x_y
+// 2_0 1 2 3 -> 2 3
+// drop defined in terms of take
 K drop(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad _") );
+    if (TYP(x)!=-KI)
+        return UNREF_XY(kerr("'type! x_y (drop) - x must be int atom"));
+
+    i64 n=*INT(x);
+    i64 m=KCOUNT(y);
+    return UNREF_X(take(ki(ABS(n)>=m ? 0 : n>0 ? n-m : n+m),y));
 }
 
 K fill(K x, K y){
