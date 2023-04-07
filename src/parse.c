@@ -39,10 +39,10 @@ static inline Parser *inc(Parser *p){ return ++p->current, p; }
 static inline Parser *dec(Parser *p){ return --p->current, p; }
 
 // consume whitepace
-static inline void ws(Parser *p){ while(' '==*p->current) ++p->current; }
+static inline void ws(Parser *p){ while(*p->current==' ') ++p->current; }
 
 // peek char. consume whitespace and peek next char (return but don't consume it)
-static inline char peek(Parser *p){ ws(p); char a=*p->current; return '/'==a&&' '==p->current[-1] ? 0 : a; }
+static inline char peek(Parser *p){ ws(p); char a=*p->current; return a=='/'&&p->current[-1]==' ' ? 0 : a; }
 
 // next char. consume whitespace and consume & return next char
 static inline char next(Parser *p){ char a=peek(p); return ++p->current, a; }
@@ -66,7 +66,7 @@ static K parseFenced(Parser *p, char b){
     return inc(p), r;
 }
 
-// parse x'  
+// parse x/
 static K parseAdverb(Parser *p, K x){
     char t; //type
     do {
@@ -142,50 +142,52 @@ static double parseFlt(const char *s, i32 len, i32 d){
     return l + r;
 }
 
+static bool isNum(const char *s){
+    char a=*s++;
+    return class(a=='-'?s[*s=='.']:a=='.'?*s:a) == '0';
+}
+
 // parse number(s). "1","1 23"
 static K parseNum(Parser *p){
-    char a; //current char
-    i8 n, d, f=0; //num length, count of dots '.', any floats?
-    K r = tn(KI, 0), t;
+    char a; //current
+    const char *s=p->current;
+
+    // first scan number/list of numbers
+    // get num count (n) and determine if any are float (f)
+    // also count number of decimals per num (d)
+    i64 n=0,f=0,d=0;
     do {
-        d = 0;
-        n = ('-'==*p->current);
-        do d+=('.'==p->current[n]), a=p->current[++n]; while ('0'==class(a) || '.'==a);
+        p->current+=(*p->current=='-');
+        while (class(a=*p->current)=='0' || a=='.'){
+            if ((d+=(a=='.'))>1) return handleError(p,-1);
+            p->current++;
+        }
+        ++n, f|=d, d=0;
+        if (*p->current!=' ') break;
+        peek(p);
+    } while (isNum(p->current));
 
-        // if more than one dot, error
-        if (d > 1)
-            return unref(r), r=handleError(p,-1), p->current+=n, r;
+    // rewind. create return object
+    p->current=s;
+    K r=tn((n>1?1:-1)*(f?KF:KI),n);
 
-        f |= d;
-        t = d ? kf(parseFlt(p->current, n, ic((char *)p->current, '.'))) : ki(parseInt(p->current, n));
-        r = jk(r, t);
-        p->current += n;
-
-        // if not whitespace, then we're done parsing num literals
-        if (' '!=*p->current) break;
-        a = peek(p);
-    } while ('0'==class(a) || '0'==class('-'==a?p->current[1+('.'==p->current[1])]:'.'==a?p->current[1]:0));
-
-    // if just one number, return
-    if (1==CNT(r)) return UNREF_R(ref(t));
-
-    // else squeeze into compact form
-    t = tn(f?KF:KI, CNT(r));
-    if (f)
-        for (i64 i=0, n=CNT(t); i<n; i++) FLT(t)[i] = -KI==TYP(OBJ(r)[i]) ? (double)*INT(OBJ(r)[i]) : *FLT(OBJ(r)[i]);
-    else 
-        for (i64 i=0, n=CNT(t); i<n; i++) INT(t)[i] = *INT(OBJ(r)[i]);
-    
-    return unref(r), t;
+    // scan number(s) again and save into r
+    for (i64 i=0,rn=n; i<rn; i++){
+        n=peek(p)=='-',s=p->current,d=0;
+        do d|=(s[n]=='.'), a=s[++n]; while (class(a)=='0' || a=='.');
+        f ? FLT(r)[i]=parseFlt(s,n,d?ic((char*)s,'.'):n) : (INT(r)[i]=parseInt(s,n));
+        p->current+=n;
+    }
+    return r;
 }
 
 static i64 encodeSym(Parser *p){
-    i64 n = 0;
     char c;
-    const char *s = p->current;
-    while ((c=class(*p->current))=='a' || c=='0') { ++p->current; }
+    i64 n=0;
+    const char *s=p->current;
+    while ((c=class(*p->current))=='a' || c=='0') ++p->current;
     // encode char in i64. max 8 chars per symbol
-    memcpy(&n, s, (p->current-s)>8 ? 8 : p->current-s);
+    memcpy(&n,s,MIN(8,p->current-s));
     return n;
 }
 
@@ -216,18 +218,18 @@ static K classSwitch(Parser *p){
     K x, y; //x:parsed object, y:lambda params
     bool f=0; //is lambda function?
 
-    a = next(p);
+    a=next(p);
     // if "-" or "-." followed by digit, we're parsing a number, so classify appropriately
-    c = '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:a) ? '0' : class(a);
+    c=isNum(p->current-1) ? '0' : class(a);
 
     switch (c){
     case '0': x=parseNum(dec(p)); if (p->error)return x; break;
     case '`': x=parseSym(dec(p)); break;
     case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
-    case '+': x=kvc(a); a=peek(p); if(':'==a?inc(p),1:!AT_EXPR_END(a)&&'['!=a&&('/'!=class(a)||'\''==a)) x=tx(KU,x); break;
+    case '+': x=kvc(a); a=peek(p); if(a==':'?inc(p),1:!AT_EXPR_END(a)&&a!='['&&(class(a)!='/'||a=='\'')) x=tx(KU,x); break;
     case '/': x=parseAdverb(dec(p),0); break;
-    case '{': f=1,s=p->current-1,y='['==peek(p)?parseArgs(inc(p)):squeeze(k1(ks('x'))); if (p->error) return y; //else FALLTHROUGH
+    case '{': f=1,s=p->current-1,y=peek(p)=='['?parseArgs(inc(p)):squeeze(k1(ks('x'))); if (p->error) return y; //else FALLTHROUGH
     case '(': x=parseFenced(p,")}"[f]); if (p->error){ if(f)unref(y); return x; } break;
     default : return handleError(p, a);
     }
@@ -238,7 +240,7 @@ static K classSwitch(Parser *p){
     // create lambda object
     if (f) x=k2(y,x), y=kCn((char*)s,p->current-s), x=tx(KL,j2(k1(y),x));
 
-    return parsePostfix(p, x);
+    return parsePostfix(p,x);
 }
 
 // parse single expression
@@ -267,10 +269,10 @@ static K expr(Parser *p){
     const char *temp = p->current; // so we can rewind if y is a noun
     a = *p->current++;
     // switch based on whether a space precedes the term
-    c = ' '==p->current[-2] ? ' ' : '+'==class(a) ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
+    c = p->current[-2]==' ' ? ' ' : class(a)=='+' ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
     p->verb=false;
     switch (c){
-    case ' ': if('+'!=class(a) || '0'==class('-'==a?p->current['.'==*p->current]:'.'==a?*p->current:0)){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
+    case ' ': if(class(a)!='+' || isNum(p->current-1)){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
     case '+': p->verb=true,y=*p->current==':'?inc(p),kuc(a):kvc(a); y=parsePostfix(p,y); break;
     default : y=classSwitch(dec(p));
     }
