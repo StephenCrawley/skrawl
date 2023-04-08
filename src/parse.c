@@ -246,10 +246,10 @@ static K classSwitch(Parser *p){
 // parse single expression
 static K expr(Parser *p){
     K x, y, z; //prefix, infix, right expression
-    char a, c; //current char, char class
+    char a; //current char
 
     // parse prefix
-    x = classSwitch(p);
+    x=classSwitch(p);
     if (p->error) return x;
 
     // set composition flag and return x
@@ -266,15 +266,15 @@ static K expr(Parser *p){
     // else (y is a noun) it is the start of the next expr, so we rewind and parse (x;expr())
     // also, a '-' token can be dyadic minus or start of negative number
     // x-1 -> (-;`x;1) but x -1 -> (`x;-1)
-    const char *temp = p->current; // so we can rewind if y is a noun
-    a = *p->current++;
-    // switch based on whether a space precedes the term
-    c = p->current[-2]==' ' ? ' ' : class(a)=='+' ? "+?"['.'==a&&'0'==class(*p->current)] : '?';
-    p->verb=false;
-    switch (c){
-    case ' ': if(class(a)!='+' || isNum(p->current-1)){ y=classSwitch(dec(p)); break; } //else FALLTHROUGH
-    case '+': p->verb=true,y=*p->current==':'?inc(p),kuc(a):kvc(a); y=parsePostfix(p,y); break;
-    default : y=classSwitch(dec(p));
+    const char *temp=p->current; // so we can rewind if y is a noun
+    bool isSpace=(p->current[-1]==' ');
+    a=*p->current++;
+    if (class(a)=='+' && (isSpace ? !isNum(p->current-1) : a!='.')){
+        p->verb=true;
+        y=parsePostfix(p,*p->current==':'?inc(p),kuc(a):kvc(a));
+    }
+    else {
+        y=classSwitch(dec(p));
     }
 
     // if y is a noun 
