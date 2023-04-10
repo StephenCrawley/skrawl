@@ -272,7 +272,7 @@ K kv(u64 i){ return SET_TAG(KV, i); }
 // create adverb
 K kw(i8 t){ return SET_TAG(KW, t); }
 
-// create adverb-modified object 
+// create derived verb 
 K kwx(i8 t, K x){
     K r=tx(t,k1(x));
     HDR_RNK(r)=RANK(x);
@@ -474,7 +474,7 @@ static void printSym(K x){
 }
 
 static void _printK(K x){
-    i8  xt=IS_ADVERB_MOD(x) ? K_ADVERB_START : TYP(x);
+    i8  xt=IS_DERIVED_VERB(x) ? K_ADVERB_START : TYP(x);
     if (xt==KL){ x=*OBJ(x); }
     i64 n=CNT(x);
     

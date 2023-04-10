@@ -89,7 +89,7 @@ enum {
 #define IS_ATOM(x)         __extension__({K _x=(x); i8 t=TYP(_x); t<0 || t>=K_INDEXABLE_END;})
 #define IS_SIMPLE_LIST(x)  __extension__({K _x=(x); !TAG_TYP(_x) && HDR_TYP(_x)>0 && HDR_TYP(_x)<K_SIMPLE_LIST_END;})
 #define IS_VERB(a)         __extension__({i8 t=TYP(a); KU==t || KV==t;}) 
-#define IS_ADVERB_MOD(a)   __extension__({i8 t=TYP(a); K_ADVERB_START<=t && t<K_ADVERB_END;})
+#define IS_DERIVED_VERB(a) __extension__({i8 t=TYP(a); K_ADVERB_START<=t && t<K_ADVERB_END;})
 #define IS_GENERIC(x)      __extension__({i8 t=TYP(x); !t || (t>=K_SIMPLE_LIST_END && t<K_ADVERB_END);}) //has other K objects as children
 #define IS_ERROR(x)        (TYP((x))==KE)
 #define IS_NULL(x)         (TAG_TYP((x))==KN)

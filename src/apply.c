@@ -112,7 +112,7 @@ K apply(K x, K y){
         return apply(f,a);
     }
 
-    if (IS_ADVERB_MOD(x)){
+    if (IS_DERIVED_VERB(x)){
         return each2(UNREF_X(ref(*OBJ(x))),y);
     }
 
