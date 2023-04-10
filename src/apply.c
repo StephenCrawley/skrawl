@@ -202,17 +202,19 @@ K index(K x, K y){
         return UNREF_X(index(ref(OBJ(x)[1]),ix));
     }
 
+    // handle table with sym index. this is treated as a dict index
+    if (xt==KT && ABS(yt)==KS)
+        return UNREF_X(index(ref(*OBJ(x)),y));
+
+    // from here we're dealing with indexing with ints
+    // so if y not int, return error
+    if (ABS(yt)!=KI)
+        return UNREF_XY(kerr("'type! y is not valid index"));
+
     // handle tables. call index for each column
     if (xt==KT){
         // extract the underlying dict
         K dict=*OBJ(x);
-
-        // if y is sym we're indexing by column, extract columns as if dict
-        if (ABS(yt)==KS)
-            return UNREF_X(index(ref(dict),y));
-
-        // else we're indexing by row 
-        // extract keys and vals and create new column object
         K key=KEY(dict);
         K val=VAL(dict);
         K r=tn(KK,0);
@@ -220,10 +222,6 @@ K index(K x, K y){
         // iterate and index each column 
         for (i64 i=0,n=CNT(val); i<n; i++){
             t=index(ref(OBJ(val)[i]),ref(y));
-            // return if error
-            if (IS_ERROR(t))
-                return UNREF_XYR(t);
-            // else append
             r=jk(r,t);
         }
 
@@ -232,11 +230,6 @@ K index(K x, K y){
         // if y is atom, return dict. else return table
         return UNREF_XY(yt<0?r:kT(r));
     }
-
-    // from here we're dealing with indexing with ints
-    // so if y not int, return error
-    if (ABS(yt)!=KI)
-        return UNREF_XY(kerr("'type! y is not valid index"));
 
     // if x is generic and y is atom
     if (!xt && yt<0){
