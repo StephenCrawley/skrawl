@@ -277,23 +277,19 @@ static K expr(Parser *p){
         y=classSwitch(dec(p));
     }
 
-    // if y is a noun 
-    if (!p->verb){
-        // return (x;y)
-        if (AT_EXPR_END(peek(p))) return k2(x,y); 
+    // if y is verb (x+) return (+;x). else return (x;y)
+    if (AT_EXPR_END(peek(p)))
+        return (p->compose|=p->verb) ? k2(y,x) : k2(x,y);
 
-        // else rewind and return (x;expr()) 
+    // if y is a noun, rewind and return (x;expr())
+    if (!p->verb){
         unref(y);
-        p->current = temp;
-        return y = expr(p), p->compose ? COMPOSE(x,y) : k2(x,y);
+        p->current=temp;
+        return y=expr(p), p->compose ? COMPOSE(x,y) : k2(x,y);
     }
 
-    // parse x+
-    if ( AT_EXPR_END(peek(p)) ) 
-        return p->compose = true, k2(y,x);
-    
     // parse x+y
-    z = expr(p);
+    z=expr(p);
     return (p->compose && !IS_DYAD(y,TOK_COLON)) ? COMPOSE(k2(y,x),z) : k3(y,x,z);
 }
 
@@ -310,7 +306,7 @@ static K Exprs(char c, Parser *p){
     } while (next(p)==';');    
     --p->current;
 
-    return !c ? r : 1==CNT(r) ? UNREF_R(ref(t)) : j2(k1(kuc(c)), r);
+    return !c ? r : CNT(r)==1 ? UNREF_R(ref(t)) : j2(k1(kuc(c)),r);
 }
 
 K parse(const char *src){
@@ -320,7 +316,7 @@ K parse(const char *src){
     Parser p;
     p.compose = false;
     p.verb = false;
-    p.error = 0;
+    p.error = false;
     p.src = src;
     p.current = src;
 
