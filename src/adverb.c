@@ -33,26 +33,9 @@ K each2(K f, K a){
         return kerr("'rank!");
     }
 
-    // lists must have same count
     i64 xn=KCOUNT(x), yn=KCOUNT(y);
-    if (!xatom && !yatom && xn!=yn){
-        unref(f),unref(a);
-        return kerr("'length");
-    }
-
     K r=tn(KK,0),t;
-    if (xn==yn){
-        for (i64 i=0; i<xn; i++){
-            t=k2(item(i,x),item(i,y));
-            t=apply(ref(f),t);
-            if (IS_ERROR(t)){
-                unref(f),unref(a),unref(r);
-                return t;
-            }
-            r=jk(r,t);
-        }
-    }
-    else if (xn>yn){
+    if (yatom){
         for (i64 i=0; i<xn; i++){
             t=k2(item(i,x),ref(y));
             t=apply(ref(f),t);
@@ -63,9 +46,26 @@ K each2(K f, K a){
             r=jk(r,t);
         }
     }
-    else {
+    else if (xatom){
         for (i64 i=0; i<yn; i++){
             t=k2(ref(x),item(i,y));
+            t=apply(ref(f),t);
+            if (IS_ERROR(t)){
+                unref(f),unref(a),unref(r);
+                return t;
+            }
+            r=jk(r,t);
+        }
+    }
+    else {
+        // lists must be same length
+        if (xn!=yn){
+            unref(f),unref(a);
+            return kerr("'length");
+        }
+
+        for (i64 i=0; i<xn; i++){
+            t=k2(item(i,x),item(i,y));
             t=apply(ref(f),t);
             if (IS_ERROR(t)){
                 unref(f),unref(a),unref(r);
