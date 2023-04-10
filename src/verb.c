@@ -302,7 +302,7 @@ K take(K x, K y){
     if (!rt)
         for (i64 i=0; i<rn; i++) ref(OBJ(r)[i]);
 
-    return UNREF_XY(r);
+    return UNREF_XY(squeeze(r));
 }
 
 // x_y
