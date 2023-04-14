@@ -2,6 +2,7 @@
 #include "object.h"
 #include "verb.h"
 #include "parse.h"
+#include "compile.h"
 #include "adverb.h"
 
 // forward declarations
@@ -32,6 +33,7 @@ K fillMV(K x, K y){
 // f - some applicable value (primitive, lambda, list, etc)
 // x - a list of arguments to f 
 K apply(K x, K y){
+    K r;
     i8  xt=TYP(x);
     i64 xn=CNT(x), yn=CNT(y);
 
@@ -65,7 +67,7 @@ K apply(K x, K y){
     for (i64 i=0; i<yn; i++)
         rn+=IS_MAGIC_VAL(OBJ(y)[i]);
     if (rn){
-        K r=j2(k1(x),y);
+        r=j2(k1(x),y);
         HDR_RNK(r)=rn;
         return tx(KP,r);
     }
@@ -91,14 +93,18 @@ K apply(K x, K y){
 
     // symbols
     if (xt==-KS){
-        y=first(y);
         switch(*INT(x)){
-        // `p@x -> return parse tree
+        // `p@"x+y" -> return parse tree
         case 'p':
+            y=first(y);
             if (TYP(y)!=KC)
                 return UNREF_XY(kerr("'type! can only parse char vector"));
             y=j2(y,kc(0));
             return UNREF_XY(parse((const char*)y));
+        // `x@"x+y" -> return bytecode
+        case 'x':
+            r=apply(ks('p'),y);
+            return UNREF_X((IS_ERROR(r)||IS_NULL(r)) ? r : UNREF_R(first(compile(r))));
 
         default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
         }
