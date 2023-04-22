@@ -125,6 +125,10 @@ K apply(K x, K y){
     if (rank==4){
         return amend4(y);
     }
+    // apply monad
+    if (xt==KU){
+        return (*monad_table[TAG_VAL(x)])(UNREF_Y(ref(*OBJ(y))));
+    }
     // apply dyad
     if (xt==KV){
         return UNREF_Y((*dyad_table[TAG_VAL(x)])(ref(OBJ(y)[0]),ref(OBJ(y)[1])));
