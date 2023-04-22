@@ -268,9 +268,20 @@ K take(K x, K y){
         return UNREF_Y(r);
     }
 
-    i64 rn=ABS(*INT(x));  //return count
-    i8  rt=ABS(TYP(y));   //return type
-    r=tn(rt,rn);          //return object
+    // enlist tagged items
+    if (TAG_TYP(y)) y=va(y);
+
+    i64 rn=ABS(*INT(x));
+    i8  rt=ABS( TYP(y));
+
+    // if 0#y, return empty list
+    if (!rn) return UNREF_XY(tn(rt,rn));
+
+    // if y has 0 count, then result is the same as index out of bounds
+    if (!CNT(y))
+        return rt ? take(x,index(y,ki(0))) : UNREF_X(index(y,til(rn)));
+
+    r=tn(rt,rn);
     i64 yn=CNT(y);        //y count
     i64 sz=ksize(y);      //elemental size of y
     i64 rbytes=sz*rn;     //remaining number of bytes to copy into r
