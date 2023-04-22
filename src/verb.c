@@ -63,7 +63,6 @@ K neg(K x){
 
 // *x
 // *1 2 3 -> 1
-// TODO : replace with index(x,0)?
 K first(K x){
     return IS_ATOM(x) ? x : index(TYP(x)==KD ?  value(x) : x, ki(0));
 }
@@ -118,7 +117,7 @@ K string(K x){
 }
 
 K count(K x){
-    return UNREF_X( kerr("'nyi! monad #") );
+    return UNREF_X( ki(KCOUNT(x)) );
 }
 
 K lower(K x){
