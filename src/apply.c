@@ -400,7 +400,7 @@ K amend4(K x){
 
     // @[;;;atom] -> @[;;;rn#atom]
     if (IS_ATOM(y)){
-        y=take(ki(KCOUNT(ix)),y);
+        y=n_take(KCOUNT(ix),y);
         OBJ(x)[3]=y;
     }
 

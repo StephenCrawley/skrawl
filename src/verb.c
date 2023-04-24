@@ -257,44 +257,57 @@ K cast(K x, K y){
     return UNREF_XY( kerr("'nyi! dyad $") );
 }
 
-K take(K x, K y){
+// 
+K n_take(i64 n, K y){
     K r;
-    if (TYP(x)!=-KI)
-        return UNREF_XY(kerr("'type! x#y (take) - x must be int atom"));
-    
-    if (TYP(y)==KD){
-        K newkey=take(ref(x),ref(KEY(y)));
-        r=kD(newkey,take(x,ref(VAL(y))));
+    i8 yt=TAG_TYP(y) ? KK : HDR_TYP(y);
+
+    // x#d -> (x#!d)!x#.d
+    if (yt==KD){
+        K newkey=n_take(n,ref(KEY(y)));
+        r=kD(newkey,n_take(n,ref(VAL(y))));
         return UNREF_Y(r);
     }
 
-    // enlist tagged items
-    if (TAG_TYP(y)) y=va(y);
+    // x#table -> iterate each column
+    if (yt==KT){
+        r=tn(KK,0);
+        K dict=*OBJ(y);
+        K cols=VAL(dict);
+        for (i64 i=0,cn=CNT(cols); i<cn; i++)
+            r=jk(r,n_take(n,ref(OBJ(cols)[i])));
+        return UNREF_Y(kT(kD(ref(KEY(dict)),r)));
+    }
 
-    i64 rn=ABS(*INT(x));
-    i8  rt=ABS( TYP(y));
+    // enlist tag types
+    if (TAG_TYP(y)){
+        y=va(y);
+        yt=KK;
+    }
+
+    i64 rn=ABS(n);
+    i8  rt=ABS(yt);
 
     // if 0#y, return empty list
-    if (!rn) return UNREF_XY(tn(rt,rn));
+    if (!rn) return UNREF_Y(tn(rt,rn));
 
     // if y has 0 count, then result is the same as index out of bounds
-    if (!CNT(y))
-        return rt ? take(x,index(y,ki(0))) : UNREF_X(index(y,til(rn)));
+    i64 yn=CNT(y);
+    if (!yn)
+        return index(y,til(rn));
 
-    r=tn(rt,rn);
-    i64 yn=CNT(y);        //y count
+    r=tn(rt,rn);          //return object
     i64 sz=ksize(y);      //elemental size of y
     i64 rbytes=sz*rn;     //remaining number of bytes to copy into r
-    i64 offset=rn%yn;     //offset if yn not a multiple of rn
-    u8 *ptr=CHR(r);       //pointer to track current location of copy
+    u8 *ptr=CHR(r);       //pointer to where the next bytes get copied
 
-    // if -x#y, copy in the tail
-    // -5#!3 -> 1 2 0 1 2
+    // if -x#y copy in the tail
+    // -5#0 1 2 -> 1 2 0 1 2
     // copies the first 1 2
-    if (offset && *INT(x)<0){
-        i64 n=sz*offset;
-        ptr=n+(u8*)memcpy(ptr,CHR(y)+sz*(yn-offset),n);
-        rbytes-=n;
+    if (n<0){
+        i64 offset=rn%yn, m=sz*offset;
+        ptr=m+(u8*)memcpy(ptr,CHR(y)+sz*(yn-offset),m);
+        rbytes-=m;
     }
 
     // copy all of y, rn/yn times 
@@ -305,14 +318,20 @@ K take(K x, K y){
     }
 
     // copy the remainder
-    if (rbytes)
-        memcpy(ptr,CHR(y),rbytes);
+    memcpy(ptr,CHR(y),rbytes);
 
     // reference if generic list
     if (!rt)
         for (i64 i=0; i<rn; i++) ref(OBJ(r)[i]);
 
-    return UNREF_XY(squeeze(r));
+    return UNREF_Y(squeeze(r));
+}
+
+// x#y
+K take(K x, K y){
+    if (TYP(x)!=-KI)
+        return UNREF_XY(kerr("'type! x#y (take) - x must be int atom"));
+    return UNREF_X(n_take(*INT(x),y));
 }
 
 // x_y
@@ -324,7 +343,7 @@ K drop(K x, K y){
 
     i64 n=*INT(x);
     i64 m=KCOUNT(y);
-    return UNREF_X(take(ki(ABS(n)>=m ? 0 : n>0 ? n-m : n+m),y));
+    return UNREF_X(n_take(ABS(n)>=m ? 0 : n>0 ? n-m : n+m,y));
 }
 
 K fill(K x, K y){

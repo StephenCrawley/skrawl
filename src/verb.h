@@ -45,6 +45,7 @@ K atApply(K,K);
 K makeKey(K,K);
 K cast(K,K);
 K take(K,K);
+K n_take(i64,K);
 K drop(K,K);
 K fill(K,K);
 K min(K,K);
