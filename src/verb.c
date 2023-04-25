@@ -320,7 +320,7 @@ K n_take(i64 n, K y){
     // copy the remainder
     memcpy(ptr,CHR(y),rbytes);
 
-    // reference if generic list
+    // increment refcount if generic list
     if (!rt)
         for (i64 i=0; i<rn; i++) ref(OBJ(r)[i]);
 
@@ -366,34 +366,41 @@ K greaterThan(K x, K y){
     return UNREF_XY( kerr("'nyi! dyad >") );
 }
 
-K match(K x, K y){
+bool isMatch(K x, K y){
     // same object?
     if (x==y)
-        return UNREF_XY(ki(1));
+        return 1;
+
+    // if both tag type, can't match as x==y would be true
+    if (TAG_TYP(x) && TAG_TYP(y))
+        return 0;
 
     // different types?
     if (TYP(x)!=TYP(y))
-        return UNREF_XY(ki(0));
+        return 0;
 
     // different counts?
     i64 xn=CNT(x);
     if (xn!=CNT(y))
-        return UNREF_XY(ki(0));
+        return 0;
 
     // recurse generic types
-    if(IS_GENERIC(x)){
+    if (IS_GENERIC(x)){
         for (i64 i=0; i<xn; i++){
-            K t=match(ref(OBJ(x)[i]),ref(OBJ(y)[i]));
-            if (!*INT(t))
-                return UNREF_XY(t);
-            unref(t);
+            if (!match(OBJ(x)[i],OBJ(y)[i]))
+                return 0;
         }
-        return UNREF_XY(ki(1));
+        return 1;
     }
 
     // simple types
-    K r=ki(!memcmp(CHR(x),CHR(y),xn*ksize(x)));
-    return UNREF_XY(r);
+    return !memcmp(CHR(x),CHR(y),xn*ksize(x));
+}
+
+// x~y
+// do x and y match? same type, length, value
+K match(K x, K y){
+    return UNREF_XY(ki(isMatch(x,y)));
 }
 
 K max(K x, K y){
