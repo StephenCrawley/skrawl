@@ -84,7 +84,7 @@ enum {
 #define MIN(a,b)           __extension__({__typeof__(a)_a=(a);__typeof__(b)_b=(b);_a<_b?_a:_b;})
 #define KEY(x)             OBJ((x))[0] //dict key
 #define VAL(x)             OBJ((x))[1] //dict value
-#define KCOUNT(x)          __extension__({K _b=(x); i8 t=TYP(_b); CNT(t==KD?VAL(_b):t==KT?*OBJ(VAL(*OBJ(_b))):_b);})
+#define KCOUNT(x)          __extension__({K _b=(x); i8 t=TYP(_b); IS_ATOM(_b)?1:HDR_CNT(t==KD?VAL(_b):t==KT?*OBJ(VAL(*OBJ(_b))):_b);})
 #define RANK(x)            __extension__({K _x=(x); i8 t=TYP(_x); t==KP||(K_ADVERB_START<=t&&t<K_ADVERB_END)?HDR_RNK(_x):t==KV?2:1;})
 #define IS_ATOM(x)         __extension__({K _x=(x); i8 t=TYP(_x); t<0 || t>=K_INDEXABLE_END;})
 #define IS_SIMPLE_LIST(x)  __extension__({K _x=(x); !TAG_TYP(_x) && HDR_TYP(_x)>0 && HDR_TYP(_x)<K_SIMPLE_LIST_END;})

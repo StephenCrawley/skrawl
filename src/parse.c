@@ -11,7 +11,7 @@ static K Exprs(char c, Parser *p);
 // set error flag, return error object to be printed
 // 'a' is flag to decide error msg to print. if >=0, it is an unexpected char in input stream
 static K handleError(Parser *p, char a){
-    // if already error, return KE object
+    // if already error, return KN object
     if (p->error) return knul();
 
     // else create error string to print later
@@ -22,7 +22,7 @@ static K handleError(Parser *p, char a){
                     "'parse! unexpected token: "  );
     if (a>0) r=j2(r,kc(a));
 
-    // source with arrow ^ pointing at char where error occurred
+    // source with caret ^ pointing at char where error occurred
     // some errors we don't print this because we lose the info about where the error occurred
     if (a>-3){
         i64 n=p->current-p->src;
