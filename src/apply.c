@@ -72,6 +72,7 @@ K apply(K x, K y){
         return tx(KP,r);
     }
 
+    // (,:;y)
     // enlist is special, can take any number of arguments
     if (IS_MONAD(x,TOK_COMMA))
         return squeeze(y);
@@ -101,6 +102,7 @@ K apply(K x, K y){
                 return UNREF_XY(kerr("'type! can only parse char vector"));
             y=j2(y,kc(0));
             return UNREF_XY(parse((const char*)y));
+
         // `x@"x+y" -> return bytecode
         case 'x':
             r=apply(ks('p'),y);
@@ -272,117 +274,17 @@ K index(K x, K y){
     return UNREF_XY(r);
 }
 
-// x[i]:y
-// checks type
-K replaceList(K x, i64 i, K y){
-    if (TYP(x) && TYP(x)!=-TYP(y))
-        return UNREF_Y(kerr("'type! amend @[x;i;f;y] - can't amend with different type"));
-
-    i64 s=ksize(x);
-    if (!TYP(x)) unref(OBJ(x)[i]);
-    memcpy(CHR(x)+(s*i),CHR(TYP(x) ? y : (K)&y),s);
-    return TYP(x) ? UNREF_Y(x) : x;
-}
-
-// d[i]:y
-// checks type
-K replaceDict(K x, i64 i, K key, K y){
-    if (TYP(VAL(x)) && TYP(VAL(x))!=ABS(TYP(y)))
-        return UNREF_Y(kerr("'type! amend @[x;i;f;y] - can't amend with different type"));
-
-    // replace existing
-    if (CNT(KEY(x))>i){
-        i64 s=ksize(x);
-        if (!TYP(VAL(x))) unref(OBJ(VAL(x))[i]);
-        memcpy(CHR(VAL(x))+(s*i),CHR(TYP(VAL(x)) ? y : (K)&y),s);
-        return TYP(VAL(x)) ? UNREF_Y(x) : x;
-    }
-    // else append new key&val
-    else {
-        KEY(x)=j2(KEY(x),ref(key));
-        VAL(x)=j2(VAL(x),TYP(VAL(x)) ? y : k1(y));
-        return x;
-    }
-}
-
-K amendList(K r, K ix, K f, K y){
-
-    i64 rn=KCOUNT(r);
-
-    // iterate ix
-    for (i64 i=0,n=CNT(ix); i<n; i++){
-        K indx=IS_ATOM(ix)?ref(ix):item(i,ix);
-        if (*INT(indx)<0 || *INT(indx)>=rn){
-            unref(indx);
-            return kerr("'domain! amend @[x;i;f;y] - index i out of bounds");
-        }
-
-        // apply f[x@ix; y@ix]
-        K xval=item(*INT(indx),r);
-        K yval=item(i,y);
-        K rval=apply(ref(f),k2(xval,yval));
-        if (IS_ERROR(rval)){
-            unref(indx);
-            return rval;
-        }
-
-        // replace x[i] with the result value
-        // x[i]:rval
-        r=replaceList(r,*INT(indx),rval);
-        if (IS_ERROR(r)){
-            unref(indx);
-            return r;
-        }
-
-        // cleanup
-        unref(indx);
-    }
-
-    return ref(r);
-}
-
-K amendDict(K r, K ix, K f, K y){
-
-    // iterate ix
-    for (i64 i=0,n=CNT(ix); i<n; i++){
-        // get index of key
-        K key=ref(IS_ATOM(ix)?ix:item(i,ix));
-        K indx=find(ref(KEY(r)),ref(key));
-        if (IS_ERROR(indx)){
-            return indx;
-        }
-
-        // apply f[x@ix; y@ix]
-        K xval=index(ref(VAL(r)),ki(*INT(indx)));
-        K yval=item(i,y);
-        K rval=apply(ref(f),k2(xval,yval));
-        if (IS_ERROR(rval)){
-            unref(key);
-            unref(indx);
-            return rval;
-        }
-
-        // replace r[key] with the result value
-        // r[key]:rval
-        r=replaceDict(r,*INT(indx),key,rval);
-        if (IS_ERROR(r)){
-            unref(key);
-            unref(indx);
-            return r;
-        }
-
-        // cleanup
-        unref(key);
-        unref(indx);
-    }
-
-    return ref(r);
+K replace(K *x, K y){
+    unref(*x);
+    *x=y;
+    return y;
 }
 
 // @[r;i;f;y]
 K amend4(K x){
-    // reuse r if possible (append in place if refc==0)
-    *OBJ(x)=reuse(*OBJ(x));
+    // can't amend atom
+    if (IS_ATOM(OBJ(x)[0]))
+        return UNREF_X(kerr("'rank! @[x;i;f;y] - x can't be atomic"));
 
     // unpack arg
     K  r=OBJ(x)[0];
@@ -394,19 +296,96 @@ K amend4(K x){
 
     // @[;::;;] -> @[;!#x;;]
     if (IS_MONAD(ix,TOK_COLON)){
-        ix=til(rn);
+        ix=TYP(r)==KD ? ref(KEY(r)) : til(rn);
         OBJ(x)[1]=ix;
     }
 
+    i64 ixn=KCOUNT(ix);
+
     // @[;;;atom] -> @[;;;rn#atom]
     if (IS_ATOM(y)){
-        y=n_take(KCOUNT(ix),y);
+        y=n_take(ixn,y);
         OBJ(x)[3]=y;
     }
 
     // i and y must have same count
-    if (KCOUNT(ix)!=KCOUNT(y))
+    if (ixn!=KCOUNT(y))
         return UNREF_X(kerr("'length! amend @[x;i;f;y] - i and y must conform"));
 
-    return UNREF_X((TYP(r)==KD ? amendDict : amendList)(r,ix,f,y));
+    // if index is generic list, call recursively
+    if (TYP(ix)==KK){
+        ref(r);
+        for (i64 i=0; i<ixn; i++){
+            // init new object
+            K t=tn(KK,4);
+            OBJ(t)[0]=r;
+            OBJ(t)[1]=item(i,ix);
+            OBJ(t)[2]=ref(f);
+            OBJ(t)[3]=item(i,y);
+            r=amend4(t);
+        }
+        return UNREF_X(r);
+    }
+
+    // amend dict
+    if (TYP(r)==KD){
+        K k=KEY(r);
+        i64 kn=KCOUNT(k);
+        K v=expand(VAL(r));
+
+        // iterate each index and apply f[r i;y i]
+        for (i64 i=0; i<ixn; i++){
+
+            // get the key
+            K k_ind=find(ref(k),IS_ATOM(ix)?ref(ix):item(i,ix));
+            if (IS_ERROR(k_ind)){
+                unref(v);
+                VAL(r)=knul();
+                return UNREF_X(k_ind);
+            }
+            i64 ind=INT(k_ind)[0];
+            unref(k_ind);
+
+            // amend
+            // replace if key exists
+            if (ind<kn){
+                K ret=apply(ref(f),k2(ref(OBJ(v)[ind]),item(i,y)));
+                if (IS_ERROR(ret))
+                    return UNREF_XR(ret);
+
+                replace(OBJ(v)+ind,ret);
+            }
+            // append if key doesn't exist
+            else {
+                k=j2(k,item(i,ix));
+                v=jk(v,item(i,y));
+                kn++;
+            }
+        }
+        KEY(r)=k;
+        VAL(r)=squeeze(v);
+        return UNREF_X(ref(r));
+    }
+    // amend everything else
+    else {
+        r=expand(r);
+        OBJ(x)[0]=knul();
+
+        // iterate each index and apply f[r i;y i]
+        for (i64 i=0; i<ixn; i++){
+            
+            // get the index and check if it's out of bounds
+            i64 ind=INT(ix)[IS_ATOM(ix)?0:i];
+            if (ind<0 || ind>=rn)
+                return UNREF_XR(kerr("'domain! @[x;i;f;y] - i out of bounds"));
+
+            // f[r i;y i]
+            K ret=apply(ref(f),k2(ref(OBJ(r)[ind]),item(i,y)));
+            if (IS_ERROR(ret))
+                return UNREF_XR(ret);
+
+            replace(OBJ(r)+ind,ret);
+        }
+        return UNREF_X(squeeze(r));
+    }
 }
