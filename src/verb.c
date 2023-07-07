@@ -163,19 +163,15 @@ K findSym(K x, K y){
     i64 yn=CNT(y);
     K r=tn(TYP(y)<0?-KI:KI,yn);
 
-    // pointers to use in the loop
-    i64 *xptr=INT(x), *rptr=INT(r);
-
     // for each y element
     for (i64 i=0; i<yn; i++){
-        i64 j=0, yi=INT(y)[i];
-
         // search for a match in x
+        i64 j=0;
         for (; j<xn; j++){
-            if (yi==xptr[j])
+            if (INT(y)[i]==INT(x)[j])
                 break;
         }
-        rptr[i]=j;
+        INT(r)[i]=j;
     }
 
     return r;

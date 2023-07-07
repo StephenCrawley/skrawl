@@ -196,32 +196,49 @@ K va(K x){
 
 // enlist x
 K k1(K x){
-    K r = tn(KK, 1);
-    *OBJ(r) = x;
+    K r=tn(KK,1);
+    *OBJ(r)=x;
     return r;
 }
 
 // return (x;y)
 K k2(K x, K y){
-    K r = tn(KK, 2);
-    OBJ(r)[0] = x, OBJ(r)[1] = y;
+    K r=tn(KK,2);
+    OBJ(r)[0]=x;
+    OBJ(r)[1]=y;
     return r;
 }
 
 // return (x;y;z)
 K k3(K x, K y, K z){
-    K r = tn(KK, 3);
-    OBJ(r)[0] = x, OBJ(r)[1] = y, OBJ(r)[2] = z;
+    K r=tn(KK,3);
+    OBJ(r)[0]=x;
+    OBJ(r)[1]=y;
+    OBJ(r)[2]=z;
     return r;
 }
 
 // create byte atom
-K kx(u8 c){ K r; return r=tn(-KX,1), *CHR(r)=c, r; }
+K kx(u8 c){
+    K r=tn(-KX,1);
+    *CHR(r)=c;
+    return r;
+}
+
 // create 2-byte vector
-K kx2(u8 x,u8 y){ K r; return r=tn(KX,2), *CHR(r)=x, CHR(r)[1]=y, r; }
+K kx2(u8 x,u8 y){
+    K r=tn(KX,2);
+    CHR(r)[0]=x;
+    CHR(r)[1]=y;
+    return r;
+}
 
 // create char atom
-K kc(u8 c){ K r; return r=tn(-KC,1), *CHR(r)=c, r; }
+K kc(u8 c){
+    K r=tn(-KC,1);
+    CHR(r)[0]=c;
+    return r;
+}
 
 // create char vector with count n from string
 K kCn(char *s, i64 n){
@@ -234,22 +251,22 @@ K kC0(char *s){
 
 // create int atom
 K ki(i64 x){
-    K r = tn(-KI, 1);
-    INT(r)[0] = x;
+    K r=tn(-KI,1);
+    INT(r)[0]=x;
     return r;
 }
 
 // create float atom
 K kf(double x){
-    K r = tn(-KF, 1);
-    FLT(r)[0] = x;
+    K r=tn(-KF,1);
+    FLT(r)[0]=x;
     return r;
 }
 
 // create int atom
 K ks(i64 x){
-    K r = tn(-KS, 1);
-    INT(r)[0] = x;
+    K r=tn(-KS,1);
+    INT(r)[0]=x;
     return r;
 }
 
@@ -264,13 +281,19 @@ K kT(K x){
 }
 
 // create monadic verb
-K ku(u64 i){ return SET_TAG(KU, i); }
+K ku(u64 i){
+    return SET_TAG(KU,i);
+}
 
 // create dyadic verb
-K kv(u64 i){ return SET_TAG(KV, i); }
+K kv(u64 i){
+    return SET_TAG(KV,i);
+}
 
 // create adverb
-K kw(i8 t){ return SET_TAG(KW, t); }
+K kw(i8 t){
+    return SET_TAG(KW,t);
+}
 
 // create derived verb 
 K kwx(i8 t, K x){
@@ -279,21 +302,46 @@ K kwx(i8 t, K x){
     return r;
 }
 
-u8    cverb(u8 i){ return   VERB_STR[i]; }
-u8  cadverb(u8 i){ return ADVERB_STR[i]; }
-u64 iadverb(char c){ return ic((char*)ADVERB_STR,c); }
-K kuc(char c){ return ku(ic((char*)VERB_STR,c)); }
-K kvc(char c){ return kv(ic((char*)VERB_STR,c)); }
+// get verb char from verb enum i
+u8 cverb(u8 i){
+    return VERB_STR[i];
+}
 
-// create magic value (elided list/function args)
-K km(){ return SET_TAG(KM,0); } 
+// get adverb char from adverb enum i
+u8 cadverb(u8 i){
+    return ADVERB_STR[i];
+}
+
+// get adverb enum from adverb char c
+u64 iadverb(char c){
+    return ic((char*)ADVERB_STR,c);
+}
+
+// create monad type from verb char
+K kuc(char c){
+    return ku(ic((char*)VERB_STR,c));
+}
+
+// create dyad type from verb char
+K kvc(char c){
+    return kv(ic((char*)VERB_STR,c));
+}
+
+// return magic value (elided list/function args)
+K km(){
+    return SET_TAG(KM,0);
+} 
 
 // create error object from x
 // if TYP(x)==KK join the strings
-K ke(K x){ return tx(KE,TYP(x)?x:js(x,'\n')); }
+K ke(K x){
+    return tx(KE,TYP(x)?x:js(x,'\n'));
+}
 
 // create error object from 0-terminated string
-K kerr(char *s){ return ke(kC0(s)); }
+K kerr(char *s){
+    return ke(kC0(s));
+}
 
 // decrement K object refcount and place it back in M if no longer referenced
 void unref(K x){
