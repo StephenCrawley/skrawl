@@ -71,8 +71,9 @@ K ksqrt(K x){
     return UNREF_X( kerr("'nyi! monad %") );
 }
 
+// ,1 -> ,1
 K enlist(K x){
-    return UNREF_X( kerr("'nyi! monad ,") );
+    return squeeze(k1(x));
 }
 
 K distinct(K x){

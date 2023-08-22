@@ -34,8 +34,6 @@ static K compileApplyN(K r, i64 n){
 }
 
 static K compileExprs(K x, K r){
-    K t; //temp object
-    bool m=0; //any magic values?
     i8  xt=TYP(x); 
     i64 xn=CNT(x);
 
@@ -50,22 +48,21 @@ static K compileExprs(K x, K r){
 
     // handle (f;...) where f is applied to the subsequent elements
     // first we compile elements n-1 .. 1
+    bool m=0;  //any magic values?
     for (i64 i=xn-1; i>0; i--){
-        t=OBJ(x)[i];                //next node
-        m|=IS_MAGIC_VAL(t);         //check if magic value
-        r=compileExprs(t,r);        //compile
+        K t=OBJ(x)[i];
+        m|=IS_MAGIC_VAL(t);   //any magic values?
+        r=compileExprs(t,r);  //compile
         if (IS_ERROR(r)) return r;
     }
 
     // then we compile f
-    K f=*OBJ(x); xt=TYP(f);
-    // 'enlist' (,:;...) is special, should always be OP_APPLY_N
-    if (IS_MONAD(f,TOK_COMMA)) return compileApplyN(compileConstant(r,f),xn-1);
-    // compile the rest
+    K f=*OBJ(x); 
+    i8 ft=TYP(f);
     return 
-        (xt==KU && xn==2)       ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
-        (xt==KV && xn==3 && !m) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
-        (xt==KW && xn==2)       ? addByte(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
+        (ft==KU && xn==2)       ? addByte(r,OP_MONAD +TAG_VAL(f)) : //monad instruction
+        (ft==KV && xn==3 && !m) ? addByte(r,OP_DYAD  +TAG_VAL(f)) : //dyad instruction
+        (ft==KW && xn==2)       ? addByte(r,OP_ADVERB+TAG_VAL(f)) : //adverb instruction
         IS_ERROR(r=compileExprs(f,r)) ? r                         : //error
         compileApplyN(r,xn-1);                                      //general apply
 }
