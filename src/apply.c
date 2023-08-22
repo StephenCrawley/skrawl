@@ -92,7 +92,8 @@ K apply(K x, K y){
         return fillMV(x,y);
     }
 
-    // symbols
+    // symbols - (`abc;args)
+    // apply special functions
     if (xt==-KS){
         switch(*INT(x)){
         // `p@"x+y" -> return parse tree
@@ -116,7 +117,7 @@ K apply(K x, K y){
     if (xt==KP){
         x=fillMV(x,y);
         K f=ref(*OBJ(x));
-        K a=sublist(x,1,xn-1);
+        K a=sublist(x,1,xn-1); //bug
         return apply(f,a);
     }
 
@@ -300,6 +301,15 @@ K amend4(K x){
         OBJ(x)[1]=ix;
     }
 
+    // special case: f is ':' and i is atom 
+    // if so, @[x;i;:;y] x[i]:(,y)
+    // that is, x at index i is assigned all of y
+    // @[1 2;0;:;3 7] -> (3 7;2)
+    if (IS_DYAD(f,TOK_COLON) && IS_ATOM(ix) && !IS_ATOM(y)){
+        y=enlist(y);
+        OBJ(x)[3]=y;
+    }
+
     i64 ixn=KCOUNT(ix);
 
     // @[;;;atom] -> @[;;;rn#atom]
@@ -329,41 +339,41 @@ K amend4(K x){
 
     // amend dict
     if (TYP(r)==KD){
-        K k=KEY(r);
-        i64 kn=KCOUNT(k);
-        K v=expand(VAL(r));
+        K key=KEY(r);
+        i64 kn=KCOUNT(key);
+        K val=expand(VAL(r));
 
         // iterate each index and apply f[r i;y i]
         for (i64 i=0; i<ixn; i++){
 
             // get the key
-            K k_ind=find(ref(k),IS_ATOM(ix)?ref(ix):item(i,ix));
-            if (IS_ERROR(k_ind)){
-                unref(v);
+            K keyind=find(ref(key),IS_ATOM(ix)?ref(ix):item(i,ix));
+            if (IS_ERROR(keyind)){
+                unref(val);
                 VAL(r)=knul();
-                return UNREF_X(k_ind);
+                return UNREF_X(keyind);
             }
-            i64 ind=INT(k_ind)[0];
-            unref(k_ind);
+            i64 ind=INT(keyind)[0];
+            unref(keyind);
 
             // amend
             // replace if key exists
             if (ind<kn){
-                K ret=apply(ref(f),k2(ref(OBJ(v)[ind]),item(i,y)));
+                K ret=apply(ref(f),k2(ref(OBJ(val)[ind]),item(i,y)));
                 if (IS_ERROR(ret))
                     return UNREF_XR(ret);
 
-                replace(OBJ(v)+ind,ret);
+                replace(OBJ(val)+ind,ret);
             }
             // append if key doesn't exist
             else {
-                k=j2(k,item(i,ix));
-                v=jk(v,item(i,y));
+                key=j2(key,item(i,ix));
+                val=jk(val,item(i,y));
                 kn++;
             }
         }
-        KEY(r)=k;
-        VAL(r)=squeeze(v);
+        KEY(r)=key;
+        VAL(r)=squeeze(val);
         return UNREF_X(ref(r));
     }
     // amend everything else
