@@ -4,5 +4,6 @@
 #include "skrawl.h"
 
 K evalK(K);
+void initGlobals();
 
 #endif

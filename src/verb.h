@@ -39,6 +39,7 @@ K subtract(K,K);
 K multiply(K,K);
 K divide(K,K);
 K join(K,K);
+K findSym(K,K);
 K find(K,K);
 K dotApply(K,K);
 K atApply(K,K);

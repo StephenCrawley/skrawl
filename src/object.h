@@ -13,6 +13,7 @@
 // public object functions
 void unref(K);
 K ref(K);
+void replace(K*,K);
 K tn(i8,i64);
 K j2(K,K);
 K jk(K,K);
@@ -46,9 +47,9 @@ K item(i64,K);
 K sublist(K,i64,i64);
 K reuse(K);
 K printK(K);
-u8 cverb(u8 i);
-u8 cadverb(u8 i);
-u64 iadverb(char c);
+u8 cverb(u8);
+u8 cadverb(u8);
+u64 iadverb(char);
 
 static inline K knul(){ return SET_TAG(KN,0); }
 

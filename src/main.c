@@ -3,6 +3,10 @@
 #include "object.h"  //printK, WS, WT
 
 int main(){
+    // init global variables dictionary
+    initGlobals();
+
+    // main interpreter loop
     for (;;){
         printK(evalK(readK()));
 #ifdef DBG_WS

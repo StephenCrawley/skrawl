@@ -9,6 +9,8 @@
 #define BYTECODE_PTR(x)  CHR( *OBJ(x) )
 #define CONSTANT_PTR(x)  OBJ( OBJ(x)[1] )
 
+K globals; //K global variables
+
 K run(K r){
     // VM registers and variables
     K stack[256];
@@ -62,6 +64,32 @@ K run(K r){
             PUSH(ref(consts[*ip++]));
             break;
 
+        case OP_SET_GLOBAL:
+            x=tn(KK,4);
+            y=ref(POP());
+            OBJ(x)[3]=y;
+            OBJ(x)[2]=kv(TOK_COLON);
+            OBJ(x)[1]=ref(consts[*ip++]);
+            OBJ(x)[0]=ref(globals);
+            globals=amend4(x);
+            PUSH(y);
+            break;
+
+        case OP_GET_GLOBAL:
+            x=POP();
+            y=findSym(KEY(globals),x);
+            unref(x);
+            // if variable not defined
+            if (INT(y)[0] == HDR_CNT(KEY(globals))){
+                unref(y);
+                x=kerr("'var");
+                goto run_error;
+            }
+            // else push var onto stack
+            PUSH(ref(OBJ(VAL(globals))[INT(y)[0]]));
+            unref(y);
+            break;
+
         case OP_APPLY_N:
             //printf("%03d OP_APPLY_N (%d)\n", instr, *ip);
             n=*ip++;
@@ -96,9 +124,18 @@ run_error:
     return UNREF_R(x);
 }
 
+// create the global variable dictionary
+// inited as (,`)!,(::)
+void initGlobals(){
+    globals=makeKey(ks(0),ku(TOK_COLON));
+}
+
 // accepts parse tree (or error/null) as argument
 // compiles to bytecode and runs on VM
 K evalK(K x){
-    K r;
-    return (IS_ERROR(x) || IS_NULL(x)) ? x : UNREF_X(IS_ERROR(r=compile(x)) ? r : run(r));
+    if (IS_ERROR(x) || IS_NULL(x))
+        return x;
+
+    K r=compile(x);
+    return UNREF_X(IS_ERROR(r) ? r : run(r));
 }

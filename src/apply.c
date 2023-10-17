@@ -275,12 +275,6 @@ K index(K x, K y){
     return UNREF_XY(r);
 }
 
-K replace(K *x, K y){
-    unref(*x);
-    *x=y;
-    return y;
-}
-
 // @[r;i;f;y]
 K amend4(K x){
     // can't amend atom
@@ -363,7 +357,7 @@ K amend4(K x){
                 if (IS_ERROR(ret))
                     return UNREF_XR(ret);
 
-                replace(OBJ(val)+ind,ret);
+                replace(&OBJ(val)[ind],ret);
             }
             // append if key doesn't exist
             else {
@@ -394,7 +388,7 @@ K amend4(K x){
             if (IS_ERROR(ret))
                 return UNREF_XR(ret);
 
-            replace(OBJ(r)+ind,ret);
+            replace(&OBJ(r)[ind],ret);
         }
         return UNREF_X(squeeze(r));
     }

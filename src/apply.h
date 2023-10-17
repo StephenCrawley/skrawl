@@ -5,5 +5,6 @@
 
 K apply(K,K);
 K index(K,K);
+K amend4(K);
 
 #endif

@@ -369,6 +369,13 @@ K ref(K x){
     return TAG_TYP(x) ? x : (REF(x)++, x);
 }
 
+// replace *x with y.
+// used in amend4(apply.c) and assignment(vm.c)
+void replace(K *x, K y){
+    unref(*x);
+    *x=y;
+}
+
 // squeeze conforming dicts into table
 // (`a`b!1 2;`a`b!3 4) -> +`a`b!(1 3;2 4)
 K squeezeDict(K x){
