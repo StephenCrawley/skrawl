@@ -60,7 +60,7 @@ K each2(K f, K a){
     else {
         // lists must be same length
         if (xn!=yn){
-            unref(f),unref(a);
+            unref(r),unref(f),unref(a);
             return kerr("'length");
         }
 
