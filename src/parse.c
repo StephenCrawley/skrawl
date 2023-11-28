@@ -269,7 +269,7 @@ static K expr(Parser *p){
     const char *temp=p->current; // so we can rewind if y is a noun
     bool isSpace=(p->current[-1]==' ');
     a=*p->current++;
-    if (class(a)=='+' && (isSpace ? !isNum(p->current-1) : a!='.')){
+    if (class(a)=='+' && (isSpace ? !isNum(p->current-1) : a!='.'||!isNum(p->current-1))){
         p->verb=true;
         y=parsePostfix(p,*p->current==':'?inc(p),kuc(a):kvc(a));
     }
