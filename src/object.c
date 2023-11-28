@@ -187,13 +187,6 @@ i8 ksize(K x){
     return SIZEOF(x);
 }
 
-// vector from atom. assumes atomic argument
-K va(K x){
-    // tag types don't have compact (C array) form, so they go into KK
-    K r=tn(TAG_TYP(x)?KK:-HDR_TYP(x),1);
-    return TAG_TYP(x)?(K)memcpy(CHR(r),&x,SIZEOF(x)):xiy(r,0,x);
-}
-
 // box x
 K k1(K x){
     K r=tn(KK,1);
@@ -490,6 +483,12 @@ K expand(K x){
     for (i64 i=0; i<n; i++)
         OBJ(r)[i]=item(i,x);
     return UNREF_X(r);
+}
+
+
+// ,1 -> ,1
+K enlist(K x){
+    return squeeze(k1(x));
 }
 
 // copy n items from index i

@@ -15,7 +15,6 @@ K flip(K);
 K neg(K);
 K first(K);
 K ksqrt(K);
-K enlist(K);
 K distinct(K);
 K value(K);
 K type(K);

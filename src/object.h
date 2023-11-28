@@ -46,6 +46,7 @@ K ke(K);
 K kerr(char*);
 K squeeze(K);
 K expand(K);
+K enlist(K);
 K item(i64,K);
 K sublist(K,i64,i64);
 K reuse(K);

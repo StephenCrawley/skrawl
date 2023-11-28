@@ -72,9 +72,9 @@ K ksqrt(K x){
 }
 
 // ,1 -> ,1
-K enlist(K x){
-    return squeeze(k1(x));
-}
+//K enlist(K x){
+//    return squeeze(k1(x));
+//}
 
 K distinct(K x){
     return UNREF_X( kerr("'nyi! monad ?") );
@@ -207,8 +207,8 @@ K makeKey(K x, K y){
         return UNREF_XY(kerr("'length! x!y (make dict) - operand length mismatch"));
 
     // enlist x and y if needed
-    x=IS_ATOM(x) ? va(x) : x;
-    y=IS_ATOM(y) ? va(y) : y;
+    if (IS_ATOM(x)) x=enlist(x);
+    if (IS_ATOM(y)) y=enlist(y);
 
     return kD(x,y);
 }
@@ -260,7 +260,9 @@ K cast(K x, K y){
 // 
 K n_take(i64 n, K y){
     K r;
-    i8 yt=TAG_TYP(y) ? KK : HDR_TYP(y);
+
+    if (TAG_TYP(y)) y=enlist(y);
+    i8 yt=HDR_TYP(y);
 
     // x#d -> (x#!d)!x#.d
     if (yt==KD){
@@ -277,12 +279,6 @@ K n_take(i64 n, K y){
         for (i64 i=0,cn=CNT(cols); i<cn; i++)
             r=jk(r,n_take(n,ref(OBJ(cols)[i])));
         return UNREF_Y(kT(kD(ref(KEY(dict)),r)));
-    }
-
-    // enlist tag types
-    if (TAG_TYP(y)){
-        y=va(y);
-        yt=KK;
     }
 
     i64 rn=ABS(n);

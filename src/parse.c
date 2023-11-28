@@ -196,7 +196,7 @@ static K parseSym(Parser *p){
     K r = ks(encodeSym(inc(p)));
     while(peek(p)=='`') r=j2(r,ks(encodeSym(inc(p))));
     // enlist, as sym literals are enlisted in K parse tree
-    return TYP(r)==KS ? k1(r) : va(r); 
+    return TYP(r)==KS ? k1(r) : enlist(r); 
 }
 
 static K parseVar(Parser *p){
