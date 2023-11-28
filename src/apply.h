@@ -3,8 +3,8 @@
 
 #include "skrawl.h"
 
-K apply(K,K);
+K apply(K,K*,i64);
 K index(K,K);
-K amend4(K);
+K amend4(K*);
 
 #endif

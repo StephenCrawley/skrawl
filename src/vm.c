@@ -4,8 +4,9 @@
 #include "verb.h"
 #include "apply.h"
 
-#define POP()            ( *--top )
-#define PUSH(x)          ( *top++ = (x) )
+#define STACK_MAX        256
+#define POP()            ( *top++ )
+#define PUSH(x)          ( *--top = (x) )
 #define BYTECODE_PTR(x)  CHR( *OBJ(x) )
 #define CONSTANT_PTR(x)  OBJ( OBJ(x)[1] )
 
@@ -13,14 +14,15 @@ K globals; //K global variables
 
 K run(K r){
     // VM registers and variables
-    K stack[256];
-    K *top=stack;
+    K stack[STACK_MAX];
+    K *stack_base=stack+STACK_MAX;
+    K *top=stack_base;
     K *consts=CONSTANT_PTR(r);
     const u8 *ip=BYTECODE_PTR(r);
     u8 instr;  //current instruction
 
     // useful variables to execute opcodes
-    K x,y;
+    K x,y,t[4];
     i64 n;
     MONAD u;
     DYAD v;
@@ -65,14 +67,11 @@ K run(K r){
             break;
 
         case OP_SET_GLOBAL:
-            x=tn(KK,4);
-            y=ref(POP());
-            OBJ(x)[3]=y;
-            OBJ(x)[2]=kv(TOK_COLON);
-            OBJ(x)[1]=ref(consts[*ip++]);
-            OBJ(x)[0]=ref(globals);
-            globals=amend4(x);
-            PUSH(y);
+            t[3]=ref(*top);
+            t[2]=kv(TOK_COLON);
+            t[1]=ref(consts[*ip++]);
+            t[0]=ref(globals);
+            globals=amend4(t);
             break;
 
         case OP_GET_GLOBAL:
@@ -94,10 +93,8 @@ K run(K r){
             //printf("%03d OP_APPLY_N (%d)\n", instr, *ip);
             n=*ip++;
             x=POP();
-            y=tn(KK,n);
-            for (i64 i=0; i<n; i++) 
-                OBJ(y)[i]=POP();
-            x=apply(x,y);
+            x=apply(x,top,n);
+            top+=n;
             if (IS_ERROR(x))
                 goto run_error;
             PUSH(x);
@@ -119,7 +116,7 @@ K run(K r){
 
 run_error:
     // clean the stack
-    while (stack!=top--) unref(*top);
+    while (top < stack_base) unref(*top++);
     // return error
     return UNREF_R(x);
 }

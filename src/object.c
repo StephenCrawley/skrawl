@@ -194,7 +194,7 @@ K va(K x){
     return TAG_TYP(x)?(K)memcpy(CHR(r),&x,SIZEOF(x)):xiy(r,0,x);
 }
 
-// enlist x
+// box x
 K k1(K x){
     K r=tn(KK,1);
     *OBJ(r)=x;
@@ -215,6 +215,12 @@ K k3(K x, K y, K z){
     OBJ(r)[0]=x;
     OBJ(r)[1]=y;
     OBJ(r)[2]=z;
+    return r;
+}
+
+K kn(K*x, i64 n){
+    K r=tn(KK,n);
+    while (n--) OBJ(r)[n]=x[n];
     return r;
 }
 

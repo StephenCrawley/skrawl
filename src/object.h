@@ -3,12 +3,14 @@
 
 #include "skrawl.h"
 
-#define UNREF_X(a)   __extension__({__typeof__(a)_a=(a); unref(x), _a;})
-#define UNREF_Y(a)   __extension__({__typeof__(a)_a=(a); unref(y), _a;})
-#define UNREF_R(a)   __extension__({__typeof__(a)_a=(a); unref(r), _a;})
-#define UNREF_XY(a)  __extension__({__typeof__(a)_a=(a); unref(x), unref(y), _a;})
-#define UNREF_XR(a)  __extension__({__typeof__(a)_a=(a); unref(x), unref(r), _a;})
-#define UNREF_XYR(a) __extension__({__typeof__(a)_a=(a); unref(x), unref(y), unref(r), _a;})
+#define UNREF_X(a)   __extension__({K _a=(a); unref(x), _a;})
+#define UNREF_Y(a)   __extension__({K _a=(a); unref(y), _a;})
+#define UNREF_R(a)   __extension__({K _a=(a); unref(r), _a;})
+#define UNREF_XY(a)  __extension__({K _a=(a); unref(x), unref(y), _a;})
+#define UNREF_XR(a)  __extension__({K _a=(a); unref(x), unref(r), _a;})
+#define UNREF_XYR(a) __extension__({K _a=(a); unref(x), unref(y), unref(r), _a;})
+#define   REF_N_OBJS(x,n) {K*_x=(x);i64 _n=(n); for (i64 i=0; i<_n; i++)   ref(_x[i]);}
+#define UNREF_N_OBJS(x,n) {K*_x=(x);i64 _n=(n); for (i64 i=0; i<_n; i++) unref(_x[i]);}
 
 // public object functions
 void unref(K);
@@ -22,6 +24,7 @@ K va(K);
 K k1(K);
 K k2(K,K);
 K k3(K,K,K);
+K kn(K*,i64);
 K kx(u8);
 K kx2(u8,u8);
 K kc(u8);

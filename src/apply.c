@@ -7,118 +7,126 @@
 
 // forward declarations
 K index(K x, K y);
-K amend4(K);
+K amend4(K*);
 
-// f[;;][1] -> f[1;;]
-K fillMV(K x, K y){
+// f[;][1] -> f[1;]
+K fillMV(K x, K*y, i64 n){
     x=reuse(x);
-    i64 yn=CNT(y);
+    i64 j=1,xn=CNT(x);
     // iterate y
-    for (i64 i=0; i<yn; i++){
+    for (i64 i=0; i<n; i++){
         // iterate the projection (start at 1st argument)
-        for (i64 j=1,xn=CNT(x); j<xn; j++){
+        for (; j<xn; j++){
             // fill magic values
             if (IS_MAGIC_VAL(OBJ(x)[j])){
-                OBJ(x)[j]=ref(OBJ(y)[i]);
+                OBJ(x)[j++]=y[i];
                 break;
             }
         }
     }
-    HDR_RNK(x)-=yn;
-    return UNREF_Y(x);
+    HDR_RNK(x)-=n;
+    return x;
 }
 
-// f . x
+// x . y
 // generic apply function
-// f - some applicable value (primitive, lambda, list, etc)
-// x - a list of arguments to f 
-K apply(K x, K y){
+// x - some applicable value (primitive, lambda, list, etc)
+// y - a list of arguments to x
+K apply(K x, K*y, i64 n){
     K r;
     i8  xt=TYP(x);
-    i64 xn=CNT(x), yn=CNT(y);
+    i64 xn=CNT(x);
 
     // simple atom is not an applicable value
     // (some symbols are special, they have special functions)
-    if (xt<0 && xt!=-KS)
-        return UNREF_XY(kerr("rank! atom not an applicable value"));
+    if (xt<0 && xt!=-KS){
+        UNREF_N_OBJS(y,n);
+        return UNREF_X(kerr("rank! atom not an applicable value"));
+    }
 
     // index
     if (xt>=0 && xt<K_INDEXABLE_END){
         // x[y]
-        if (yn==1)
-            return index(x,first(y)); 
+        if (n==1)
+            return index(x,*y); 
 
         // x[y;...]
-        for (i64 i=0; i<yn; i++){
+        for (i64 i=0; i<n; i++){
             // handle elided index. x[;i] -> x@\:i
-            if (IS_MAGIC_VAL(OBJ(y)[i]))
-                return (yn==++i) ? UNREF_Y(x) : mapleft(apply,x,sublist(y,i,yn-i));
+            if (IS_MAGIC_VAL(y[i]))
+                return (n==++i) ? x : applyleft(x,&y[i],n-i);
             // apply to next index
-            x=apply(x,k1(ref(OBJ(y)[i])));
+            x=apply(x,&y[i],1);
             // handle error
-            if (IS_ERROR(x))
+            if (IS_ERROR(x)){
+                ++i;
+                UNREF_N_OBJS((&y[i]),n-i);
                 break;
+            }
         }
-        return UNREF_Y(x);
+        return x;
     }
 
     // if any magic values, return projection
     i8 rn=0;
-    for (i64 i=0; i<yn; i++)
-        rn+=IS_MAGIC_VAL(OBJ(y)[i]);
+    for (i64 i=0; i<n; i++)
+        rn+=IS_MAGIC_VAL(y[i]);
     if (rn){
-        r=j2(k1(x),y);
+        r=j2(k1(x),kn(y,n));
         HDR_RNK(r)=rn;
         return tx(KP,r);
     }
 
     // (,:;y)
     // enlist is special, can take any number of arguments
-    if (IS_MONAD(x,TOK_COMMA))
-        return squeeze(y);
+    if (IS_MONAD(x,TOK_COMMA)){
+        return squeeze(kn(y,n));
+    }
 
-    i8 rank=IS_OP(x,KV,TOK_AT) ? MIN(4,yn) : RANK(x);
+    i8 rank=IS_OP(x,KV,TOK_AT) ? MIN(4,n) : RANK(x);
 
     // too many args
-    if (yn>rank){
-        return UNREF_XY(kerr("'rank! too many args"));
+    if (n>rank){
+        UNREF_N_OBJS(y,n);
+        return UNREF_X(kerr("'rank! too many args"));
     }
 
     // too few args
-    if (yn<rank){
+    if (n<rank){
         // create projection
-        if (xt!=KP) return tx(KP,j2(k1(x),y));
+        if (xt!=KP) return tx(KP,j2(k1(x),kn(y,n)));
         // else fill in elided args of existing projection
-        return fillMV(x,y);
+        return fillMV(x,y,n);
     }
 
     // symbols - (`abc;args)
     // apply special functions
     if (xt==-KS){
+        r=*y;
         switch(*INT(x)){
         // `p@"x+y" -> return parse tree
         case 'p':
-            y=first(y);
-            if (TYP(y)!=KC)
-                return UNREF_XY(kerr("'type! can only parse char vector"));
-            y=j2(y,kc(0));
-            return UNREF_XY(parse((const char*)y));
+            if (TYP(r)!=KC)
+                return UNREF_XR(kerr("'type! can only parse char vector"));
+            r=j2(r,kc(0));
+            return UNREF_XR(parse((const char*)r));
 
         // `x@"x+y" -> return bytecode
         case 'x':
-            r=apply(ks('p'),y);
+            r=apply(ks('p'),&r,1);
             return UNREF_X((IS_ERROR(r)||IS_NULL(r)) ? r : UNREF_R(first(compile(r))));
 
-        default : return UNREF_XY(kerr("'type! symbol not an applicable value"));
+        default :
+            return UNREF_XR(kerr("'type! symbol not an applicable value"));
         }
     }
 
     // projections
     if (xt==KP){
-        x=fillMV(x,y);
-        K f=ref(*OBJ(x));
-        K a=sublist(x,1,xn-1); //bug
-        return apply(f,a);
+        x=fillMV(x,y,n);
+        y=&OBJ(x)[1];
+        REF_N_OBJS(y,xn-1);
+        return UNREF_X(apply(OBJ(x)[0],y,xn-1));
     }
 
     if (IS_DERIVED_VERB(x)){
@@ -128,16 +136,18 @@ K apply(K x, K y){
     if (rank==4){
         return amend4(y);
     }
-    // apply monad
-    if (xt==KU){
-        return (*monad_table[TAG_VAL(x)])(UNREF_Y(ref(*OBJ(y))));
-    }
+
     // apply dyad
     if (xt==KV){
-        return UNREF_Y((*dyad_table[TAG_VAL(x)])(ref(OBJ(y)[0]),ref(OBJ(y)[1])));
+        return (*dyad_table[TAG_VAL(x)])(y[0],y[1]);
+    }
+    // apply monad
+    if (xt==KU){
+        return (*monad_table[TAG_VAL(x)])(y[0]);
     }
 
-    return UNREF_XY(kerr("'nyi! apply"));
+    UNREF_N_OBJS(y,n);
+    return UNREF_X(kerr("'nyi! apply"));
 }
 
 // get object with same shape, replacing all values with nulls
@@ -276,23 +286,25 @@ K index(K x, K y){
 }
 
 // @[r;i;f;y]
-K amend4(K x){
+K amend4(K*x){
     // can't amend atom
-    if (IS_ATOM(OBJ(x)[0]))
-        return UNREF_X(kerr("'rank! @[x;i;f;y] - x can't be atomic"));
+    if (IS_ATOM(OBJ(x)[0])){
+        UNREF_N_OBJS(x,4);
+        return kerr("'rank! @[x;i;f;y] - x can't be atomic");
+    }
 
     // unpack arg
-    K  r=OBJ(x)[0];
-    K ix=OBJ(x)[1];
-    K  f=OBJ(x)[2];
-    K  y=OBJ(x)[3];
+    K  r=x[0];
+    K ix=x[1];
+    K  f=x[2];
+    K  y=x[3];
 
     i64 rn=KCOUNT(r);
 
     // @[;::;;] -> @[;!#x;;]
     if (IS_MONAD(ix,TOK_COLON)){
         ix=TYP(r)==KD ? ref(KEY(r)) : til(rn);
-        OBJ(x)[1]=ix;
+        x[1]=ix;
     }
 
     // special case: f is ':' and i is atom 
@@ -301,7 +313,7 @@ K amend4(K x){
     // @[1 2;0;:;3 7] -> (3 7;2)
     if (IS_DYAD(f,TOK_COLON) && IS_ATOM(ix) && !IS_ATOM(y)){
         y=enlist(y);
-        OBJ(x)[3]=y;
+        x[3]=y;
     }
 
     i64 ixn=KCOUNT(ix);
@@ -309,26 +321,24 @@ K amend4(K x){
     // @[;;;atom] -> @[;;;rn#atom]
     if (IS_ATOM(y)){
         y=n_take(ixn,y);
-        OBJ(x)[3]=y;
+        x[3]=y;
     }
 
     // i and y must have same count
-    if (ixn!=KCOUNT(y))
-        return UNREF_X(kerr("'length! amend @[x;i;f;y] - i and y must conform"));
+    if (ixn!=KCOUNT(y)){
+        UNREF_N_OBJS(x,4);
+        return kerr("'length! amend @[x;i;f;y] - i and y must conform");
+    }
 
     // if index is generic list, call recursively
     if (TYP(ix)==KK){
-        ref(r);
         for (i64 i=0; i<ixn; i++){
             // init new object
-            K t=tn(KK,4);
-            OBJ(t)[0]=r;
-            OBJ(t)[1]=item(i,ix);
-            OBJ(t)[2]=ref(f);
-            OBJ(t)[3]=item(i,y);
+            K t[]={r,item(i,ix),ref(f),item(i,y)};
             r=amend4(t);
         }
-        return UNREF_X(r);
+        UNREF_N_OBJS((&x[1]),3);
+        return r;
     }
 
     // amend dict
@@ -345,7 +355,8 @@ K amend4(K x){
             if (IS_ERROR(keyind)){
                 unref(val);
                 VAL(r)=knul();
-                return UNREF_X(keyind);
+                UNREF_N_OBJS(x,4);
+                return keyind;
             }
             i64 ind=INT(keyind)[0];
             unref(keyind);
@@ -353,9 +364,12 @@ K amend4(K x){
             // amend
             // replace if key exists
             if (ind<kn){
-                K ret=apply(ref(f),k2(ref(OBJ(val)[ind]),item(i,y)));
-                if (IS_ERROR(ret))
-                    return UNREF_XR(ret);
+                K t[]={ref(OBJ(val)[ind]),item(i,y)};
+                K ret=apply(ref(f),t,2);
+                if (IS_ERROR(ret)){
+                    UNREF_N_OBJS(x,4);
+                    return ret;
+                }
 
                 replace(&OBJ(val)[ind],ret);
             }
@@ -368,28 +382,35 @@ K amend4(K x){
         }
         KEY(r)=key;
         VAL(r)=squeeze(val);
-        return UNREF_X(ref(r));
+        UNREF_N_OBJS((&x[1]),3);
+        return r;
     }
     // amend everything else
     else {
         r=expand(r);
-        OBJ(x)[0]=knul();
+        x[0]=r;
 
         // iterate each index and apply f[r i;y i]
         for (i64 i=0; i<ixn; i++){
             
             // get the index and check if it's out of bounds
             i64 ind=INT(ix)[IS_ATOM(ix)?0:i];
-            if (ind<0 || ind>=rn)
-                return UNREF_XR(kerr("'domain! @[x;i;f;y] - i out of bounds"));
+            if (ind<0 || ind>=rn){
+                UNREF_N_OBJS(x,4);
+                return kerr("'domain! @[x;i;f;y] - i out of bounds");
+            }
 
             // f[r i;y i]
-            K ret=apply(ref(f),k2(ref(OBJ(r)[ind]),item(i,y)));
-            if (IS_ERROR(ret))
-                return UNREF_XR(ret);
+            K t[]={ref(OBJ(r)[ind]),item(i,y)};
+            K ret=apply(ref(f),t,2);
+            if (IS_ERROR(ret)){
+                UNREF_N_OBJS(x,4);
+                return ret;
+            }
 
             replace(&OBJ(r)[ind],ret);
         }
-        return UNREF_X(squeeze(r));
+        UNREF_N_OBJS((&x[1]),3);
+        return squeeze(r);
     }
 }

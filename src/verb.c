@@ -243,11 +243,14 @@ K join(K x, K y){
 K dotApply(K x, K y){
     if (IS_ATOM(y))
         return UNREF_XY(kerr("'rank! . (apply) - right arg must be list"));
-    return apply(x,expand(TYP(y)==KD ? value(y) : y));
+    y=expand(TYP(y)==KD ? value(y) : y);
+    i64 n=HDR_CNT(y);
+    REF_N_OBJS(OBJ(y),n);
+    return UNREF_Y(apply(x,OBJ(y),n));
 }
 
 K atApply(K x, K y){
-    return apply(x,k1(y));
+    return apply(x,&y,1);
 }
 
 K cast(K x, K y){
