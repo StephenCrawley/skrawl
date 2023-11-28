@@ -451,6 +451,8 @@ K squeeze(K x){
 // return x[i]
 // ref if x[i] is an object
 K item(i64 i, K x){
+    if (IS_ATOM(x)) return ref(x);
+
     i8 xt=TYP(x);
 
     if (xt==KT){

@@ -318,14 +318,8 @@ K amend4(K*x){
 
     i64 ixn=KCOUNT(ix);
 
-    // @[;;;atom] -> @[;;;rn#atom]
-    if (IS_ATOM(y)){
-        y=n_take(ixn,y);
-        x[3]=y;
-    }
-
     // i and y must have same count
-    if (ixn!=KCOUNT(y)){
+    if (!IS_ATOM(y) && ixn!=KCOUNT(y)){
         UNREF_N_OBJS(x,4);
         return kerr("'length! amend @[x;i;f;y] - i and y must conform");
     }
@@ -351,7 +345,7 @@ K amend4(K*x){
         for (i64 i=0; i<ixn; i++){
 
             // get the key
-            K keyind=find(ref(key),IS_ATOM(ix)?ref(ix):item(i,ix));
+            K keyind=find(ref(key),item(i,ix));
             if (IS_ERROR(keyind)){
                 unref(val);
                 VAL(r)=knul();
