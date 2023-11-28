@@ -114,7 +114,7 @@ K apply(K x, K*y, i64 n){
         // `x@"x+y" -> return bytecode
         case 'x':
             r=apply(ks('p'),&r,1);
-            return UNREF_X((IS_ERROR(r)||IS_NULL(r)) ? r : UNREF_R(first(compile(r))));
+            return UNREF_X((IS_ERROR(r)||IS_NULL(r)) ? r : first(compile(r)));
 
         default :
             return UNREF_XR(kerr("'type! symbol not an applicable value"));

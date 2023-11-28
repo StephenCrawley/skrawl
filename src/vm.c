@@ -134,5 +134,5 @@ K evalK(K x){
         return x;
 
     K r=compile(x);
-    return UNREF_X(IS_ERROR(r) ? r : run(r));
+    return IS_ERROR(r) ? r : run(r);
 }

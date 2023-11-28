@@ -97,7 +97,7 @@ K compile(K x){
     
     // if compiling single expression i.e. not(;:;...)
     if (TYP(x)!=KK || !CNT(x) || TYP(*OBJ(x))!=KU || TAG_VAL(*OBJ(x))!=TOK_SEMICOLON)
-        return IS_ERROR(r=compileExprs(x,r)) ? r : addByte(r,OP_RETURN);
+        return UNREF_X(IS_ERROR(r=compileExprs(x,r)) ? r : addByte(r,OP_RETURN));
     
     // else compile each expression from 1 .. n-1
     for (i64 i=1,n=CNT(x)-1; i<=n; i++){
@@ -106,5 +106,5 @@ K compile(K x){
         // append OP_RETURN if last expression, else append OP_POP
         r=addByte(r, i==n ? OP_RETURN : OP_POP);
     }
-    return r;
+    return UNREF_X(r);
 }
