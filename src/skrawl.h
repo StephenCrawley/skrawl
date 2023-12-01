@@ -59,7 +59,7 @@ enum {
 // tagged pointer type get/set. type encoded in upper 8 bits
 #define TAG_TYP(x)    ((i8)((x)>>56))
 #define TAG_VAL(x)    ((x) & 0x00ffffffffffffff)
-#define SET_TAG(t,v)  ((((i64)(t))<<56) | (0x00ffffffffffffff & (i64)(v)))
+#define SET_TAG(t,v)  (K)((((i64)(t))<<56) | (0x00ffffffffffffff & (i64)(v)))
 // wrapper accessors
 #define MEM(x)  HDR_MEM(x)  
 #define TYP(x)  __extension__({K _a=(x); TAG_TYP(_a) ? TAG_TYP(_a) : HDR_TYP(_a);})  
@@ -99,7 +99,7 @@ enum {
 #define IS_MAGIC_VAL(x)    IS_OP((x),KM,0)
 // shared utility functions
 static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; return s; }
-static inline u64   ic(char *s,char c){ return sc(s,c)-s; }
+static inline i64   ic(char *s,char c){ return sc(s,c)-s; }
 static inline K     tx(i8 t,K x){ return TAG_TYP(x) ? SET_TAG(t,x) : (HDR_TYP(x)=t,x); }
 static inline i64   symIndex(K x,K y){ i64 i=0,xi=*INT(x),yn=HDR_CNT(y),*yptr=INT(y); 
                                        for (;i<yn;i++){ if (xi==yptr[i]) break; } return i; }

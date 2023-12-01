@@ -30,10 +30,10 @@ K run(K r, K *stack_base){
         instr=*ip++;
 
         // ternary step function to convert monads/dyads/adverbs opcodes to base opcode
-        switch (20u>instr-OP_MONAD   ? OP_MONAD   :
-                20u>instr-OP_DYAD    ? OP_DYAD    :
-                 6u>instr-OP_ADVERB  ? OP_ADVERB  : 
-                 3u>instr-OP_GET_ARG ? OP_GET_ARG : instr)
+        switch (20u > (u32)(instr-OP_MONAD  ) ? OP_MONAD   :
+                20u > (u32)(instr-OP_DYAD   ) ? OP_DYAD    :
+                 6u > (u32)(instr-OP_ADVERB ) ? OP_ADVERB  : 
+                 3u > (u32)(instr-OP_GET_ARG) ? OP_GET_ARG : instr)
         {
 
         case OP_MONAD:
