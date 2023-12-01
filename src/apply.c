@@ -4,6 +4,7 @@
 #include "parse.h"
 #include "compile.h"
 #include "adverb.h"
+#include "vm.h"
 
 // forward declarations
 K index(K x, K y);
@@ -119,6 +120,12 @@ K apply(K x, K*y, i64 n){
         default :
             return UNREF_XR(kerr("'type! symbol not an applicable value"));
         }
+    }
+
+    if (xt==KL){
+        r=run(x,y);
+        UNREF_N_OBJS(y,n);
+        return r;
     }
 
     // projections

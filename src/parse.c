@@ -1,5 +1,6 @@
 #include "parse.h"
 #include "object.h"
+#include "compile.h"
 
 #define AT_EXPR_END(c)     sc(";)]}\0", (c))
 #define COMPOSE(x,y)       k3(kw(0),x,y) 
@@ -15,10 +16,10 @@ static K handleError(Parser *p, char a){
     if (p->error) return knul();
 
     // else create error string to print later
-    K r=kC0(a==-3 ? "'parse! invalid lambda args" : 
+    K r=kC0(a==-3 ? "'parse! invalid lambda args" :
             a==-2 ? "'parse! unclosed string"     :
-            a==-1 ? "'parse! invalid number"      :    
-               !a ? "'parse! unexpected EOL"      : 
+            a==-1 ? "'parse! invalid number"      :
+               !a ? "'parse! unexpected EOL"      :
                     "'parse! unexpected token: "  );
     if (a>0) r=j2(r,kc(a));
 
@@ -203,7 +204,7 @@ static K parseVar(Parser *p){
     return ks(encodeSym(p));
 }
 
-// parse func args {[...] }. must be sym list
+// parse lambda args {[...] }. must be sym list
 static K parseArgs(Parser *p){
     if (peek(p)==']') 
         return ++p->current, squeeze(k1(ks('x')));
@@ -215,7 +216,7 @@ static K parseArgs(Parser *p){
 static K classSwitch(Parser *p){
     char a, c; //current char, char class, 
     const char *s; // start of object
-    K x, y; //x:parsed object, y:lambda params
+    K x, y; //x:parsed object, y:lambda args
     bool f=0; //is lambda function?
 
     a=next(p);
@@ -238,7 +239,18 @@ static K classSwitch(Parser *p){
     p->verb = (c=='+');
 
     // create lambda object
-    if (f) x=k2(y,x), y=kCn((char*)s,p->current-s), x=tx(KL,j2(k1(y),x));
+    //if (f) x=k2(y,x), y=kCn((char*)s,p->current-s), x=tx(KL,j2(k1(y),x));
+
+    if (f){
+        y=k2(kCn((char*)s,p->current-s),y); //   ("{x}";args)
+        x=compileLambda(x,y); // (bytecode;consts;"{x}";args)
+        if (IS_ERROR(x)){
+            p->error=x;
+            return knul();
+        }
+        printK(ref(x));
+        x=tx(KL,x);
+    }
 
     return parsePostfix(p,x);
 }

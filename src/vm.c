@@ -10,19 +10,18 @@
 #define BYTECODE_PTR(x)  CHR( *OBJ(x) )
 #define CONSTANT_PTR(x)  OBJ( OBJ(x)[1] )
 
+K stack[STACK_MAX];
 K globals; //K global variables
 
-K run(K r){
+K run(K r, K *stack_base){
     // VM registers and variables
-    K stack[STACK_MAX];
-    K *stack_base=stack+STACK_MAX;
     K *top=stack_base;
     K *consts=CONSTANT_PTR(r);
     const u8 *ip=BYTECODE_PTR(r);
     u8 instr;  //current instruction
 
     // useful variables to execute opcodes
-    K x,y,t[4];
+    K x,t[4];
     i64 n;
     MONAD u;
     DYAD v;
@@ -31,9 +30,10 @@ K run(K r){
         instr=*ip++;
 
         // ternary step function to convert monads/dyads/adverbs opcodes to base opcode
-        switch (20u>instr-OP_MONAD  ? OP_MONAD  :
-                20u>instr-OP_DYAD   ? OP_DYAD   :
-                 6u>instr-OP_ADVERB ? OP_ADVERB : instr)
+        switch (20u>instr-OP_MONAD   ? OP_MONAD   :
+                20u>instr-OP_DYAD    ? OP_DYAD    :
+                 6u>instr-OP_ADVERB  ? OP_ADVERB  : 
+                 3u>instr-OP_GET_ARG ? OP_GET_ARG : instr)
         {
 
         case OP_MONAD:
@@ -76,17 +76,15 @@ K run(K r){
 
         case OP_GET_GLOBAL:
             x=POP();
-            y=findSym(KEY(globals),x);
+            n=symIndex(x,KEY(globals));
             unref(x);
             // if variable not defined
-            if (INT(y)[0] == HDR_CNT(KEY(globals))){
-                unref(y);
+            if (n == HDR_CNT(KEY(globals))){
                 x=kerr("'var");
                 goto run_error;
             }
             // else push var onto stack
-            PUSH(ref(OBJ(VAL(globals))[INT(y)[0]]));
-            unref(y);
+            PUSH(ref(OBJ(VAL(globals))[n]));
             break;
 
         case OP_APPLY_N:
@@ -108,6 +106,10 @@ K run(K r){
         case OP_RETURN:
             //printf("%03d OP_RETURN\n",instr);
             return UNREF_R(POP());
+        
+        case OP_GET_ARG:
+            PUSH(ref(stack_base[instr-OP_GET_ARG]));
+            break;
 
         default:
             printf("%03d unknown instruction\n",instr);
@@ -134,5 +136,5 @@ K evalK(K x){
         return x;
 
     K r=compile(x);
-    return IS_ERROR(r) ? r : run(r);
+    return IS_ERROR(r) ? r : run(r,stack+STACK_MAX);
 }

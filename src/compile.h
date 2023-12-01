@@ -13,8 +13,10 @@ enum {
     OP_APPLY_N,
     OP_POP,
     OP_RETURN,
+    OP_GET_ARG,
 };
 
 K compile(K);
+K compileLambda(K,K);
 
 #endif

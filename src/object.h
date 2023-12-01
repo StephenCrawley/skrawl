@@ -12,6 +12,13 @@
 #define   REF_N_OBJS(x,n) {K*_x=(x);i64 _n=(n); for (i64 i=0; i<_n; i++)   ref(_x[i]);}
 #define UNREF_N_OBJS(x,n) {K*_x=(x);i64 _n=(n); for (i64 i=0; i<_n; i++) unref(_x[i]);}
 
+// lambda accessors
+// (bytecode; consts; literal sting; arguments)
+#define LAMBDA_OPCODE(x) ( OBJ(x)[0] )
+#define LAMBDA_CONSTS(x) ( OBJ(x)[1] )
+#define LAMBDA_STRING(x) ( OBJ(x)[2] )
+#define LAMBDA_ARGS(x)   ( OBJ(x)[3] )
+
 // public object functions
 void unref(K);
 K ref(K);
