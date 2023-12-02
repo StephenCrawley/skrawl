@@ -5,6 +5,7 @@
 #include "compile.h"
 #include "adverb.h"
 #include "vm.h"
+#include "io.h"
 
 // forward declarations
 K index(K x, K y);
@@ -40,7 +41,7 @@ K apply(K x, K*y, i64 n){
 
     // simple atom is not an applicable value
     // (some symbols are special, they have special functions)
-    if (xt<0 && xt!=-KS){
+    if (xt<0 && (xt!=-KS && xt!=-KI)){
         UNREF_N_OBJS(y,n);
         return UNREF_X(kerr("rank! atom not an applicable value"));
     }
@@ -151,6 +152,14 @@ K apply(K x, K*y, i64 n){
     // apply monad
     if (xt==KU){
         return (*monad_table[TAG_VAL(x)])(y[0]);
+    }
+
+    // read
+    if ((xt == -KI) && !*INT(x)){
+        // unref x and replace with y[0]
+        replace(&x,*y);
+
+        return (TYP(x) == KC) ? readLines(x) : UNREF_X(kerr("'type!"));
     }
 
     UNREF_N_OBJS(y,n);
