@@ -3,21 +3,17 @@
 #include "dyad.h"
 #include "object.h"
 
-#define DYAD_ITER_TYPE(op,rt,xt,yt) if      (xn>yn) for (i64 i=0; i<rn; i++) rt(r)[i] = xt(x)[i] op yt(y)[0]; \
-                                    else if (xn<yn) for (i64 i=0; i<rn; i++) rt(r)[i] = xt(x)[0] op yt(y)[i]; \
-                                    else            for (i64 i=0; i<rn; i++) rt(r)[i] = xt(x)[i] op yt(y)[i]; 
+#define DYAD_ITER_TYPE(op,rt,xt,yt) if    (xn==yn) for (i64 i=0; i<xn; i++) rt(r)[i] = xt(x)[i] op yt(y)[i]; \
+                                    else /*xn>yn*/ for (i64 i=0; i<xn; i++) rt(r)[i] = xt(x)[i] op yt(y)[0];  
 
-#define DYAD_ITER(op) if      (xt==KI && yt==KI)  { DYAD_ITER_TYPE(op,INT,INT,INT) } \
-                      else if (xt==KI && yt==KC)  { DYAD_ITER_TYPE(op,INT,INT,CHR) } \
-                      else if (xt==KC && yt==KI)  { DYAD_ITER_TYPE(op,INT,CHR,INT) } \
-                      else  /*(xt==KC && yt==KC)*/{ DYAD_ITER_TYPE(op,INT,CHR,CHR) } 
+#define DYAD_ITER(op) if      (axt==KI && ayt==KI)  { DYAD_ITER_TYPE(op,INT,INT,INT) } \
+                      else if (axt==KI && ayt==KC)  { DYAD_ITER_TYPE(op,INT,INT,CHR) } \
+                      else if (axt==KC && ayt==KI)  { DYAD_ITER_TYPE(op,INT,CHR,INT) } \
+                      else  /*(axt==KC && ayt==KC)*/{ DYAD_ITER_TYPE(op,INT,CHR,CHR) } 
 
-#define SWAP(a,b) {K t=b; b=a; a=t; op=(op=='<')?'>':(op=='>')?'<':op;}
+#define SWAP_XY() {K t=y; y=x,x=t; i8 tt=yt; yt=xt,xt=tt; i64 tn=yn; yn=xn,xn=tn; op=(op=='<')?'>':(op=='>')?'<':op;}
 
 K execDyad(char op, K x, K y){
-    // ensure x is generic if one of the args is generic
-    if (TYP(x) && !TYP(y)) SWAP(x,y);
-
     // metadata
     i8 xt=TYP(x), yt=TYP(y);
     i64 xn=KCOUNT(x), yn=KCOUNT(y);
@@ -27,9 +23,8 @@ K execDyad(char op, K x, K y){
         return UNREF_XY(kerr("'length! dyad operands must conform"));
     }
 
-    // if an arg is 0-count list, return
-    if (!xn) return UNREF_Y(x);
-    if (!yn) return UNREF_X(y);
+    // ensure x is generic if one of the args is generic
+    if (xt && !yt) SWAP_XY();
 
     // if args are generic type, recurse
     if (!xt){
@@ -42,16 +37,15 @@ K execDyad(char op, K x, K y){
         return UNREF_XY(r);
     }
 
-    // ensure the wider arg is assigned to x
-    //if (xt < TYP(y)) SWAP(x,y);
+    // ensure x is a vector if one of the args is a vector
+    if (IS_ATOM(x) || !IS_ATOM(y)) SWAP_XY();
     
-    // initially just for comparison ops
-    // so return type is always KI ("bool")
-    // also just simple arrays
-    i8  rt=( IS_ATOM(x) && IS_ATOM(y) ) ? -KI : KI ;
-    i64 rn=MAX(xn,yn);
-    K r=tn(rt,rn);
+    // create return vector
+    i8 rt=IS_ATOM(x) ? -KI : KI ;
+    K r=tn(rt,xn);
 
+    i8 axt=ABS(xt);
+    i8 ayt=ABS(yt);
     switch(op){
     case '+': DYAD_ITER(+); break;
     case '<': DYAD_ITER(<); break;
