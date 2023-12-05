@@ -169,7 +169,22 @@ K not(K x){
 }
 
 K reverse(K x){
-    return UNREF_X( kerr("'nyi! monad |") );
+    // return atom
+    if (IS_ATOM(x)) return x;
+
+    // if dict, reverse keys and vals
+    if (TYP(x) == KD){
+        K keys=reverse(ref(KEY(x)));
+        K vals=reverse(ref(VAL(x)));
+        return UNREF_X(kD(keys,vals));
+    }
+
+    // reverse int-indexable vectors
+    i64 n=KCOUNT(x);
+    K reverse_inds=tn(KI,n);
+    for (i64 i=0; i<n; i++) INT(reverse_inds)[i] = n-i-1;
+
+    return atApply(x,reverse_inds);
 }
 
 
