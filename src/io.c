@@ -3,8 +3,8 @@
 
 #define MAX_LINE_LENGTH 128
 
-// x is a KC object
-// read in the file with name in 
+// x is a KC object containing filename
+// reads file lines into a list of KC objects
 K readLines(K x){
     // extract filename
     i64 xn=HDR_CNT(x);

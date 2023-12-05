@@ -1,6 +1,7 @@
 #include "verb.h"
 #include "object.h"
 #include "apply.h"
+#include "dyad.h"
 
 MONAD monad_table[]={
     identity, flip,  neg,     first,     ksqrt, enlist,  distinct,
@@ -220,7 +221,7 @@ K dex(K x, K y){
 }
 
 K add(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad +") );
+    return execDyad('+',x,y);
 }
 
 K subtract(K x, K y){
@@ -337,8 +338,7 @@ K drop(K x, K y){
     if (TYP(x)!=-KI)
         return UNREF_XY(kerr("'type! x_y (drop) - x must be int atom"));
 
-    i64 n=*INT(x);
-    i64 m=KCOUNT(y);
+    i64 n=*INT(x), m=KCOUNT(y);
     return UNREF_X(n_take(ABS(n)>=m ? 0 : n>0 ? n-m : n+m,y));
 }
 
@@ -355,11 +355,11 @@ K equal(K x, K y){
 }
 
 K lessThan(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad <") );
+    return execDyad('<',x,y);
 }
 
 K greaterThan(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad >") );
+    return execDyad('>',x,y);
 }
 
 bool isMatch(K x, K y){
