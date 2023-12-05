@@ -131,7 +131,25 @@ K isNull(K x){
 }
 
 K where(K x){
-    return UNREF_X( kerr("'nyi! monad &") );
+    // only valid with KI objects
+    if (TYP(x)!=KI) return UNREF_X(kerr("'type! &x (where) - arg must be int list"));
+
+    // get count of return vector
+    i64 xn=HDR_CNT(x),rn=0;
+    for (i64 i=0; i<xn; i++){
+        i64 val=INT(x)[i];
+        if (val<0) return UNREF_X(kerr("'value! &x (where) - values must be >=0"));
+        rn+=val;
+    }
+
+    // create and fill the return vector
+    K r=tn(KI,rn);
+    for (i64 i=0,j=0; i<xn; i++){
+        i64 val=INT(x)[i];
+        if (val) for (i64 k=0; k<val; k++) INT(r)[j++]=i;
+    }
+
+    return UNREF_X(r);
 }
 
 K group(K x){
