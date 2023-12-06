@@ -31,22 +31,26 @@ cleanup:
     return UNREF_X(r);
 }
 
-// are all objects atomic?
-static bool allAtomic(K*x, i64 n){
-    for (i64 i=0; i<n; i++)
-        if(!IS_ATOM(x[i]))return false;
-    return true;
-}
-
-// return the length to iterate over
-// do all args conform? (ie same length if vectors?)
-// -1 means args don't conform
-static i64 argsCount(K*x, i64 n){
-    i64 i=0,cnt;
-    while (IS_ATOM(x[i])) i++;
-    cnt=KCOUNT(x[i]);
-    for (i64 j=i+1;j<n;j++)
-        if (!IS_ATOM(x[j]) && KCOUNT(x[j])!=cnt) return -1;
+// return the count of iterations to perform
+// -1 means all args are atomic
+// -2 means args don't conform (ie different-count vectors)
+// eg f'[1;2 3 4 5] ->  4
+//    f'[1 2;3 4 5] -> -2
+//    f'[1]         -> -1
+static i64 iterCount(K*x, i64 i){
+    i64 cnt=-1;
+    while (i--){
+        if (!IS_ATOM(x[i])){
+            i64 n=KCOUNT(x[i]);
+            // init cnt if we haven't read a vector yet
+            if (cnt == -1){
+                cnt = n;
+                continue;
+            }
+            // else check vector counts are equal
+            if (cnt != n) return -2;
+        }
+    }
     return cnt;
 }
 
@@ -63,28 +67,29 @@ static void fillArgs(K*d, K*s, i64 n, i64 i){
     }
 }
 
-// x f'y
+// f'x, f'[x;y], ...
 K each(K f, K*a, i64 n){
     K r;
-
-    if (allAtomic(a,n))
-        return apply(f,a,n);
+    i64 cnt=iterCount(a,n);
 
     // vectors must conform
-    // argsCount returns -1 if they don't
-    // otherwise returns the cnt to iterate
-    i64 cnt=argsCount(a,n);
-    if (cnt == -1){
+    // iterCount returns -2 if they don't
+    if (cnt == -2){
         r=kerr("'length!");
         goto cleanup;
     }
 
+    // iterCount returns -1 if all args are atomic
+    if (cnt == -1)
+        return apply(f,a,n);
+
+    // else iterCount returns the number of iterations to perform
     // iterate and apply f
     K args[8];
     r=tn(KK,0);
     for (i64 i=0; i<cnt; i++){
         fillArgs(args,a,n,i);
-        K t=apply(ref(f),args,n);
+        K t = apply(ref(f),args,n);
         if (IS_ERROR(t)){
             replace(&r,t);
             goto cleanup;
