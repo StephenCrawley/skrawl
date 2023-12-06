@@ -31,33 +31,62 @@ cleanup:
     return UNREF_X(r);
 }
 
+// are all objects atomic?
+static bool allAtomic(K*x, i64 n){
+    for (i64 i=0; i<n; i++)
+        if(!IS_ATOM(x[i]))return false;
+    return true;
+}
+
+// return the length to iterate over
+// do all args conform? (ie same length if vectors?)
+// -1 means args don't conform
+static i64 argsCount(K*x, i64 n){
+    i64 i=0,cnt;
+    while (IS_ATOM(x[i])) i++;
+    cnt=KCOUNT(x[i]);
+    for (i64 j=i+1;j<n;j++)
+        if (!IS_ATOM(x[j]) && KCOUNT(x[j])!=cnt) return -1;
+    return cnt;
+}
+
+static void fillArgs(K*d, K*s, i64 n, i64 i){
+    switch (n){ 
+    case 8: d[7]=item(i,s[7]);  //fall through
+    case 7: d[6]=item(i,s[6]);  //fall through
+    case 6: d[5]=item(i,s[5]);  //fall through
+    case 5: d[4]=item(i,s[4]);  //fall through
+    case 4: d[3]=item(i,s[3]);  //fall through
+    case 3: d[2]=item(i,s[2]);  //fall through
+    case 2: d[1]=item(i,s[1]);  //fall through
+    case 1: d[0]=item(i,s[0]);  //fall through
+    }
+}
+
 // x f'y
-K each2(K f, K*a){
-    K r,t;
+K each(K f, K*a, i64 n){
+    K r;
 
-    // extract x and y
-    K x=a[0], y=a[1];
+    if (allAtomic(a,n))
+        return apply(f,a,n);
 
-    if (IS_ATOM(x) && IS_ATOM(y))
-        return apply(f,a,2);
-
-    i64 xn=KCOUNT(x);
-    i64 yn=KCOUNT(y);
-
-    // 2 lists must have same length
-    if (!IS_ATOM(x) && !IS_ATOM(y) && xn!=yn){
-        r=kerr("'length");
+    // vectors must conform
+    // argsCount returns -1 if they don't
+    // otherwise returns the cnt to iterate
+    i64 cnt=argsCount(a,n);
+    if (cnt == -1){
+        r=kerr("'length!");
         goto cleanup;
     }
 
-    r=tn(KK,0);
-
     // iterate and apply f
-    for (i64 i=0,n=MAX(xn,yn); i<n; i++){
-        K args[]={item(i,x),item(i,y)};
-        t=apply(ref(f),args,2);
+    K args[8];
+    r=tn(KK,0);
+    for (i64 i=0; i<cnt; i++){
+        fillArgs(args,a,n,i);
+        K t=apply(ref(f),args,n);
         if (IS_ERROR(t)){
-            replace(&t,r);
+            replace(&r,t);
             goto cleanup;
         }
         r=jk(r,t);
@@ -66,6 +95,6 @@ K each2(K f, K*a){
 
 cleanup:
     unref(f);
-    UNREF_N_OBJS(a,2);
+    UNREF_N_OBJS(a,n);
     return r;
 }

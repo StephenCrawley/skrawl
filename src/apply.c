@@ -138,7 +138,7 @@ K apply(K x, K*y, i64 n){
     }
 
     if (IS_DERIVED_VERB(x)){
-        return each2(UNREF_X(ref(*OBJ(x))),y);
+        return each(UNREF_X(ref(*OBJ(x))),y,n);
     }
 
     if (rank==4){
@@ -158,7 +158,6 @@ K apply(K x, K*y, i64 n){
     if ((xt == -KI) && !*INT(x)){
         // unref x and replace with y[0]
         replace(&x,*y);
-
         return (TYP(x) == KC) ? readLines(x) : UNREF_X(kerr("'type!"));
     }
 

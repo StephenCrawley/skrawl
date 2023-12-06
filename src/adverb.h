@@ -5,6 +5,6 @@
 #include "verb.h"
 
 K applyleft(K,K*,i64);
-K each2(K,K*);
+K each(K,K*,i64);
 
 #endif
