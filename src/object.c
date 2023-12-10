@@ -539,7 +539,7 @@ static void printSym(K x){
 
 static void _printK(K x){
     i8  xt=IS_DERIVED_VERB(x) ? K_ADVERB_START : TYP(x);
-    if (xt==KL){ x=LAMBDA_ARGS(x); }
+    if (xt==KL){ x=LAMBDA_STRING(x); }
     i64 n=CNT(x);
     
     if (n==1 && (!xt || IS_SIMPLE_LIST(x))) putchar(',');

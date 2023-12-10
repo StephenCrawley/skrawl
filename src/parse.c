@@ -249,7 +249,6 @@ static K classSwitch(Parser *p){
             p->error=x;
             return knul();
         }
-        printK(ref(x));
         x=tx(KL,x);
     }
 
