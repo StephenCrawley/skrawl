@@ -130,7 +130,7 @@ K tn(i8 t, i64 n){
 static K xiy(K x, i64 i, K y){
     i8 s = SIZEOF(x);
     memcpy(CHR(x)+s*i, (void*)y, s*CNT(y));
-    if (!TYP(y))
+    if (IS_GENERIC(y))
         for (i64 i=0,n=CNT(y); i<n; i++){ ref(OBJ(y)[i]); }
     return UNREF_Y(x);
 }
