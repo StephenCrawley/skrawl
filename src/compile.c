@@ -75,7 +75,6 @@ static K compileExprs(K x, K r){
     if (xt!=KK || !xn) return compileConstant(r,x);
     // compile ,`a`b
     if (xn==1)  return compileConstant(r,*OBJ(x));
-    
     // special case: (:;`a;...) compile variable set
     if (xn==3 && IS_DYAD(*OBJ(x),TOK_COLON) && TYP(OBJ(x)[1])==-KS){
         r=compileExprs(OBJ(x)[2],r);
@@ -131,5 +130,7 @@ K compile(K x){
 // x - parse tree
 // f - ("{x}";args) of lambda
 K compileLambda(K x, K f){
-    return compile0(x, j2(k2(tn(KX,0),tn(KK,0)),f));
+    K r=compile0(x, j2(k2(tn(KX,0),tn(KK,0)),f));
+    HDR_RNK(r)=HDR_CNT(LAMBDA_ARGS(r));
+    return r;
 }

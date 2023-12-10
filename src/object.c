@@ -297,7 +297,9 @@ K kw(i8 t){
 // create derived verb 
 K kwx(i8 t, K x){
     K r=tx(t,k1(x));
-    HDR_RNK(r)=RANK(x);
+    i8 rank=rankOf(x);
+    if (TYP(x) == KV && (t == KOVER || t == KSCAN)) rank=-rank;
+    HDR_RNK(r)=rank;
     return r;
 }
 

@@ -85,7 +85,9 @@ K apply(K x, K*y, i64 n){
         return squeeze(kn(y,n));
     }
 
-    i8 rank=IS_OP(x,KV,TOK_AT) ? MIN(4,n) : RANK(x);
+    i8 rank=rankOf(x);
+    bool variadic=(rank < 0);
+    if (variadic) rank=MIN(n,-rank);
 
     // too many args
     if (n>rank){
@@ -96,7 +98,11 @@ K apply(K x, K*y, i64 n){
     // too few args
     if (n<rank){
         // create projection
-        if (xt!=KP) return tx(KP,j2(k1(x),kn(y,n)));
+        if (xt!=KP){
+            r=tx(KP,j2(k1(x),kn(y,n)));
+            HDR_RNK(r)=rankOf(x)-n;
+            return r;
+        }
         // else fill in elided args of existing projection
         return fillMV(x,y,n);
     }
