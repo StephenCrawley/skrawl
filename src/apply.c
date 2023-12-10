@@ -122,13 +122,14 @@ K apply(K x, K*y, i64 n){
         // `x@"x+y" -> return bytecode
         case 'x':
             r=apply(ks('p'),&r,1);
-            return UNREF_X((IS_ERROR(r)||IS_NULL(r)) ? r : first(compile(r)));
+            return UNREF_X((IS_ERROR(r)||IS_NULL(r)) ? r : compile(r));
 
         default :
             return UNREF_XR(kerr("'type! symbol not an applicable value"));
         }
     }
 
+    // lambdas
     if (xt==KL){
         r=run(x,y);
         UNREF_N_OBJS(y,n);
@@ -143,6 +144,7 @@ K apply(K x, K*y, i64 n){
         return UNREF_X(apply(OBJ(x)[0],y,xn-1));
     }
 
+    // f'x f/x ...
     if (IS_DERIVED_VERB(x)){
         return ( xt==KEACH ? each : over )(UNREF_X(ref(*OBJ(x))),y,n);
     }
