@@ -68,9 +68,9 @@ static void fillArgs(K*d, K*s, i64 n, i64 i){
 }
 
 // f'x, f'[x;y], ...
-K each(K f, K*a, i64 n){
+K each(K x, K*y, i64 n){
     K r;
-    i64 cnt=iterCount(a,n);
+    i64 cnt=iterCount(y,n);
 
     // vectors must conform
     // iterCount returns -2 if they don't
@@ -81,15 +81,15 @@ K each(K f, K*a, i64 n){
 
     // iterCount returns -1 if all args are atomic
     if (cnt == -1)
-        return apply(f,a,n);
+        return apply(x,y,n);
 
     // else iterCount returns the number of iterations to perform
-    // iterate and apply f
+    // iterate and apply x
     K args[8];
     r=tn(KK,0);
     for (i64 i=0; i<cnt; i++){
-        fillArgs(args,a,n,i);
-        K t = apply(ref(f),args,n);
+        fillArgs(args,y,n,i);
+        K t=apply(ref(x),args,n);
         if (IS_ERROR(t)){
             replace(&r,t);
             goto cleanup;
@@ -99,7 +99,66 @@ K each(K f, K*a, i64 n){
     r=squeeze(r);
 
 cleanup:
-    unref(f);
-    UNREF_N_OBJS(a,n);
+    unref(x);
+    UNREF_N_OBJS(y,n);
+    return r;
+}
+
+// over/scan can be applied dyadically: x f/y
+// or monadically: f/x
+// for monadic application we use an identity element as the seed
+// eg if f is + then seed is 0 (0+/x)
+//    if f is * then seed is 1 (1*/x)
+K getIdentity(K f){
+    return ki((TAG_VAL(f) == TOK_PLUS) ? 0 : 1);
+}
+
+// f/x, x f/y, ...
+K over(K x, K*y, i64 n){
+    K r;
+
+    // for now we assume x is a dyadic primitive
+    if (TYP(x) != KV){
+        r=kerr("'nyi! f/ where f is not dyadic primitive");
+        goto cleanup;
+    }
+
+    // f/atom -> return atom
+    if (n == 1 && IS_ATOM(*y))
+        return UNREF_X(*y);
+
+    // r is initially set to the seed value
+    if (n == 1){
+        r=getIdentity(x);
+    }
+    else {
+        r=*y;
+        y++; // consume the seed
+        n--; // n is now the number of args we iterate over (non-seed args)
+    }
+
+    // how many iterations?
+    i64 cnt=iterCount(y,n);
+
+    // length error
+    if (cnt == -2){
+        unref(r);
+        r=kerr("'length!");
+        goto cleanup;
+    }
+
+    // iterate
+    K args[8];
+    for (i64 i=0; i<cnt; i++){
+        args[0]=r;
+        fillArgs(args+1,y,n,i);
+        r=apply(ref(x),args,n+1);
+        if (IS_ERROR(r))
+            goto cleanup;
+    }
+
+cleanup:
+    unref(x);
+    UNREF_N_OBJS(y,n);
     return r;
 }

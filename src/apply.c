@@ -144,7 +144,7 @@ K apply(K x, K*y, i64 n){
     }
 
     if (IS_DERIVED_VERB(x)){
-        return each(UNREF_X(ref(*OBJ(x))),y,n);
+        return ( xt==KEACH ? each : over )(UNREF_X(ref(*OBJ(x))),y,n);
     }
 
     if (rank==4){
