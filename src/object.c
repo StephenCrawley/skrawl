@@ -110,8 +110,8 @@ static K m1(u64 n){
     return r;
 }
 
-// size of each type     KK  KX  KC  KI  KF  KS  KD  KT  KL  KP  '   /   \   ':  /:  \:  KU  KV  KW  
-static i8 TYPE_SIZE[] = {8 , 1 , 1 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 , 8 };
+// size of each type     KK KX KC KI KF KS KD KT KL KP KQ  '  /  \ ': /: \: KU KV KW 
+static i8 TYPE_SIZE[] = { 8, 1, 1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
 
 // return a K object of type t and count n
 K tn(i8 t, i64 n){
@@ -300,6 +300,13 @@ K kwx(i8 t, K x){
     i8 rank=rankOf(x);
     if (TYP(x) == KV && (t == KOVER || t == KSCAN)) rank=-rank;
     HDR_RNK(r)=rank;
+    return r;
+}
+
+// create composition
+K kq(K x, K y){
+    K r=tx(KQ,k2(x,y));
+    HDR_RNK(r)=rankOf(y);
     return r;
 }
 
@@ -560,6 +567,7 @@ static void _printK(K x){
     case KE: //FALLTHROUGH
     case KL: fwrite(CHR(x), sizeof(char), n, stdout); break;
     case KP: _printK(*OBJ(x)); putchar('['); for (i64 i=1,last=n-1; i<n; i++){_printK(OBJ(x)[i]);if(i!=last)putchar(';');}putchar(']'); break;
+    case KQ: _printK(OBJ(x)[0]),_printK(OBJ(x)[1]); break;
     case KM: break;
     default: printf("'nyi! print type %d\n", TYP(x));
     }

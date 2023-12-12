@@ -48,6 +48,7 @@ K kuc(char);
 K kvc(char);
 K kw(i8);
 K kwx(i8,K);
+K kq(K,K);
 K km();
 K ke(K);
 K kerr(char*);

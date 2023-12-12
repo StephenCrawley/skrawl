@@ -11,8 +11,15 @@
 K index(K x, K y);
 K amend4(K*);
 
+// count magic values 
+static i8 countMV(K*x, i64 n){
+    i8 cnt=0;
+    for (i64 i=0; i<n; i++) cnt+=IS_MAGIC_VAL(x[i]);
+    return cnt;
+}
+
 // f[;][1] -> f[1;]
-K fillMV(K x, K*y, i64 n){
+static K fillMV(K x, K*y, i64 n){
     x=reuse(x);
     i64 j=1,xn=CNT(x);
     // iterate y
@@ -37,7 +44,6 @@ K fillMV(K x, K*y, i64 n){
 K apply(K x, K*y, i64 n){
     K r;
     i8  xt=TYP(x);
-    i64 xn=CNT(x);
 
     // simple atom is not an applicable value
     // (some symbols are special, they have special functions)
@@ -70,9 +76,7 @@ K apply(K x, K*y, i64 n){
     }
 
     // if any magic values, return projection
-    i8 rn=0;
-    for (i64 i=0; i<n; i++)
-        rn+=IS_MAGIC_VAL(y[i]);
+    i8 rn=countMV(y,n);
     if (rn){
         r=j2(k1(x),kn(y,n));
         HDR_RNK(r)=rn;
@@ -129,6 +133,18 @@ K apply(K x, K*y, i64 n){
         }
     }
 
+    // make adverb-modified functions + compositions
+    if (xt == KW){
+        return (n == 1) ? kwx(x,*y) : kq(*y,y[1]);
+    }
+
+    // apply composition
+    // KQ objects are (f;g) so res=apply(g,y,n), if res!=error then apply(f,&res,1)
+    if (xt == KQ){
+        r=apply(ref(OBJ(x)[1]),y,n);
+        return UNREF_X( IS_ERROR(r) ? r : apply(ref(*OBJ(x)),&r,1) );
+    }
+
     // lambdas
     if (xt==KL){
         r=run(x,y);
@@ -138,10 +154,11 @@ K apply(K x, K*y, i64 n){
 
     // projections
     if (xt==KP){
-        x=fillMV(x,y,n);
+        x=countMV(&OBJ(x)[1],CNT(x)-1) ? fillMV(x,y,n) : j2(x,kn(y,n));
         y=&OBJ(x)[1];
-        REF_N_OBJS(y,xn-1);
-        return UNREF_X(apply(OBJ(x)[0],y,xn-1));
+        n=CNT(x)-1;
+        REF_N_OBJS(y,n);
+        return UNREF_X(apply(OBJ(x)[0],y,n));
     }
 
     // f'x f/x ...

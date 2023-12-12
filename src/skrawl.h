@@ -31,6 +31,7 @@ enum {
     K_INDEXABLE_END,           //end of types that can subscripted
     KL = K_INDEXABLE_END,      //lambda
     KP,                        //projection
+    KQ,                        //composition
     K_ADVERB_START,            //start of adverb types
     KEACH = K_ADVERB_START,    // '
     KOVER,                     // /
@@ -137,7 +138,9 @@ static inline i8    rankOf(K x){
     // @ and . are variadic
     if (IS_DYAD(x,TOK_AT) || IS_DYAD(x,TOK_DOT))
         return -4;
-    return t==KP || t==KL || (t>=K_ADVERB_START && t<K_ADVERB_END) ? HDR_RNK(x) : t==KV ? 2 : 1;
+    if (t == KW && (TAG_VAL(x) == (u64)(KEACH-K_ADVERB_START)))
+        return -2;
+    return (t>=K_INDEXABLE_END && t<K_ADVERB_END) ? HDR_RNK(x) : t==KV ? 2 : 1;
 }
 
 #endif
