@@ -3,8 +3,8 @@
 #include "verb.h"
 
 #define IMM_ARG_MAX  255  //max value of immediate arg (max representable by 8bits)
-#define BYTES(x)     (OBJ(x)[0]) //bytecodes accessor
-#define CONSTS(x)    (OBJ(x)[1]) //constants accessor
+#define BYTES(x)     LAMBDA_OPCODE(x) //bytecodes accessor
+#define CONSTS(x)    LAMBDA_CONSTS(x) //constants accessor
 
 #define COMPILING_LAMBDA(x) (HDR_CNT(x) != 2)
 
@@ -120,17 +120,53 @@ static K compile0(K x, K r){
     return UNREF_X(r);
 }
 
+// given a pointer to bytecode, determine the stack size
+static u8 getMaxStackSize(u8 *b){
+    u8 s=0,m=0;
+    while (*b != OP_RETURN){
+        u8 instr=*b++;
+        switch (20u > (u32)(instr-OP_MONAD  ) ? OP_MONAD   :
+                20u > (u32)(instr-OP_DYAD   ) ? OP_DYAD    :
+                 6u > (u32)(instr-OP_ADVERB ) ? OP_ADVERB  : 
+                 3u > (u32)(instr-OP_GET_ARG) ? OP_GET_ARG : instr){
+        case OP_CONSTANT:
+            s++;
+            m=MAX(s,m);
+            b++;
+            break;
+        case OP_SET_GLOBAL:
+            b++;
+            break;
+        case OP_APPLY_N:
+            s -= *b++;
+            break;
+        case OP_DYAD:    //fall through
+        case OP_POP:     //fall through
+            s--;
+            break;
+        case OP_GET_ARG:
+            s++;
+            m=MAX(s,m);
+            break;
+        }
+    }
+    return m;
+}
+
 // recurse thru parse tree x, generating bytecode
 // returns a K object (byetcode;consts)
-K compile(K x){
-    //    (BYTES   ;CONSTS  ) 
-    return compile0(x, k2(tn(KX,0),tn(KK,0)));
+K compile(K x){ 
+    x=compile0(x, k2(tn(KX,1),tn(KK,0)));
+    ((u8*)BYTES(x))[0]=getMaxStackSize((u8*)BYTES(x)+1);
+    return x;
 }
 
 // x - parse tree
 // f - ("{x}";args) of lambda
 K compileLambda(K x, K f){
-    K r=compile0(x, j2(k2(tn(KX,0),tn(KK,0)),f));
+    K r=j2(k2(tn(KX,1),tn(KK,0)),f); //(opcodes;consts;"{x}";args)
+    r=compile0(x,r);
+    ((u8*)BYTES(r))[0]=getMaxStackSize((u8*)BYTES(r)+1);
     HDR_RNK(r)=HDR_CNT(LAMBDA_ARGS(r));
     return r;
 }

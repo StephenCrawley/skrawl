@@ -7,18 +7,34 @@
 #define STACK_MAX        256
 #define POP()            ( *top++ )
 #define PUSH(x)          ( *--top = (x) )
-#define BYTECODE_PTR(x)  CHR( *OBJ(x) )
-#define CONSTANT_PTR(x)  OBJ( OBJ(x)[1] )
+#define BYTECODE_PTR(x)  CHR(LAMBDA_OPCODE(x))
+#define CONSTANT_PTR(x)  OBJ(LAMBDA_CONSTS(x))
 
-K stack[STACK_MAX];
+//K stack[STACK_MAX];
 K globals; //K global variables
 
-K run(K r, K *stack_base){
-    // VM registers and variables
-    K *top=stack_base;
-    K *consts=CONSTANT_PTR(r);
+K run(K r, K *args, i64 argcnt){
+    // instruction pointer and current instruction
     const u8 *ip=BYTECODE_PTR(r);
-    u8 instr;  //current instruction
+    u8 instr; 
+
+    // set up the stack. it is downward growing:
+    //     [ arg_n ]  function args pushed first
+    //     [  ...  ] 
+    //     [ arg_1 ]  <- stack_base
+    //     [ obj_1 ] 
+    //     [ obj_2 ]  <- top
+    //     [ empty ]
+    //     [  ...  ]
+    //     [ empty ]  <- max height (address=start of 'stack' array)
+    i8 stack_size=argcnt+*ip++; //first byte encodes max stack height
+    K stack[stack_size];
+    K *stack_base=stack+stack_size-argcnt;
+    K *top=stack_base;
+    for (i64 i=0; i<argcnt; i++) top[i]=args[i];
+
+    // constant pool pointer
+    K *consts=CONSTANT_PTR(r);
 
     // useful variables to execute opcodes
     K x,t[4];
@@ -136,5 +152,5 @@ K evalK(K x){
         return x;
 
     K r=compile(x);
-    return IS_ERROR(r) ? r : run(r,stack+STACK_MAX);
+    return IS_ERROR(r) ? r : run(r,NULL,0);
 }

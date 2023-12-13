@@ -147,7 +147,7 @@ K apply(K x, K*y, i64 n){
 
     // lambdas
     if (xt==KL){
-        r=run(x,y);
+        r=run(x,y,n);
         UNREF_N_OBJS(y,n);
         return r;
     }

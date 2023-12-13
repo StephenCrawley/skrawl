@@ -3,7 +3,7 @@
 
 #include "skrawl.h"
 
-K run(K,K*);
+K run(K,K*,i64 n);
 K evalK(K);
 void initGlobals();
 
