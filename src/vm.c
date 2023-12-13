@@ -46,8 +46,8 @@ K run(K r, K *args, i64 argcnt){
         instr=*ip++;
 
         // ternary step function to convert monads/dyads/adverbs opcodes to base opcode
-        switch (20u > (u32)(instr-OP_MONAD  ) ? OP_MONAD   :
-                20u > (u32)(instr-OP_DYAD   ) ? OP_DYAD    :
+        switch (32u > (u32)(instr-OP_MONAD  ) ? OP_MONAD   :
+                32u > (u32)(instr-OP_DYAD   ) ? OP_DYAD    :
                  6u > (u32)(instr-OP_ADVERB ) ? OP_ADVERB  : 
                  3u > (u32)(instr-OP_GET_ARG) ? OP_GET_ARG : instr)
         {

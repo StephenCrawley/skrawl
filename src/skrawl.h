@@ -49,7 +49,7 @@ enum {
 };
 
 // TOKEN ENUM
-// :+-*%,?.@!$#_^&=<>~|
+// :+-*%,?.@!$#_^&=<>~|0
 enum {
     TOK_COLON,
     TOK_PLUS,
@@ -71,6 +71,7 @@ enum {
     TOK_MORETHAN,
     TOK_TILDE,
     TOK_PIPE,
+    TOK_ZERO,
     TOK_SEMICOLON,
 };
 

@@ -42,7 +42,7 @@
 static void _printK(K x);
 
 // global vars
-static const char   *VERB_STR=":+-*%,?.@!$#_^&=<>~|;";
+static const char   *VERB_STR=":+-*%,?.@!$#_^&=<>~|0;";
 static const char *ADVERB_STR="'/\\'/\\";
 
 // mmap wrapper 

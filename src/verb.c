@@ -2,11 +2,12 @@
 #include "object.h"
 #include "apply.h"
 #include "dyad.h"
+#include "io.h"
 
 MONAD monad_table[]={
     identity, flip,  neg,     first,     ksqrt, enlist,  distinct,
     value,    type,  getKey,  string,    count, lower,   isNull,
-    where,    group, gradeUp, gradeDown, not,   reverse
+    where,    group, gradeUp, gradeDown, not,   reverse, readLines
 };
 
 DYAD dyad_table[]={

@@ -47,13 +47,13 @@ K apply(K x, K*y, i64 n){
 
     // simple atom is not an applicable value
     // (some symbols are special, they have special functions)
-    if (xt<0 && (xt!=-KS && xt!=-KI)){
+    if (xt < 0 && xt != -KS){
         UNREF_N_OBJS(y,n);
         return UNREF_X(kerr("rank! atom not an applicable value"));
     }
 
     // index
-    if (xt>=0 && xt<K_INDEXABLE_END){
+    if (xt >= 0 && xt < K_INDEXABLE_END){
         // x[y]
         if (n==1)
             return index(x,*y); 
@@ -62,7 +62,7 @@ K apply(K x, K*y, i64 n){
         for (i64 i=0; i<n; i++){
             // handle elided index. x[;i] -> x@\:i
             if (IS_MAGIC_VAL(y[i]))
-                return (n==++i) ? x : applyleft(x,&y[i],n-i);
+                return (n == ++i) ? x : applyleft(x,&y[i],n-i);
             // apply to next index
             x=apply(x,&y[i],1);
             // handle error
@@ -94,15 +94,15 @@ K apply(K x, K*y, i64 n){
     if (variadic) rank=MIN(n,-rank);
 
     // too many args
-    if (n>rank){
+    if (n > rank){
         UNREF_N_OBJS(y,n);
         return UNREF_X(kerr("'rank! too many args"));
     }
 
     // too few args
-    if (n<rank){
+    if (n < rank){
         // create projection
-        if (xt!=KP){
+        if (xt != KP){
             r=tx(KP,j2(k1(x),kn(y,n)));
             HDR_RNK(r)=rankOf(x)-n;
             return r;
@@ -113,12 +113,12 @@ K apply(K x, K*y, i64 n){
 
     // symbols - (`abc;args)
     // apply special functions
-    if (xt==-KS){
+    if (xt == -KS){
         r=*y;
         switch(*INT(x)){
         // `p@"x+y" -> return parse tree
         case 'p':
-            if (TYP(r)!=KC)
+            if (TYP(r) != KC)
                 return UNREF_XR(kerr("'type! can only parse char vector"));
             r=j2(r,kc(0));
             return UNREF_XR(parse((const char*)r));
@@ -146,14 +146,14 @@ K apply(K x, K*y, i64 n){
     }
 
     // lambdas
-    if (xt==KL){
+    if (xt == KL){
         r=run(x,y,n);
         UNREF_N_OBJS(y,n);
         return r;
     }
 
     // projections
-    if (xt==KP){
+    if (xt == KP){
         x=countMV(&OBJ(x)[1],CNT(x)-1) ? fillMV(x,y,n) : j2(x,kn(y,n));
         y=&OBJ(x)[1];
         n=CNT(x)-1;
@@ -166,24 +166,17 @@ K apply(K x, K*y, i64 n){
         return ( xt==KEACH ? each : over )(UNREF_X(ref(*OBJ(x))),y,n);
     }
 
-    if (rank==4){
+    if (rank == 4){
         return amend4(y);
     }
 
     // apply dyad
-    if (xt==KV){
-        return (*dyad_table[TAG_VAL(x)])(y[0],y[1]);
+    if (xt == KV){
+        return (*dyad_table[TAG_VAL(x)])(*y,y[1]);
     }
     // apply monad
-    if (xt==KU){
+    if (xt == KU){
         return (*monad_table[TAG_VAL(x)])(y[0]);
-    }
-
-    // read
-    if ((xt == -KI) && !*INT(x)){
-        // unref x and replace with y[0]
-        replace(&x,*y);
-        return (TYP(x) == KC) ? readLines(x) : UNREF_X(kerr("'type!"));
     }
 
     UNREF_N_OBJS(y,n);
