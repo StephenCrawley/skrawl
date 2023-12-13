@@ -54,7 +54,7 @@ static K compileVarGet(K x, K r){
 
     // if compiling lambda, either we're getting an arg or a local
     K args=LAMBDA_ARGS(r);
-    i64 ix=symIndex(args,x);
+    i64 ix=symIndex(x,args);
     if (ix < HDR_CNT(args))
         return addByte(r,OP_GET_ARG+ix);
     else 
