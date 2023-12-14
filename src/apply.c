@@ -55,7 +55,7 @@ K apply(K x, K*y, i64 n){
     // index
     if (xt >= 0 && xt < K_INDEXABLE_END){
         // x[y]
-        if (n==1)
+        if (n == 1)
             return index(x,*y); 
 
         // x[y;...]
@@ -163,7 +163,7 @@ K apply(K x, K*y, i64 n){
 
     // f'x f/x ...
     if (IS_DERIVED_VERB(x)){
-        return ( xt==KEACH ? each : over )(UNREF_X(ref(*OBJ(x))),y,n);
+        return (*adverb_table[xt-K_ADVERB_START])(UNREF_X(ref(*OBJ(x))),y,n);
     }
 
     if (rank == 4){

@@ -67,6 +67,8 @@ static void fillArgs(K*d, K*s, i64 n, i64 i){
     }
 }
 
+K (*adverb_table[])(K,K*,i64)={each,over,0,0,eachRight,eachLeft};
+
 // f'x, f'[x;y], ...
 K each(K x, K*y, i64 n){
     K r;
@@ -102,6 +104,36 @@ cleanup:
     unref(x);
     UNREF_N_OBJS(y,n);
     return r;
+}
+
+K eachLR(K x, K*y, i64 n, int a, int b){
+    K args[2];
+    K r=tn(KK,0);
+    i64 cnt=KCOUNT(y[a]);
+    for (i64 i=0; i<cnt; i++){
+        args[b]=ref(y[b]);
+        args[a]=item(i,y[a]);
+        K t=apply(ref(x),args,2);
+        if (IS_ERROR(t)){
+            replace(&r,t);
+            goto cleanup;
+        }
+        r=jk(r,t);
+    }
+    r=squeeze(r);
+
+cleanup:
+    unref(x);
+    UNREF_N_OBJS(y,n);
+    return r;
+}
+
+K eachLeft(K x, K*y, i64 n){
+    return eachLR(x,y,n,0,1);
+}
+
+K eachRight(K x, K*y, i64 n){
+    return eachLR(x,y,n,1,0);
 }
 
 // over/scan can be applied dyadically: x f/y
