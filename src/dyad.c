@@ -47,9 +47,10 @@ K execDyad(char op, K x, K y){
     i8 axt=ABS(xt);
     i8 ayt=ABS(yt);
     switch(op){
-    case '+': DYAD_ITER(+); break;
-    case '<': DYAD_ITER(<); break;
-    case '>': DYAD_ITER(>); break;
+    case '+': DYAD_ITER(+);  break;
+    case '=': DYAD_ITER(==); break;
+    case '<': DYAD_ITER(<);  break;
+    case '>': DYAD_ITER(>);  break;
     default: r=UNREF_R(kerr("'nyi! dyad op"));
     }
 

@@ -385,7 +385,7 @@ K min(K x, K y){
 }
 
 K equal(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad =") );
+    return execDyad('=',x,y);
 }
 
 K lessThan(K x, K y){
