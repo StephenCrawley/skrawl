@@ -564,7 +564,7 @@ static void _printK(K x){
     case KV: putchar(VERB_STR[TAG_VAL(x)]); break;
     case KW: putchar(ADVERB_STR[TAG_VAL(x)]); if (2<TAG_VAL(x)) putchar(':'); break;
     case K_ADVERB_START: _printK(*OBJ(x)); _printK(kw(TYP(x)-K_ADVERB_START)); break;
-    case KE: //FALLTHROUGH
+    case KE: // fall through
     case KL: fwrite(CHR(x), sizeof(char), n, stdout); break;
     case KP: _printK(*OBJ(x)); putchar('['); for (i64 i=1,last=n-1; i<n; i++){_printK(OBJ(x)[i]);if(i!=last)putchar(';');}putchar(']'); break;
     case KQ: _printK(OBJ(x)[0]),_printK(OBJ(x)[1]); break;
@@ -575,7 +575,7 @@ static void _printK(K x){
 
 // print a K object. consumes the argument
 K printK(K x){
-    if (IS_NULL(x))
+    if (IS_NULL(x) || IS_MONAD(x,TOK_COLON))
         return x;
 
     _printK(x);

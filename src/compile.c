@@ -137,7 +137,7 @@ static K compile0(K x, K r){
         for (i64 i=1,n=CNT(x)-1; i<=n; i++){
             r=compileExprs(OBJ(x)[i],r);
             if (IS_ERROR(r)) return r;
-            // append OP_RETURN if last expression, else append OP_POP
+            // append OP_POP if not last expression
             if (i != n) r=addByte(r,OP_POP);
         }
     }
