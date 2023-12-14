@@ -141,56 +141,53 @@ K eachRight(K x, K*y, i64 n){
 // for monadic application we use an identity element as the seed
 // eg if f is + then seed is 0 (0+/x)
 //    if f is * then seed is 1 (1*/x)
-K getIdentity(K f){
-    return ki((TAG_VAL(f) == TOK_PLUS) ? 0 : 1);
+K getIdentity(K x, K y){
+    if (TYP(x) != KV){
+        return KCOUNT(y) ? item(0,y) : ref(y);
+    }
+    return ki((TAG_VAL(x) == TOK_PLUS) ? 0 : 1);
 }
 
 // f/x, x f/y, ...
 K over(K x, K*y, i64 n){
-    K r;
-
-    // for now we assume x is a dyadic primitive
-    if (TYP(x) != KV){
-        r=kerr("'nyi! f/ where f is not dyadic primitive");
-        goto cleanup;
-    }
-
     // f/atom -> return atom
     if (n == 1 && IS_ATOM(*y))
         return UNREF_X(*y);
 
     // r is initially set to the seed value
+    // m is the number of non-seed args
+    K r; 
+    i64 m=n; 
     if (n == 1){
-        r=getIdentity(x);
+        r=getIdentity(x,*y);
     }
     else {
         r=*y;
         y++; // consume the seed
-        n--; // n is now the number of args we iterate over (non-seed args)
+        m--; 
     }
 
     // how many iterations?
-    i64 cnt=iterCount(y,n);
+    i64 cnt=iterCount(y,m);
 
     // length error
     if (cnt == -2){
-        unref(r);
-        r=kerr("'length!");
+        replace(&r,kerr("'length!"));
         goto cleanup;
     }
 
     // iterate
     K args[8];
-    for (i64 i=0; i<cnt; i++){
+    for (i64 i=(n == 1 && TYP(x) != KV); i<cnt; i++){
         args[0]=r;
-        fillArgs(args+1,y,n,i);
-        r=apply(ref(x),args,n+1);
+        fillArgs(args+1,y,m,i);
+        r=apply(ref(x),args,m+1);
         if (IS_ERROR(r))
             goto cleanup;
     }
 
 cleanup:
     unref(x);
-    UNREF_N_OBJS(y,n);
+    UNREF_N_OBJS(y,m);
     return r;
 }

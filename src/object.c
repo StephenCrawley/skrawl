@@ -298,7 +298,7 @@ K kw(i8 t){
 K kwx(i8 t, K x){
     K r=tx(t,k1(x));
     i8 rank=rankOf(x);
-    if (TYP(x) == KV && (t == KOVER || t == KSCAN)) rank=-rank;
+    if (rank == 2 && (t == KOVER || t == KSCAN)) rank=-rank;
     HDR_RNK(r)=rank;
     return r;
 }
