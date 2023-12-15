@@ -437,3 +437,52 @@ K max(K x, K y){
     return UNREF_XY( kerr("'nyi! dyad |") );
 }
 
+// x\:y
+// " "\:"foo bar" -> ("foo";"bar")
+// split string y on occurences of x
+K splitString(K x, K y){
+    if (TYP(y) != KC){
+        return UNREF_XY(kerr("'type! \"\"\\:y -> y must be string"));
+    }
+
+    K r=tn(KK,0);
+    i64 xn=CNT(x);
+    i64 yn=CNT(y);
+    char *xstr=(char *)x;
+    char *ystr=(char *)y;
+    char *start=ystr;
+    char *end;
+
+    // scan y to find occurences of x
+    for (i64 i=0; i<yn; i++){
+        // check there are enough chars left in y for a match
+        if ((i + xn) > yn) break;
+
+        // if no match, check next y
+        if (*xstr != ystr[i]) continue;
+
+        // else, check following chars in x match the following in y
+        bool match=true;;
+        for (i64 j=1; j<CNT(x); j++){
+            if (xstr[j] != ystr[i+j]){
+                match=false;
+                break;
+            }
+        }
+    
+        // no match, move on
+        if (!match) continue;
+
+        // else create a new KC object and append to r
+        end=&ystr[i];
+        r=jk(r,kCn(start,end-start));
+        i += xn;
+        start=&ystr[i];
+    }
+
+    // copy in the tail of y
+    end=&ystr[yn];
+    r=jk(r,kCn(start,end-start));
+
+    return UNREF_XY(r);
+}

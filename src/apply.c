@@ -163,7 +163,13 @@ K apply(K x, K*y, i64 n){
 
     // f'x f/x ...
     if (IS_DERIVED_VERB(x)){
-        return (*adverb_table[xt-K_ADVERB_START])(UNREF_X(ref(*OBJ(x))),y,n);
+        K f=ref(*OBJ(x));
+
+        // str\:y is special, eg " "\:"foo bar" -> ("foo";"bar")
+        if (ABS(TYP(f)) == KC) return UNREF_X(splitString(f,*y));
+
+        // else normal adverb 
+        return (*adverb_table[xt-K_ADVERB_START])(UNREF_X(f),y,n);
     }
 
     if (rank == 4){

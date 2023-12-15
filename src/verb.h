@@ -54,5 +54,6 @@ K lessThan(K,K);
 K greaterThan(K,K);
 K match(K,K);
 K max(K,K);
+K splitString(K,K);
 
 #endif
