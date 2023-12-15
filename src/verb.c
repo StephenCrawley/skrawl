@@ -263,7 +263,7 @@ K subtract(K x, K y){
 }
 
 K multiply(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad *") );
+    return execDyad('*',x,y);
 }
 
 K divide(K x, K y){
@@ -381,7 +381,7 @@ K fill(K x, K y){
 }
 
 K min(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad &") );
+    return execDyad('&',x,y);
 }
 
 K equal(K x, K y){
@@ -398,7 +398,7 @@ K greaterThan(K x, K y){
 
 bool isMatch(K x, K y){
     // same object?
-    if (x==y)
+    if (x == y)
         return 1;
 
     // if both tag type, can't match as x==y would be true
@@ -406,12 +406,12 @@ bool isMatch(K x, K y){
         return 0;
 
     // different types?
-    if (TYP(x)!=TYP(y))
+    if (TYP(x) != TYP(y))
         return 0;
 
     // different counts?
     i64 xn=CNT(x);
-    if (xn!=CNT(y))
+    if (xn != CNT(y))
         return 0;
 
     // recurse generic types
@@ -434,7 +434,7 @@ K match(K x, K y){
 }
 
 K max(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad |") );
+    return execDyad('|',x,y);
 }
 
 // x\:y

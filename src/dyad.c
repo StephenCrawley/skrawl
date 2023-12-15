@@ -3,8 +3,15 @@
 #include "dyad.h"
 #include "object.h"
 
-#define DYAD_ITER_TYPE(op,rt,xt,yt) if    (xn==yn) for (i64 i=0; i<xn; i++) rt(r)[i] = xt(x)[i] op yt(y)[i]; \
-                                    else /*xn>yn*/ for (i64 i=0; i<xn; i++) rt(r)[i] = xt(x)[i] op yt(y)[0];  
+// dyad op macros
+#define ADD(x,y) (x+y)
+#define PRD(x,y) (x*y)
+#define EQL(x,y) (x==y)
+#define GRT(x,y) (x>y)
+#define LST(x,y) (x<y)
+
+#define DYAD_ITER_TYPE(op,rt,xt,yt) if    (xn==yn) for (i64 i=0; i<xn; i++) rt(r)[i] = op(xt(x)[i], yt(y)[i]); \
+                                    else /*xn>yn*/ for (i64 i=0; i<xn; i++) rt(r)[i] = op(xt(x)[i], yt(y)[0]);  
 
 #define DYAD_ITER(op) if      (axt==KI && ayt==KI)  { DYAD_ITER_TYPE(op,INT,INT,INT) } \
                       else if (axt==KI && ayt==KC)  { DYAD_ITER_TYPE(op,INT,INT,CHR) } \
@@ -47,10 +54,13 @@ K execDyad(char op, K x, K y){
     i8 axt=ABS(xt);
     i8 ayt=ABS(yt);
     switch(op){
-    case '+': DYAD_ITER(+);  break;
-    case '=': DYAD_ITER(==); break;
-    case '<': DYAD_ITER(<);  break;
-    case '>': DYAD_ITER(>);  break;
+    case '+': DYAD_ITER(ADD); break;
+    case '*': DYAD_ITER(PRD); break;
+    case '=': DYAD_ITER(EQL); break;
+    case '<': DYAD_ITER(LST); break;
+    case '>': DYAD_ITER(GRT); break;
+    case '&': DYAD_ITER(MIN); break;
+    case '|': DYAD_ITER(MAX); break;
     default: r=UNREF_R(kerr("'nyi! dyad op"));
     }
 
