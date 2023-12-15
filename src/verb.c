@@ -461,17 +461,8 @@ K splitString(K x, K y){
         // if no match, check next y
         if (*xstr != ystr[i]) continue;
 
-        // else, check following chars in x match the following in y
-        bool match=true;;
-        for (i64 j=1; j<CNT(x); j++){
-            if (xstr[j] != ystr[i+j]){
-                match=false;
-                break;
-            }
-        }
-    
-        // no match, move on
-        if (!match) continue;
+        // continue if following chars in x don't match the following in y
+        if (!memcmp(&xstr[1], &ystr[i+1], xn)) continue;
 
         // else create a new KC object and append to r
         end=&ystr[i];
