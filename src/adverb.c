@@ -71,8 +71,20 @@ K (*adverb_table[])(K,K*,i64)={each,over,0,0,eachRight,eachLeft};
 
 // f'x, f'[x;y], ...
 K each(K x, K*y, i64 n){
-    K r;
+    K r,args[8];
     i64 cnt=iterCount(y,n);
+
+    if (n == 1 && TYP(*y) == KD){
+        K t=reuse(*y);
+        K val=VAL(t);
+        r=each(x,&val,1);
+        if (IS_ERROR(r)){
+            x=knul();
+            goto cleanup;
+        }
+        VAL(t)=r;
+        return t;
+    }
 
     // vectors must conform
     // iterCount returns -2 if they don't
@@ -87,7 +99,6 @@ K each(K x, K*y, i64 n){
 
     // else iterCount returns the number of iterations to perform
     // iterate and apply x
-    K args[8];
     r=tn(KK,0);
     for (i64 i=0; i<cnt; i++){
         fillArgs(args,y,n,i);
@@ -106,7 +117,7 @@ cleanup:
     return r;
 }
 
-K eachLR(K x, K*y, i64 n, int a, int b){
+static K eachLR(K x, K*y, i64 n, int a, int b){
     K args[2];
     K r=tn(KK,0);
     i64 cnt=KCOUNT(y[a]);
