@@ -3,6 +3,12 @@
 #include "apply.h"
 #include "dyad.h"
 #include "io.h"
+#include "adverb.h"
+
+// forward declarations
+bool isMatch(K,K);
+
+// verb tables 
 
 MONAD monad_table[]={
     identity, flip,  neg,     first,     ksqrt, enlist,  distinct,
@@ -232,16 +238,43 @@ K findSym(K x, K y){
     return r;
 }
 
+i64 vectorRank(K x){
+    if (IS_ATOM(x) || (TYP(x) == KK && CNT(x)==0))
+        return UNREF_X(0);
+    return 1+vectorRank(first(x));
+}
+
 // x?y
-// for each y, return index of 1st occurrence in x, or CNT(x) if no occurrence
+// for each y, return index of 1st occurrence in x, or count of x if no occurrence
 K find(K x, K y){
     // init
     i8  xt=TYP(x), axt=ABS(xt);
     i8  yt=TYP(y);
 
-    // for now, just find for same-type operands
-    if (axt!=ABS(yt)){
-        return UNREF_XY(kerr("'nyi! x?y (find) - different xy types"));
+    i64 xrank=vectorRank(ref(x));
+    i64 yrank=vectorRank(ref(y));
+
+    if (xrank < yrank){
+        return UNREF_XY(kerr("'nyi! x?y where rank(x)<rank(y)"));
+    }
+
+    if (xrank-yrank >= 2){
+        return UNREF_XY(ki(KCOUNT(x)));
+    }
+
+    // look for all of y in x
+    if (xrank-yrank == 1 && !IS_SIMPLE_LIST(x)){
+        i64 n=KCOUNT(x);
+        for (i64 i=0; i<n; i++){
+            K t=item(i,x);
+            if (UNREF_T(isMatch(t,y)))
+                return UNREF_XY(ki(i));
+        }
+        UNREF_XY(ki(n));
+    }
+
+    if (axt != ABS(yt)){
+        return UNREF_XY(kerr("'type! x?y"));
     }
 
     switch (axt){
