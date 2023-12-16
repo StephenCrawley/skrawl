@@ -55,8 +55,27 @@ K flip(K x){
         return kT(x);
     }
     
-    // matrix transpose not yet implemented
-    return UNREF_X(kerr("'nyi! +:"));
+    // matrix transpose
+
+    if (TYP(x) != KK)
+        return UNREF_X(kerr("'rank!"));
+    
+    // check vectors conform
+    i64 cnt=iterCount(OBJ(x), CNT(x));
+    if (cnt == -2)
+        return UNREF_X(kerr("'length!"));
+
+    // fill the new matrix
+    K r=tn(KK,cnt);
+    for (i64 i=0; i<cnt; i++) OBJ(r)[i]=tn(KK,0);
+    for (i64 i=0,n=cnt; i<n; i++){
+        for (i64 j=0,n=CNT(x); j<n; j++){
+            OBJ(r)[i] = jk(OBJ(r)[i], item(i,OBJ(x)[j]));
+        }
+        OBJ(r)[i]=squeeze(OBJ(r)[i]);
+    }
+
+    return UNREF_X(r);
 }
 
 K neg(K x){

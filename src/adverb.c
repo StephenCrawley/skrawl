@@ -37,7 +37,7 @@ cleanup:
 // eg f'[1;2 3 4 5] ->  4
 //    f'[1 2;3 4 5] -> -2
 //    f'[1]         -> -1
-static i64 iterCount(K*x, i64 i){
+i64 iterCount(K*x, i64 i){
     i64 cnt=-1;
     while (i--){
         if (!IS_ATOM(x[i])){
