@@ -129,9 +129,9 @@ static inline char* sc(char *s,char c){ while(*s!=c)if(!*s++)return (char*)0; re
 static inline i64   ic(char *s,char c){ return sc(s,c)-s; }
 static inline K     tx(i8 t,K x){ return TAG_TYP(x) ? SET_TAG(t,x) : (HDR_TYP(x)=t,x); }
 static inline i64   symIndex(K x,K y){
-    i64 i=0,xi=*INT(x),yn=HDR_CNT(y),*yptr=INT(y); 
-    for (; i<yn; i++)
-        if (xi == yptr[i]) break; 
+    i64 i=0,yi=*INT(y),xn=HDR_CNT(x),*xptr=INT(x); 
+    for (; i<xn; i++)
+        if (yi == xptr[i]) break; 
     return i;
 }
 static inline i8    rankOf(K x){

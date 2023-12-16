@@ -50,7 +50,7 @@ static K compileApplyN(K r, i64 n){
 static K compileVarGet(K x, K r){
     // global get
     i64 ix;
-    if (!IS_LAMBDA(r) || (ix=symIndex(x,LAMBDA_ARGS(r))) == CNT(LAMBDA_ARGS(r)))
+    if (!IS_LAMBDA(r) || (ix=symIndex(LAMBDA_ARGS(r),x)) == CNT(LAMBDA_ARGS(r)))
         return addByte(compileConstant(r,x),OP_GET_GLOBAL);
     return addByte(r,OP_GET_ARG+ix);
 }

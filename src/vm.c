@@ -92,7 +92,7 @@ K run(K r, K *args, i64 argcnt){
 
         case OP_GET_GLOBAL:
             x=POP();
-            n=symIndex(x,KEY(globals));
+            n=symIndex(KEY(globals),x);
             unref(x);
             // if variable not defined
             if (n == HDR_CNT(KEY(globals))){
