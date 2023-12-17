@@ -191,7 +191,27 @@ K gradeDown(K x){
 }
 
 K not(K x){
-    return UNREF_X( kerr("'nyi! monad ~") );
+    if (TYP(x) && (ABS(TYP(x)) != KI))
+        return UNREF_X(kerr("'type! ~x - x must be int"));
+
+    K r,t;
+    i64 n=CNT(x);
+
+    // recurse if generic
+    if (!TYP(x)){
+        r=tn(KK,0);
+        for (i64 i=0; i<n; i++){
+            t=not(ref(OBJ(x)[i]));
+            if (IS_ERROR(t)) return UNREF_XR(t);
+            r=jk(r,t);
+        }
+        return UNREF_X(r);
+    }
+
+    // else simple vector 
+    r=tn(TYP(x),n);
+    for (i64 i=0; i<n; i++) INT(r)[i] = !INT(x)[i];
+    return UNREF_X(r);
 }
 
 K reverse(K x){
