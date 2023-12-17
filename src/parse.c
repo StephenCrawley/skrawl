@@ -224,7 +224,7 @@ static K classSwitch(Parser *p){
     c=isNum(p->current-1) ? '0' : class(a);
 
     switch (c){
-    case '0': x=(a=='0'&&peek(p)==':')?next(p),kuc(a):parseNum(dec(p)); if (p->error)return x; break;
+    case '0': x=(a=='0'&&*p->current==':')?inc(p),kuc(a):parseNum(dec(p)); if (p->error)return x; break;
     case '`': x=parseSym(dec(p)); break;
     case 'a': x=parseVar(dec(p)); break;
     case '"': x=parseStr(p); break;
