@@ -228,6 +228,19 @@ K index(K x, K y){
     i8  xt=TYP(x), yt=TYP(y);
     i64 xn=CNT(x), yn=CNT(y);
 
+    // handle dicts. indexed using find()
+    if (xt==KD){
+        // get the keys to search on
+        K k=KEY(x);
+        // find the indexes of the keys
+        K ix=find(ref(k),y);
+        // return if error finding keys
+        if (IS_ERROR(ix))
+            return UNREF_X(ix);
+        // index the dict values
+        return UNREF_X(index(ref(VAL(x)),ix));
+    }
+
     // if y is general list, index for each item
     if (!yt){
         r=tn(KK,0);
@@ -249,19 +262,6 @@ K index(K x, K y){
         if (IS_ERROR(r))
             return UNREF_XY(r);
         return UNREF_XY(kD(ref(KEY(y)),r));
-    }
-
-    // handle dicts. indexed using find()
-    if (xt==KD){
-        // get the keys to search on
-        K k=KEY(x);
-        // find the indexes of the keys
-        K ix=find(ref(k),y);
-        // return if error finding keys
-        if (IS_ERROR(ix))
-            return UNREF_X(ix);
-        // index the dict values
-        return UNREF_X(index(ref(OBJ(x)[1]),ix));
     }
 
     // handle table with sym index. this is treated as a dict index
