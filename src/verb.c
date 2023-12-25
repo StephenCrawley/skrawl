@@ -259,7 +259,7 @@ K findSym(K x, K y){
 }
 
 i64 vectorRank(K x){
-    if (IS_ATOM(x) || (TYP(x) == KK && CNT(x)==0))
+    if (IS_ATOM(x) || (TYP(x) == KK && CNT(x) == 0))
         return UNREF_X(0);
     return 1+vectorRank(first(x));
 }
@@ -274,8 +274,16 @@ K find(K x, K y){
     i64 xrank=vectorRank(ref(x));
     i64 yrank=vectorRank(ref(y));
 
+    // for x of rank n we look for objects of rank n-1
+    // so if xrank < yrank, call find recursively for each y
     if (xrank < yrank){
-        return UNREF_XY(kerr("'nyi! x?y where rank(x)<rank(y)"));
+        K r=tn(KK,0);
+        for (i64 i=0, yn=KCOUNT(y); i<yn; i++){
+            K t=find(ref(x),item(i,y));
+            if (IS_ERROR(t)) return UNREF_XYR(t);
+            r=jk(r,t);
+        }
+        return UNREF_XY(r);
     }
 
     if (xrank-yrank >= 2){
@@ -300,7 +308,22 @@ K find(K x, K y){
     switch (axt){
     case KI: /* KS is i64 so same logic applies */
     case KS: return UNREF_XY(findSym(x,y));
-    default: return UNREF_XY(kerr("'nyi! x?y (find) - type"));
+    default: {
+        i64 yn=KCOUNT(y);
+        K r=tn(IS_ATOM(y) ? -KI : KI,yn);
+        for (i64 i=0; i<yn; i++){
+            i64 j=0;
+            for (i64 xn=KCOUNT(x); j<xn; j++){
+                K t=match(item(i,y), item(j,x));
+                i64 found=*INT(t);
+                unref(t);
+                if (found)
+                    break;
+            }
+            INT(r)[i]=j;
+        }
+        return UNREF_XY(r);
+    }
     }
 }
 
