@@ -1,7 +1,7 @@
 #include "io.h"
 #include "object.h"
 
-#define MAX_LINE_LENGTH 128
+#define MAX_LINE_LENGTH 512
 
 // x is a KC object containing filename
 // reads file lines into a list of KC objects
