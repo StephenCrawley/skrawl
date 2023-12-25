@@ -13,7 +13,8 @@ enum {
     OP_APPLY_N,
     OP_POP,
     OP_RETURN,
-    OP_GET_ARG,
+    OP_SET_LOCAL,
+    OP_GET_LOCAL,
 };
 
 K compile(K);

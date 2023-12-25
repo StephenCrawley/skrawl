@@ -19,7 +19,7 @@ K run(K r, K *args, i64 argcnt){
     u8 instr; 
 
     // set up the stack. it is downward growing:
-    //     [ arg_n ]  function args pushed first
+    //     [ arg_8 ]  function args pushed first
     //     [  ...  ] 
     //     [ arg_1 ]  <- stack_base
     //     [ obj_1 ] 
@@ -27,11 +27,14 @@ K run(K r, K *args, i64 argcnt){
     //     [ empty ]
     //     [  ...  ]
     //     [ empty ]  <- max height (address=start of 'stack' array)
-    i8 stack_size=argcnt+*ip++; //first byte encodes max stack height
+
+    i8 ln = IS_LAMBDA(r) ? HDR_CNT(LAMBDA_LOCALS(r)) : 0;
+    i8 stack_size=*ip++ + 8 + ln;
     K stack[stack_size];
-    K *stack_base=stack+stack_size-argcnt;
+    K *stack_base=stack + stack_size - (8 + ln);
     K *top=stack_base;
-    for (i64 i=0; i<argcnt; i++) top[i]=args[i];
+    for (i64 i=0; i<argcnt; i++) top[i]=ref(args[i]); // add function args
+    for (i64 i=argcnt; i<(8 + ln); i++) top[i]=knul();  // fill empty args with nulls
 
     // constant pool pointer
     K *consts=CONSTANT_PTR(r);
@@ -46,10 +49,10 @@ K run(K r, K *args, i64 argcnt){
         instr=*ip++;
 
         // ternary step function to convert monads/dyads/adverbs opcodes to base opcode
-        switch (32u > (u32)(instr-OP_MONAD  ) ? OP_MONAD   :
-                32u > (u32)(instr-OP_DYAD   ) ? OP_DYAD    :
-                 6u > (u32)(instr-OP_ADVERB ) ? OP_ADVERB  : 
-                 3u > (u32)(instr-OP_GET_ARG) ? OP_GET_ARG : instr)
+        switch (32u > (u32)(instr-OP_MONAD    ) ? OP_MONAD     :
+                32u > (u32)(instr-OP_DYAD     ) ? OP_DYAD      :
+                 6u > (u32)(instr-OP_ADVERB   ) ? OP_ADVERB    : 
+                16u > (u32)(instr-OP_GET_LOCAL) ? OP_GET_LOCAL : instr)
         {
 
         case OP_MONAD:
@@ -121,10 +124,18 @@ K run(K r, K *args, i64 argcnt){
 
         case OP_RETURN:
             //printf("%03d OP_RETURN\n",instr);
-            return UNREF_R(POP());
+            x=POP();
+            while (top != (stack + stack_size)) unref(POP()); 
+            return UNREF_R(x);
+
+        case OP_SET_LOCAL:
+            //printf("%03d OP_SET_LOCAL\n",instr);
+            replace(&stack_base[*ip++],ref(*top));
+            break;
         
-        case OP_GET_ARG:
-            PUSH(ref(stack_base[instr-OP_GET_ARG]));
+        case OP_GET_LOCAL:
+            //printf("%03d OP_GET_LOCAL\n",instr);
+            PUSH(ref(stack_base[instr-OP_GET_LOCAL]));
             break;
 
         default:
@@ -134,7 +145,7 @@ K run(K r, K *args, i64 argcnt){
 
 run_error:
     // clean the stack
-    while (top < stack_base) unref(*top++);
+    while (top != (stack + stack_size)) unref(*top++);
     // return error
     return UNREF_R(x);
 }

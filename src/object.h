@@ -14,11 +14,15 @@
 #define UNREF_N_OBJS(x,n) {K*_x=(x);i64 _n=(n); for (i64 i=0; i<_n; i++) unref(_x[i]);}
 
 // lambda accessors
-// (bytecode; consts; literal sting; arguments)
-#define LAMBDA_OPCODE(x) ( OBJ(x)[0] )
-#define LAMBDA_CONSTS(x) ( OBJ(x)[1] )
-#define LAMBDA_STRING(x) ( OBJ(x)[2] )
-#define LAMBDA_ARGS(x)   ( OBJ(x)[3] )
+// (bytecode; consts; literal sting; parameters; locals)
+#define LAMBDA_OPCODE(x)  ( OBJ(x)[0] )
+#define LAMBDA_CONSTS(x)  ( OBJ(x)[1] )
+#define LAMBDA_STRING(x)  ( OBJ(x)[2] )
+#define LAMBDA_PARAMS(x)  ( OBJ(x)[3] )
+#define LAMBDA_LOCALS(x)  ( OBJ(x)[4] )
+#define LAMBDA_GLOBALS(x) ( OBJ(x)[5] )
+// this is for the compiler and VM 
+#define IS_LAMBDA(x) (HDR_CNT(x) == 6)
 
 // public object functions
 void unref(K);

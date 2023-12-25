@@ -6,8 +6,6 @@
 #define BYTES(x)     LAMBDA_OPCODE(x) //bytecodes accessor
 #define CONSTS(x)    LAMBDA_CONSTS(x) //constants accessor
 
-#define IS_LAMBDA(x) (HDR_CNT(x) != 2)
-
 // in this script x is the parse tree (or any child object within it)
 // and r is the object to be returned to the VM (see compile() below)
 
@@ -47,12 +45,54 @@ static K compileApplyN(K r, i64 n){
     return add2Bytes(r,OP_APPLY_N,n);
 }
 
-static K compileVarGet(K x, K r){
-    // global get
-    i64 ix;
-    if (!IS_LAMBDA(r) || (ix=symIndex(LAMBDA_ARGS(r),x)) == CNT(LAMBDA_ARGS(r)))
-        return addByte(compileConstant(r,x),OP_GET_GLOBAL);
-    return addByte(r,OP_GET_ARG+ix);
+static K compileGetVar(K r, K x){
+    // if not a lambda, get global
+    if (!IS_LAMBDA(r)){
+        r = compileConstant(r,x);
+        return IS_ERROR(r) ? r : addByte(r,OP_GET_GLOBAL);
+    }
+    
+    // if lambda, then global/param/local get
+    i64 i;
+
+    // get param
+    if ((i = symIndex(LAMBDA_PARAMS(r),x)) < CNT(LAMBDA_PARAMS(r))){
+        return addByte(r,OP_GET_LOCAL + i);
+    }
+    // get local
+    else if ((i = symIndex(LAMBDA_LOCALS(r),x)) < CNT(LAMBDA_LOCALS(r))){
+        return addByte(r, OP_GET_LOCAL + i + 8);
+    }
+    // get global
+    else {
+        if ((i = symIndex(LAMBDA_GLOBALS(r),x)) == CNT(LAMBDA_GLOBALS(r))){
+            LAMBDA_GLOBALS(r) = j2(LAMBDA_GLOBALS(r),ref(x));
+        }
+        r=compileConstant(r,x);
+        return IS_ERROR(r) ? r : addByte(r,OP_GET_GLOBAL);
+    }
+}
+
+static K compileSetLocal(K r, K y){
+    i64 i;
+
+    // first check if we're redefining a param
+    if ((i = symIndex(LAMBDA_PARAMS(r),y)) < CNT(LAMBDA_PARAMS(r))){
+        return add2Bytes(r,OP_SET_LOCAL,i);
+    }
+
+    // else we're setting a local 
+    // first check a global of the same name hasn't already been called from the function
+    if (symIndex(LAMBDA_GLOBALS(r),y) < CNT(LAMBDA_GLOBALS(r))){
+        return UNREF_R(kerr("'compile! local used before definition"));
+    }
+
+    // set the local
+    i = symIndex(LAMBDA_LOCALS(r),y);
+    if (i == CNT(LAMBDA_LOCALS(r))){
+        LAMBDA_LOCALS(r) = j2(LAMBDA_LOCALS(r), ref(y));
+    }
+    return add2Bytes(r,OP_SET_LOCAL,i + 8);
 }
 
 static K compileExprs(K x, K r){
@@ -64,7 +104,7 @@ static K compileExprs(K x, K r){
     // which we must unref because it's not part of the parse tree which is unref'd later 
     if (xt==KS && xn==1) return x=ks(*INT(x)), r=compileConstant(r,x), UNREF_X(r);
     // compile variable get
-    if (xt==-KS) return compileVarGet(x,r);
+    if (xt==-KS) return compileGetVar(r,x);
     // compile constant or ()
     if (xt!=KK || !xn) return compileConstant(r,x);
     // compile ,`a`b
@@ -73,7 +113,7 @@ static K compileExprs(K x, K r){
     if (xn==3 && IS_DYAD(*OBJ(x),TOK_COLON) && TYP(OBJ(x)[1])==-KS){
         r=compileExprs(OBJ(x)[2],r);
         if (IS_ERROR(r)) return r;
-        return compileConstAndOpcode(r,OBJ(x)[1],OP_SET_GLOBAL);
+        return IS_LAMBDA(r) ? compileSetLocal(r,OBJ(x)[1]) : compileConstAndOpcode(r,OBJ(x)[1],OP_SET_GLOBAL);
     }
 
     // handle (f;...) where f is applied to the subsequent elements
@@ -102,16 +142,17 @@ static u8 getMaxStackSize(u8 *b){
     u8 s=0,m=0;
     while (*b != OP_RETURN){
         u8 instr=*b++;
-        switch (32u > (u32)(instr-OP_MONAD  ) ? OP_MONAD   :
-                32u > (u32)(instr-OP_DYAD   ) ? OP_DYAD    :
-                 6u > (u32)(instr-OP_ADVERB ) ? OP_ADVERB  : 
-                 3u > (u32)(instr-OP_GET_ARG) ? OP_GET_ARG : instr){
+        switch (32u > (u32)(instr-OP_MONAD    ) ? OP_MONAD     :
+                32u > (u32)(instr-OP_DYAD     ) ? OP_DYAD      :
+                 6u > (u32)(instr-OP_ADVERB   ) ? OP_ADVERB    : 
+                16u > (u32)(instr-OP_GET_LOCAL) ? OP_GET_LOCAL : instr){
         case OP_CONSTANT:
             s++;
             m=MAX(s,m);
             b++;
             break;
-        case OP_SET_GLOBAL:
+        case OP_SET_GLOBAL: // fall through
+        case OP_SET_LOCAL:
             b++;
             break;
         case OP_APPLY_N:
@@ -121,7 +162,7 @@ static u8 getMaxStackSize(u8 *b){
         case OP_POP:     //fall through
             s--;
             break;
-        case OP_GET_ARG:
+        case OP_GET_LOCAL:
             s++;
             m=MAX(s,m);
             break;
@@ -136,7 +177,7 @@ static K compile0(K x, K r){
     if (CNT(x) && TYP(x)==KK && IS_MONAD(*OBJ(x),TOK_SEMICOLON)){
         for (i64 i=1,n=CNT(x)-1; i<=n; i++){
             r=compileExprs(OBJ(x)[i],r);
-            if (IS_ERROR(r)) return r;
+            if (IS_ERROR(r)) return UNREF_X(r);
             // append OP_POP if not last expression
             if (i != n) r=addByte(r,OP_POP);
         }
@@ -144,7 +185,7 @@ static K compile0(K x, K r){
     // else compile single expression
     else {
         r=compileExprs(x,r);
-        if (IS_ERROR(r)) return r;
+        if (IS_ERROR(r)) return UNREF_X(r);
     }
 
     r=addByte(r,OP_RETURN);
@@ -159,10 +200,12 @@ K compile(K x){
 }
 
 // x - parse tree
-// f - ("{x}";args) of lambda
+// f - ("{x}";params) of lambda
+// returns a lambda object
 K compileLambda(K x, K f){
-    x=compile0(x, j2(k2(tn(KX,1),tn(KK,0)),f));
+    //(opcodes;consts;"{x}";params;locals;globals)
+    x=compile0(x, jk(jk(j2(k2(tn(KX,1),tn(KK,0)),f),tn(KK,0)),tn(KK,0)));
     if (IS_ERROR(x)) return x;
-    HDR_RNK(x)=HDR_CNT(LAMBDA_ARGS(x));
-    return x;
+    HDR_RNK(x)=HDR_CNT(LAMBDA_PARAMS(x));
+    return tx(KL,x);
 }

@@ -247,7 +247,6 @@ static K classSwitch(Parser *p){
             p->error=x;
             return knul();
         }
-        x=tx(KL,x);
     }
 
     return parsePostfix(p,x);
