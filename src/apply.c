@@ -157,7 +157,7 @@ K apply(K x, K*y, i64 n){
         x=countMV(&OBJ(x)[1],CNT(x)-1) ? fillMV(x,y,n) : j2(x,kn(y,n));
         y=&OBJ(x)[1];
         n=CNT(x)-1;
-        REF_N_OBJS(y,n);
+        ref(*OBJ(x));REF_N_OBJS(y,n);
         return UNREF_X(apply(OBJ(x)[0],y,n));
     }
 
