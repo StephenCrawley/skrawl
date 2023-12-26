@@ -43,5 +43,6 @@ K readLines(K x){
         r=jk(r,kC0(buffer));
     }
 
+    fclose(file);
     return UNREF_X(r);
 }
