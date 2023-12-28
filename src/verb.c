@@ -366,7 +366,25 @@ K divide(K x, K y){
 }
 
 K join(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad ,") );
+    i8 xt = TYP(x);
+    i8 yt = TYP(y);
+
+    // NYI dicts
+    if (xt == KD || yt == KD){
+        return UNREF_XY(kerr("'nyi! dict joins"));
+    }
+
+    // everything else...
+
+    if (IS_ATOM(x) && IS_ATOM(y)){
+        return squeeze(k2(x,y));
+    }
+    else if (ABS(xt) != ABS(yt)){
+        return squeeze(j2(expand(x), expand(y)));
+    }
+    else {
+        return j2(x,y);
+    }
 }
 
 // x . y
