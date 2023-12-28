@@ -67,7 +67,7 @@ static void fillArgs(K*d, K*s, i64 n, i64 i){
     }
 }
 
-K (*adverb_table[])(K,K*,i64)={each,over,0,0,eachRight,eachLeft};
+K (*adverb_table[])(K,K*,i64)={each,over,scan,0,eachRight,eachLeft};
 
 // f'x, f'[x;y], ...
 K each(K x, K*y, i64 n){
@@ -207,6 +207,54 @@ K over(K x, K*y, i64 n){
 
 cleanup:
     unref(x);
+    UNREF_N_OBJS(y,m);
+    return r;
+}
+
+// f\x, x f\y, ...
+K scan(K x, K*y, i64 n){
+    // f/atom -> return atom
+    if (n == 1 && IS_ATOM(*y))
+        return UNREF_X(*y);
+
+    // r is initially set to the seed value
+    // m is the number of non-seed args
+    K r=tn(KK,0),t; 
+    i64 m=n; 
+    if (n == 1){
+        t=getIdentity(x,*y);
+    }
+    else {
+        t=*y;
+        y++; // consume the seed
+        m--; 
+    }
+
+    // how many iterations?
+    i64 cnt=iterCount(y,m);
+
+    // length error
+    if (cnt == -2){
+        replace(&r,kerr("'length!"));
+        goto cleanup;
+    }
+
+    // iterate
+    K args[8];
+    for (i64 i=(n == 1 && TYP(x) != KV); i<cnt; i++){
+        args[0]=t;
+        fillArgs(args+1,y,m,i);
+        t=apply(ref(x),args,m+1);
+        if (IS_ERROR(t)){
+            replace(&r,ref(t));
+            goto cleanup;
+        }
+        r=jk(r,ref(t));
+    }
+    r=squeeze(r);
+
+cleanup:
+    unref(x),unref(t);
     UNREF_N_OBJS(y,m);
     return r;
 }
