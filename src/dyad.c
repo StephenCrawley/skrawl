@@ -47,20 +47,22 @@ K execDyad(char op, K x, K y){
     // ensure x is a vector if one of the args is a vector
     if (IS_ATOM(x) || !IS_ATOM(y)) SWAP_XY();
     
-    // create return vector
-    i8 rt=IS_ATOM(x) ? -KI : KI ;
-    K r=tn(rt,xn);
-
     i8 axt=ABS(xt);
     i8 ayt=ABS(yt);
+
+    // create return vector
+    i8 rt=(axt == KC && ayt == KC && strchr("|&",op)) ? KC : KI;
+    if (IS_ATOM(x)) rt = -rt;
+    K r=tn(rt,xn);
+
     switch(op){
     case '+': DYAD_ITER(ADD); break;
     case '*': DYAD_ITER(PRD); break;
     case '=': DYAD_ITER(EQL); break;
     case '<': DYAD_ITER(LST); break;
     case '>': DYAD_ITER(GRT); break;
-    case '&': DYAD_ITER(MIN); break;
-    case '|': DYAD_ITER(MAX); break;
+    case '&': if (ABS(rt)==KC){DYAD_ITER_TYPE(MIN,CHR,CHR,CHR)} else {DYAD_ITER(MIN)} break;
+    case '|': if (ABS(rt)==KC){DYAD_ITER_TYPE(MAX,CHR,CHR,CHR)} else {DYAD_ITER(MAX)} break;
     default: r=UNREF_R(kerr("'nyi! dyad op"));
     }
 
