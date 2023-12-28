@@ -331,7 +331,7 @@ K parse(const char *src){
 
     // return if only whitespace or comment in input
     if ('/'==*src || sc("\n\0", peek(&p)))
-        return knul();
+        return ku(0);
 
     // parse Expressions
     r = Exprs(';', &p);
