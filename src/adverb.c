@@ -153,10 +153,18 @@ K eachRight(K x, K*y, i64 n){
 // eg if f is + then seed is 0 (0+/x)
 //    if f is * then seed is 1 (1*/x)
 K getIdentity(K x, K y){
+    // unknown identity
     if (TYP(x) != KV){
         return KCOUNT(y) ? item(0,y) : ref(y);
     }
-    return ki((TAG_VAL(x) == TOK_PLUS) ? 0 : 1);
+
+    // ,/
+    if (TAG_VAL(x) == TOK_COMMA) return tn(KK,0);
+
+    // 0+/ llmin|/ llmax&/ 1*/ 
+    return ki((TAG_VAL(x) == TOK_PLUS) ? 0 : 
+              (TAG_VAL(x) == TOK_PIPE) ? INULL : 
+              (TAG_VAL(x) == TOK_AND)  ? INULL-1 : 1);
 }
 
 // f/x, x f/y, ...
