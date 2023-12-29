@@ -374,7 +374,7 @@ K add(K x, K y){
 }
 
 K subtract(K x, K y){
-    return UNREF_XY( kerr("'nyi! dyad -") );
+    return execDyad('+',x,neg(y));
 }
 
 K multiply(K x, K y){

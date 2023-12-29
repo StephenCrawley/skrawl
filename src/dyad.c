@@ -5,6 +5,7 @@
 
 // dyad op macros
 #define ADD(x,y) (x+y)
+#define SUB(x,y) (x-y)
 #define PRD(x,y) (x*y)
 #define EQL(x,y) (x==y)
 #define GRT(x,y) (x>y)
