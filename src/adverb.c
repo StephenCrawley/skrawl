@@ -222,7 +222,7 @@ K scan(K x, K*y, i64 n){
     K r,t; 
     i64 m=n; 
     if (n == 1){
-        t=getIdentity(x,*y);
+        t=item(0,*y);
         r=k1(ref(t));
     }
     else {
