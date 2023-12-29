@@ -219,15 +219,17 @@ K scan(K x, K*y, i64 n){
 
     // r is initially set to the seed value
     // m is the number of non-seed args
-    K r=tn(KK,0),t; 
+    K r,t; 
     i64 m=n; 
     if (n == 1){
         t=getIdentity(x,*y);
+        r=k1(ref(t));
     }
     else {
         t=*y;
         y++; // consume the seed
         m--; 
+        r=tn(KK,0);
     }
 
     // how many iterations?
@@ -241,7 +243,7 @@ K scan(K x, K*y, i64 n){
 
     // iterate
     K args[8];
-    for (i64 i=(n == 1 && TYP(x) != KV); i<cnt; i++){
+    for (i64 i=(n == 1); i<cnt; i++){
         args[0]=t;
         fillArgs(args+1,y,m,i);
         t=apply(ref(x),args,m+1);
